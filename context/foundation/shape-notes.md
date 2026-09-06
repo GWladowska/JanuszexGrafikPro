@@ -7,9 +7,9 @@ product_type: web-app
 target_scale:
   users: medium
 timeline_budget:
-  mvp_weeks: 3
+  mvp_weeks: 1
   hard_deadline: 2026-09-14
-  after_hours_only: true
+  after_hours_only: false
 checkpoint:
   current_phase: 8
   phases_completed: [1, 2, 3, 4, 5, 6, 7]
