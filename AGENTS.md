@@ -12,14 +12,10 @@ JanuszexGrafikPro is an Astro 6 full-SSR web app (React 19 islands, Tailwind 4, 
 
 ## Commands
 
-- `npm run dev` — dev server on Cloudflare workerd (start local Supabase first with `npx supabase start`; requires Docker)
-- `npm run build` — production SSR build (`@astrojs/cloudflare`)
-- `npm run preview` — preview the production build
-- `npm run lint` / `npm run lint:fix` — ESLint with strict type-checked rules
-- `npm run format` — Prettier (astro + tailwind plugins)
-- Deploy — `npx wrangler deploy` (requires `wrangler` auth)
-
-Pre-commit: husky + lint-staged auto-runs `eslint --fix` on `*.{ts,tsx,astro}` and `prettier --write` on `*.{json,css,md}`.
+- All scripts (`dev`, `build`, `preview`, `lint`, `format`) are in @package.json.
+- `npm run dev` runs on Cloudflare workerd — start local Supabase first with `npx supabase start` (requires Docker).
+- Deploy — `npx wrangler deploy` (requires `wrangler` auth).
+- Pre-commit auto-runs `eslint --fix` + `prettier --write` via husky + lint-staged (see `lint-staged` in @package.json).
 
 ## Architecture & Auth Flow
 
