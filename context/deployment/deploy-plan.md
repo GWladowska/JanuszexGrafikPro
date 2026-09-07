@@ -180,3 +180,15 @@ Dlaczego: publikacja następuje automatycznie po pushu. Jeśli ktoś wypchnie b�
 
 1. Finalna subdomena `*.workers.dev` znana dopiero po pierwszej publikacji (Faza 1) — podmień placeholder `<subdomena-konta>` w notatkach.
 2. Czy włączyć podglądowe wersje dla PR-ów od razu? Rekomendacja: **tak** — darmowe, izolowane od produkcji.
+
+## Podsumowanie wykonania (2026-09-07)
+
+- **Adres produkcyjny:** `https://januszex-grafik-pro.g-wladowska.workers.dev` (subdomena konta: `g-wladowska`).
+- **Stan:** wdrożone; CI + Workers Builds + ochrona `master` aktywne; rollback przećwiczony; rejestracja e2e do potwierdzenia ręcznie.
+- **Korekta architektury (ważna):** w `@astrojs/cloudflare` v13 wartości `astro:env/server` są czytane w **runtime** z bindingów Workera (`env.SUPABASE_*`), a NIE „wypiekane" w buildzie. Dlatego `SUPABASE_URL` i `SUPABASE_KEY` ustawiono jako **sekrety workera** (`wrangler secret put`), a nie w „Build variables" (te nie trafiają do kodu). Fazy 4/E6 planu opisujące build-time należy czytać przez ten pryzmat; `AGENTS.md` i `tech-stack.md` zaktualizowane zgodnie z rzeczywistością.
+- **Binding KV:** namespace `januszex-grafik-pro-session` (`c298b4f9345a447ab6e03dba13595b8f`) — wpisany jawnie do `wrangler.jsonc` jako `SESSION`.
+- **Supabase:** Site URL + Redirect URL ustawione na adres produkcyjny i `http://localhost:4321`.
+- **Auto-deploy:** Workers Builds podpięty do `GWladowska/JanuszexGrafikPro` (gałąź produkcyjna `master`, build `npm run build`, deploy `npx wrangler deploy`). Zweryfikowano: merg PR #1 sam opublikował nową wersję (`sitemap-index.xml` → 200 bez ręcznego deployu).
+- **Ochrona gałęzi:** ruleset „Protect" na `master` (wymagany PR + status `ci`).
+- **Rollback:** przećwiczony (`npx wrangler rollback` cofnął kod; przywrócono deployem). Rollback nie cofa sekretów/bindinguów.
+- **Pozostało:** (1) e2e rejestracja → mail → logowanie → `/dashboard` na produkcji (krok ręczny), (2) opcjonalnie preview builds dla PR-ów, (3) opcjonalnie repo secrets `SUPABASE_URL`/`SUPABASE_KEY` dla wierniejszego builda CI.
