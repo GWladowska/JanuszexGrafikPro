@@ -9,12 +9,15 @@ JanuszexGrafikPro is an Astro 6 full-SSR web app (React 19 islands, Tailwind 4, 
 - Use React `.tsx` only where interactivity is needed; static UI belongs in `.astro`.
 - Extract React hooks to `src/components/hooks/`; shared services/helpers to `src/lib/` (or `src/lib/services/`); shared types to `src/types.ts`.
 - Server secrets come from `astro:env/server` (`SUPABASE_URL`, `SUPABASE_KEY` in @astro.config.mjs) and are optional — `createClient()` in @src/lib/supabase.ts returns `null` when unset, so always guard on it.
+- Wartości `SUPABASE_URL`/`SUPABASE_KEY` są czytane w **runtime** z bindingów Workera (`astro:env` → `env.SUPABASE_*`), nie są wypiekane w buildzie. Rotacja klucza = `wrangler secret put SUPABASE_KEY` (albo dashboard → Variables & Secrets) + redeploy. „Build variables" z panelu Builds **nie** trafiają do kodu.
 
 ## Commands
 
 - All scripts (`dev`, `build`, `preview`, `lint`, `format`) are in @package.json.
 - `npm run dev` runs on Cloudflare workerd — start local Supabase first with `npx supabase start` (requires Docker).
-- Deploy — `npx wrangler deploy` (requires `wrangler` auth).
+- Deploy target = Cloudflare **Workers** przez `@astrojs/cloudflare` v13+ (Cloudflare Pages jest wycofywane — nie używać komend `wrangler pages`).
+- Produkcję publikuje **Workers Builds** po mergu na `master` (`npm run build` + `npx wrangler deploy`). GitHub Actions to tylko quality gate — nigdy nie publikuje.
+- Ręczny deploy: `npx wrangler deploy` (wymaga `wrangler` auth); cofnięcie: `npx wrangler rollback`.
 - Pre-commit auto-runs `eslint --fix` + `prettier --write` via husky + lint-staged (see `lint-staged` in @package.json).
 
 ## Architecture & Auth Flow
