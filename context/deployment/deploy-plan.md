@@ -7,8 +7,8 @@ source_contracts:
   - context/foundation/tech-stack.md
 platform: Cloudflare Workers (plan Free, $0/mo)
 auto_deploy: Workers Builds (natywna integracja Cloudflare z Gitem)
-status: plan-do-akceptacji
-note: Po akceptacji wykonać zgodnie z konwencją 10x m1l5 jako context/deployment/deploy-plan.md
+status: wdrozone-2026-09-07
+note: Wdrożenie wykonane 2026-09-07 (test e2e rejestracji zaliczony). Szczegóły w sekcji „Podsumowanie wykonania".
 ---
 
 # Plan: Wdrożenie aplikacji na Cloudflare Workers
