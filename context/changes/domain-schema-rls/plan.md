@@ -349,16 +349,16 @@ Scenariusz izolacji zapisany jako commitowany plik `supabase/tests/rls_isolation
 
 #### Automated
 
-- [ ] 3.1 `npm run db:types` generuje `src/lib/database.types.ts`
-- [ ] 3.1a Plik zawiera `export interface Database` i nazwy tabel domenowych (guard przed pustym plikiem)
-- [ ] 3.2 `npx supabase db reset` wykonuje seed bez błędów
-- [ ] 3.3 Seed tworzy konto i komplet danych
-- [ ] 3.4 `npx astro sync` + `npm run lint` + `npm run build` przechodzą z typami
+- [x] 3.1 `npm run db:types` generuje `src/lib/database.types.ts` — 60f588f
+- [x] 3.1a Plik zawiera `export interface Database` i nazwy tabel domenowych (guard przed pustym plikiem) — 60f588f
+- [x] 3.2 `npx supabase db reset` wykonuje seed bez błędów — 60f588f
+- [x] 3.3 Seed tworzy konto i komplet danych — 60f588f
+- [x] 3.4 `npx astro sync` + `npm run lint` + `npm run build` przechodzą z typami — 60f588f
 
 #### Manual
 
-- [ ] 3.5 Logowanie kontem z seeda → `/dashboard` działa lokalnie
-- [ ] 3.6 Dane z seeda widoczne i spójne w Studio
+- [x] 3.5 Logowanie kontem z seeda → `/dashboard` działa lokalnie — 60f588f
+- [x] 3.6 Dane z seeda widoczne i spójne w Studio — 60f588f
 
 ### Phase 4: Wdrożenie na Supabase (ręczne)
 

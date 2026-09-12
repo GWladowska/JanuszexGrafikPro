@@ -1,0 +1,3 @@
+# Wygenerowany plik typów bazy (`npm run db:types`) — nie formatować,
+# żeby prettier nie walczył z generatorem i pre-commit hookiem.
+src/lib/database.types.ts

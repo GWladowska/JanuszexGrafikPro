@@ -6,8 +6,9 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro",
-    "lint": "eslint .",
+  "astro": "astro",
+  "db:types": "supabase gen types typescript --local > src/lib/database.types.ts",
+  "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write ."
   },

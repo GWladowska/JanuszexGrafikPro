@@ -15,6 +15,8 @@ JanuszexGrafikPro is an Astro 6 full-SSR web app (React 19 islands, Tailwind 4, 
 
 - All scripts (`dev`, `build`, `preview`, `lint`, `format`) are in @package.json.
 - `npm run dev` runs on Cloudflare workerd — start local Supabase first with `npx supabase start` (requires Docker).
+- Migrations: `npx supabase migration new <nazwa>` (plik w `supabase/migrations/`), lokalnie `npx supabase db reset` (migracje + seed), na produkcję ręcznie `npx supabase link` + `npx supabase db push`. Seed (`supabase/seed.sql`) tylko lokalnie — nigdy na zdalnym projekcie.
+- Refresh DB types: `npm run db:types` → `src/lib/database.types.ts` (committed, excluded from eslint/prettier).
 - Deploy target = Cloudflare **Workers** przez `@astrojs/cloudflare` v13+ (Cloudflare Pages jest wycofywane — nie używać komend `wrangler pages`).
 - Produkcję publikuje **Workers Builds** po mergu na `master` (`npm run build` + `npx wrangler deploy`). GitHub Actions to tylko quality gate — nigdy nie publikuje.
 - Ręczny deploy: `npx wrangler deploy` (wymaga `wrangler` auth); cofnięcie: `npx wrangler rollback`.
