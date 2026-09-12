@@ -267,13 +267,13 @@ Brak migracji — schemat i RLS z F-01 bez zmian. Dane seedowe są kompatybilne 
 
 #### Automated
 
-- [x] 3.1 `npx astro sync` przechodzi
-- [x] 3.2 `npm run lint` przechodzi
-- [x] 3.3 `npm run build` przechodzi
+- [x] 3.1 `npx astro sync` przechodzi — bf3c084
+- [x] 3.2 `npm run lint` przechodzi — bf3c084
+- [x] 3.3 `npm run build` przechodzi — bf3c084
 
 #### Manual
 
-- [x] 3.4 E2E tworzenie: świeża rejestracja → `/business/setup` → zapis → dashboard pokazuje podgląd
-- [x] 3.5 E2E edycja: konto seedowe → `/business` → zmiana nazwy i godzin; dzień zamknięty usuwa wiersz
-- [x] 3.6 Walidacje: `closes < opens` i pusta nazwa blokowane client i server
-- [x] 3.7 Bezpośrednie wejście niezalogowanego na `/business` i `/business/setup` → redirect `/auth/signin`
+- [x] 3.4 E2E tworzenie: świeża rejestracja → `/business/setup` → zapis → dashboard pokazuje podgląd — bf3c084
+- [x] 3.5 E2E edycja: konto seedowe → `/business` → zmiana nazwy i godzin; dzień zamknięty usuwa wiersz — bf3c084
+- [x] 3.6 Walidacje: `closes < opens` i pusta nazwa blokowane client i server — bf3c084
+- [x] 3.7 Bezpośrednie wejście niezalogowanego na `/business` i `/business/setup` → redirect `/auth/signin` — bf3c084
