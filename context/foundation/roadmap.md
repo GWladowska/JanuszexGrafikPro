@@ -162,16 +162,16 @@ Foundations poniżej zakładają, że te warstwy są obecne, i NIE budują ich o
 
 ## Backlog Handoff
 
-| Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
-|---|---|---|---|---|
-| F-01 | domain-schema-rls | Schemat domeny: biznes, godziny, pracownicy, dostępności, grafiki + RLS | yes | Run `/10x-plan domain-schema-rls` |
-| S-01 | business-opening-hours | Ustawienie biznesu i godzin otwarcia | no | Czeka na F-01 |
-| S-02 | employee-management | Zarządzanie pracownikami biznesu | no | Czeka na S-01 |
-| S-03 | availability-management | Dostępności pracowników (CRUD ręczne) | no | Czeka na S-02 |
-| S-04 | schedule-draft-generation | Generowanie draftu grafiku i widok dziur | no | Czeka na S-03 |
-| S-05 | schedule-editing-collisions | Edycja draftu z ostrzeżeniami o kolizjach | no | Czeka na S-04 |
-| S-06 | save-complete-schedule | Zapis kompletnego grafiku (walidacja dziur) | no | Czeka na S-05 |
-| S-07 | schedule-text-export | Kopiowanie tekstowego widoku grafiku | no | Czeka na S-06 |
+| Roadmap ID | Change ID | Issue | Suggested issue title | Ready for `/10x-plan` | Notes |
+|---|---|---|---|---|---|
+| F-01 | domain-schema-rls | [#4](https://github.com/GWladowska/JanuszexGrafikPro/issues/4) | Schemat domeny: biznes, godziny, pracownicy, dostępności, grafiki + RLS | yes | Run `/10x-plan domain-schema-rls` |
+| S-01 | business-opening-hours | [#5](https://github.com/GWladowska/JanuszexGrafikPro/issues/5) | Ustawienie biznesu i godzin otwarcia | no | Czeka na F-01 |
+| S-02 | employee-management | [#6](https://github.com/GWladowska/JanuszexGrafikPro/issues/6) | Zarządzanie pracownikami biznesu | no | Czeka na S-01 |
+| S-03 | availability-management | [#7](https://github.com/GWladowska/JanuszexGrafikPro/issues/7) | Dostępności pracowników (CRUD ręczne) | no | Czeka na S-02 |
+| S-04 | schedule-draft-generation | [#8](https://github.com/GWladowska/JanuszexGrafikPro/issues/8) | Generowanie draftu grafiku i widok dziur | no | Czeka na S-03 |
+| S-05 | schedule-editing-collisions | [#9](https://github.com/GWladowska/JanuszexGrafikPro/issues/9) | Edycja draftu z ostrzeżeniami o kolizjach | no | Czeka na S-04 |
+| S-06 | save-complete-schedule | [#10](https://github.com/GWladowska/JanuszexGrafikPro/issues/10) | Zapis kompletnego grafiku (walidacja dziur) | no | Czeka na S-05 |
+| S-07 | schedule-text-export | [#11](https://github.com/GWladowska/JanuszexGrafikPro/issues/11) | Kopiowanie tekstowego widoku grafiku | no | Czeka na S-06 |
 
 ## Open Roadmap Questions
 
