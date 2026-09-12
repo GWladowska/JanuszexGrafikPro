@@ -318,32 +318,32 @@ Scenariusz izolacji zapisany jako commitowany plik `supabase/tests/rls_isolation
 
 #### Automated
 
-- [x] 1.1 `npx supabase db reset` stosuje migrację schematu bez błędów
-- [x] 1.2 Tabele domenowe i typ `schedule_status` istnieją
-- [x] 1.3 Ograniczenia CHECK i UNIQUE odrzucają niepoprawne godziny, weekday i duplikat dnia
-- [x] 1.4 `week_start` inny niż poniedziałek jest odrzucany
-- [x] 1.5 Klucze złożone odrzucają `business_id` niezgodny z pracownikiem/grafikiem
-- [x] 1.6 `npx astro sync` + `npm run lint` + `npm run build` przechodzą
+- [x] 1.1 `npx supabase db reset` stosuje migrację schematu bez błędów — fb05ac7
+- [x] 1.2 Tabele domenowe i typ `schedule_status` istnieją — fb05ac7
+- [x] 1.3 Ograniczenia CHECK i UNIQUE odrzucają niepoprawne godziny, weekday i duplikat dnia — fb05ac7
+- [x] 1.4 `week_start` inny niż poniedziałek jest odrzucany — fb05ac7
+- [x] 1.5 Klucze złożone odrzucają `business_id` niezgodny z pracownikiem/grafikiem — fb05ac7
+- [x] 1.6 `npx astro sync` + `npm run lint` + `npm run build` przechodzą — fb05ac7
 
 #### Manual
 
-- [x] 1.7 Przegląd schematu w Supabase Studio zgodny z modelem
+- [x] 1.7 Przegląd schematu w Supabase Studio zgodny z modelem — fb05ac7
 
 ### Phase 2: Migracja reguł RLS
 
 #### Automated
 
-- [ ] 2.1 `npx supabase db reset` stosuje migrację RLS bez błędów
-- [ ] 2.2 RLS włączone na wszystkich sześciu tabelach
-- [ ] 2.3 Zapytania użytkownika A nie zwracają danych użytkownika B
-- [ ] 2.4 Wstawienie wiersza z cudzym `business_id` jest odrzucane
-- [ ] 2.4a `supabase/tests/rls_isolation.sql` istnieje i potwierdza scenariusze izolacji
-- [ ] 2.5 `npx astro sync` + `npm run lint` + `npm run build` przechodzą
+- [x] 2.1 `npx supabase db reset` stosuje migrację RLS bez błędów — d523166
+- [x] 2.2 RLS włączone na wszystkich sześciu tabelach — d523166
+- [x] 2.3 Zapytania użytkownika A nie zwracają danych użytkownika B — d523166
+- [x] 2.4 Wstawienie wiersza z cudzym `business_id` jest odrzucane — d523166
+- [x] 2.4a `supabase/tests/rls_isolation.sql` istnieje i potwierdza scenariusze izolacji — d523166
+- [x] 2.5 `npx astro sync` + `npm run lint` + `npm run build` przechodzą — d523166
 
 #### Manual
 
-- [ ] 2.6 Zapytanie do `businesses` jako zalogowany użytkownik działa bez rekurencji RLS
-- [ ] 2.7 Dwukontowy test w Studio potwierdza izolację
+- [x] 2.6 Zapytanie do `businesses` jako zalogowany użytkownik działa bez rekurencji RLS — d523166
+- [x] 2.7 Dwukontowy test w Studio potwierdza izolację — d523166
 
 ### Phase 3: Typy, seed i narzędzia
 
