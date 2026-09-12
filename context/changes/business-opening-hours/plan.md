@@ -256,12 +256,12 @@ Brak migracji — schemat i RLS z F-01 bez zmian. Dane seedowe są kompatybilne 
 
 #### Automated
 
-- [ ] 2.1 `npm run lint` przechodzi
-- [ ] 2.2 `npm run build` przechodzi
+- [x] 2.1 `npm run lint` przechodzi — ff4e9fd
+- [x] 2.2 `npm run build` przechodzi — ff4e9fd
 
 #### Manual
 
-- [ ] 2.3 Smoke-test API: 401 bez sesji, 400 walidacja, 409 duplikat, happy path 201/200
+- [x] 2.3 Smoke-test API: 401 bez sesji, 400 walidacja, 409 duplikat, happy path 201/200 — ff4e9fd
 
 ### Phase 3: Strony i islandy
 
