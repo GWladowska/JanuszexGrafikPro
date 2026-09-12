@@ -364,11 +364,11 @@ Scenariusz izolacji zapisany jako commitowany plik `supabase/tests/rls_isolation
 
 #### Automated
 
-- [ ] 4.1 `npx supabase migration list --linked` pokazuje zgodność wersji
+- [x] 4.1 `npx supabase migration list --linked` pokazuje zgodność wersji
 
 #### Manual
 
-- [ ] 4.2 `npx supabase link` wykonany na projekcie produkcyjnym
-- [ ] 4.3 `npx supabase db push` stosuje migracje na produkcji
-- [ ] 4.4 Zdalna baza ma tabele i RLS (smoke test w Studio)
-- [ ] 4.5 Potwierdzone, że seed nie trafił na produkcję
+- [x] 4.2 `npx supabase link` wykonany na projekcie produkcyjnym
+- [x] 4.3 `npx supabase db push` stosuje migracje na produkcji
+- [x] 4.4 Zdalna baza ma tabele i RLS (smoke test w Studio)
+- [x] 4.5 Potwierdzone, że seed nie trafił na produkcję
