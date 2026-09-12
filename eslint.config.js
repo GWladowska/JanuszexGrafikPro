@@ -69,6 +69,9 @@ const astroConfig = tseslint.config({
     "astro/no-set-html-directive": "error",
     "astro/no-unused-css-selector": "warn",
     "astro/prefer-class-list-directive": "warn",
+    // astro-eslint-parser nie reprezentuje top-level `return` w frontmatter (wzorzec `return Astro.redirect(...)`),
+    // przez co ta reguła crashuje lintera na plikach stron — wyłączona tylko dla .astro (Aktywna dla .ts/.tsx).
+    "@typescript-eslint/no-misused-promises": "off",
   },
 });
 

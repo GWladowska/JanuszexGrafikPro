@@ -15,7 +15,7 @@ export function isClosedDay(day: OpeningHoursDay): day is ClosedDay {
   return "closed" in day;
 }
 
-export type OpeningWeekFieldErrors = Record<string, string>;
+export type OpeningWeekFieldErrors = Partial<Record<string, string>>;
 
 export type BusinessNameParseResult = { value: string; fieldError: null } | { value: null; fieldError: string };
 

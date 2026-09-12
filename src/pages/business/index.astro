@@ -1,0 +1,49 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import BusinessNameForm from "@/components/business/BusinessNameForm";
+import BusinessHoursForm from "@/components/business/BusinessHoursForm";
+import { createClient } from "@/lib/supabase";
+import { getBusinessForOwner, getOpeningHours } from "@/lib/services/business";
+import { fillClosedDays } from "@/components/business/opening-hours";
+
+const user = Astro.locals.user;
+if (!user) {
+  return Astro.redirect("/auth/signin");
+}
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+if (!supabase) {
+  return Astro.redirect("/auth/signin");
+}
+
+const businessResult = await getBusinessForOwner(supabase, user.id);
+if (!businessResult.data) {
+  return Astro.redirect("/business/setup");
+}
+const business = businessResult.data;
+
+const hoursResult = await getOpeningHours(supabase, business.id);
+const initialDays = fillClosedDays(hoursResult.data ?? []);
+---
+
+<Layout title="Twój biznes">
+  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
+    <div class="w-full max-w-xl space-y-6">
+      <div class="rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
+        <h1 class="mb-6 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
+          Twój biznes
+        </h1>
+        <BusinessNameForm businessId={business.id} currentName={business.name} client:load />
+      </div>
+
+      <div class="rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
+        <h2 class="mb-4 text-lg font-semibold text-blue-100">Godziny otwarcia</h2>
+        <BusinessHoursForm initialDays={initialDays} client:load />
+      </div>
+
+      <p class="text-center">
+        <a href="/dashboard" class="text-sm text-purple-300 hover:underline">Wróć do dashboardu</a>
+      </p>
+    </div>
+  </div>
+</Layout>

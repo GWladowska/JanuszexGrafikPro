@@ -40,6 +40,22 @@ export async function getBusinessForOwner(
   return { data, error: null };
 }
 
+export async function getOpeningHours(
+  supabase: Supabase,
+  businessId: string,
+): Promise<ServiceResult<OpeningHoursDay[]>> {
+  const { data, error } = await supabase
+    .from("opening_hours")
+    .select("*")
+    .eq("business_id", businessId)
+    .order("weekday", { ascending: true });
+
+  if (error) {
+    return { data: null, error };
+  }
+  return { data: toOpeningHoursDays(data), error: null };
+}
+
 export async function createBusiness(
   supabase: Supabase,
   ownerId: string,
