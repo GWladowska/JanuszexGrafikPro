@@ -1,7 +1,7 @@
 ---
 change_id: domain-schema-rls
 title: Schemat domeny z migracjami i RLS
-status: implementing
+status: implemented
 created: 2026-09-12
 updated: 2026-09-12
 archived_at: null
