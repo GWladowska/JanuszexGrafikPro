@@ -369,7 +369,7 @@ Trzy poprawki zgłoszone podczas weryfikacji E2E fazy 3 — poza pierwotnym zakr
 
 #### Automated
 
-- [ ] A.1 `npx astro sync` + `npm run lint` + `npx astro check` + `npm run build` czyste
+- [x] A.1 `npx astro sync` + `npm run lint` + `npx astro check` + `npm run build` czyste — ca49e4b
 
 #### Manual
 
