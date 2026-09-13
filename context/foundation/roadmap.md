@@ -39,6 +39,7 @@ Rdzeń hipotezy produktu — założenie, że jeśli się nie sprawdzi, reszta n
 | S-05 | schedule-editing-collisions | ręcznie modyfikować draft; kolizje z niedostępnością są sygnalizowane przed zapisem | S-04 | FR-009, FR-010, US-01, US-03 | proposed |
 | S-06 | save-complete-schedule | zapisać kompletny grafik — dziury nie mogą zostać zapisane po cichu | S-05 | FR-011, US-01, Guardrails | proposed |
 | S-07 | schedule-text-export | skopiować tekstowy widok zapisanego grafiku (jedna akcja) i wkleić go na Messengera/WhatsAppa | S-06 | FR-012, US-02 | proposed |
+| S-08 | schedule-archive | przeglądać zapisane grafiki minionych tygodni (widok read-only) | S-06 | NFR trwałość danych; decyzja user 2026-09-13 | proposed |
 
 ## Baseline
 
@@ -160,6 +161,19 @@ Foundations poniżej zakładają, że te warstwy są obecne, i NIE budują ich o
 - **Risk:** NFR "układ nie łamie się po wklejeniu" wymaga testu z prawdziwym Messengerem/WhatsAppem. Bez tego brak udostępnienia załodze (drugie kryterium primary), dlatego po zapisie.
 - **Status:** proposed
 
+### S-08: Archiwum zapisanych grafików
+
+- **Outcome:** użytkownik przegląda zapisane grafiki minionych tygodni — widok read-only per tydzień, z nawigacją tygodniową spójną z dostępnościami (S-03).
+- **Change ID:** schedule-archive
+- **PRD refs:** NFR trwałość danych ("Zapisany grafik… nie znikają między sesjami"); rozszerzenie poza FR — decyzja użytkownika 2026-09-13 podczas planowania S-03 (spójność nawigacji tygodniowej dostępności ↔ grafików).
+- **Prerequisites:** S-06
+- **Parallel with:** S-07
+- **Blockers:** —
+- **Unknowns:**
+  - —
+- **Risk:** Poza krytyczną ścieżką north star (primary criteria zamykają się na S-07) — pierwszy kandydat do obcięcia, jeśli deadline 2026-09-14 zaciśnie plan. Koszt niski: widok read-only reużyjący wzorzec nawigacji tygodniowej z S-03 i tekstowy widok z S-07. Sekwencja po S-06, bo bez zapisanych grafików nie ma czego archiwizować.
+- **Status:** proposed
+
 ## Backlog Handoff
 
 | Roadmap ID | Change ID | Issue | Suggested issue title | Ready for `/10x-plan` | Notes |
@@ -172,6 +186,7 @@ Foundations poniżej zakładają, że te warstwy są obecne, i NIE budują ich o
 | S-05 | schedule-editing-collisions | [#9](https://github.com/GWladowska/JanuszexGrafikPro/issues/9) | Edycja draftu z ostrzeżeniami o kolizjach | no | Czeka na S-04 |
 | S-06 | save-complete-schedule | [#10](https://github.com/GWladowska/JanuszexGrafikPro/issues/10) | Zapis kompletnego grafiku (walidacja dziur) | no | Czeka na S-05 |
 | S-07 | schedule-text-export | [#11](https://github.com/GWladowska/JanuszexGrafikPro/issues/11) | Kopiowanie tekstowego widoku grafiku | no | Czeka na S-06 |
+| S-08 | schedule-archive | — | Archiwum zapisanych grafików (widok read-only) | no | Czeka na S-06; równoległe z S-07; issue do utworzenia |
 
 ## Open Roadmap Questions
 

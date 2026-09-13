@@ -16,7 +16,7 @@ export interface BusinessCreationInput {
   openingHours?: OpeningHoursDay[];
 }
 
-function normalizeTime(value: string): string {
+export function normalizeTime(value: string): string {
   return value.length > 5 ? value.slice(0, 5) : value;
 }
 
