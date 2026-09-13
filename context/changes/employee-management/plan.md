@@ -241,17 +241,17 @@ Brak zmian w bazie — `employees` i RLS są już na produkcji (F-01, push 2026-
 
 #### Automated
 
-- [x] 1.1 `npx astro sync` przechodzi
-- [x] 1.2 `npm run lint` przechodzi
-- [x] 1.3 `npm run build` kończy się sukcesem
+- [x] 1.1 `npx astro sync` przechodzi — 9a079d4
+- [x] 1.2 `npm run lint` przechodzi — 9a079d4
+- [x] 1.3 `npm run build` kończy się sukcesem — 9a079d4
 
 ### Phase 2: Endpointy API /api/employees
 
 #### Automated
 
-- [ ] 2.1 `npx astro sync` przechodzi
-- [ ] 2.2 `npm run lint` przechodzi
-- [ ] 2.3 `npm run build` kończy się sukcesem
+- [x] 2.1 `npx astro sync` przechodzi
+- [x] 2.2 `npm run lint` przechodzi
+- [x] 2.3 `npm run build` kończy się sukcesem
 
 ### Phase 3: Strona /employees i nawigacja
 
