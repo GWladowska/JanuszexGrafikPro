@@ -6,6 +6,9 @@ export const ERROR_DUPLICATE_BUSINESS = "Masz już swój biznes";
 export const ERROR_BUSINESS_NOT_FOUND = "Nie znaleziono biznesu.";
 export const ERROR_DUPLICATE_EMPLOYEE = "Pracownik o takim imieniu i nazwisku oraz e-mailu już jest na liście.";
 export const ERROR_EMPLOYEE_NOT_FOUND = "Nie znaleziono pracownika.";
+export const ERROR_AVAILABILITY_NOT_FOUND = "Nie znaleziono wpisu dostępności.";
+export const ERROR_OVERLAPPING_AVAILABILITY =
+  "Ten pracownik ma już dostępność nakładającą się na ten przedział — zedytuj istniejący wpis.";
 export const ERROR_SERVER = "Wystąpił błąd serwera. Spróbuj ponownie.";
 
 export async function readJsonBody(request: Request): Promise<Record<string, unknown> | null> {

@@ -254,17 +254,17 @@ Brak zmian w bazie — `availabilities` i RLS są już na produkcji (F-01, push 
 
 #### Automated
 
-- [x] 1.1 `npx astro sync` przechodzi
-- [x] 1.2 `npm run lint` przechodzi
-- [x] 1.3 `npm run build` kończy się sukcesem
+- [x] 1.1 `npx astro sync` przechodzi — 1f48aca
+- [x] 1.2 `npm run lint` przechodzi — 1f48aca
+- [x] 1.3 `npm run build` kończy się sukcesem — 1f48aca
 
 ### Phase 2: Endpointy API /api/availabilities
 
 #### Automated
 
-- [ ] 2.1 `npx astro sync` przechodzi
-- [ ] 2.2 `npm run lint` przechodzi
-- [ ] 2.3 `npm run build` kończy się sukcesem
+- [x] 2.1 `npx astro sync` przechodzi
+- [x] 2.2 `npm run lint` przechodzi
+- [x] 2.3 `npm run build` kończy się sukcesem
 
 ### Phase 3: Strona /availabilities i nawigacja
 
