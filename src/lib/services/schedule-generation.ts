@@ -319,3 +319,65 @@ export function isWithinOpeningHours(
   }
   return startTime >= day.opensAt && endTime <= day.closesAt;
 }
+
+export interface ScheduleCollision {
+  kind: "uncovered" | "self-overlap";
+  employeeId: string;
+  workDate: string;
+  startTime: string;
+  endTime: string;
+}
+
+export interface ScheduleBlockers {
+  holes: DraftHole[];
+  collisions: ScheduleCollision[];
+}
+
+export function findScheduleBlockers(
+  openingHours: DraftInput["openingHours"],
+  availabilities: DraftInput["availabilities"],
+  assignments: DraftPiece[],
+  weekStart: string,
+): ScheduleBlockers {
+  const holes = computeHoles(openingHours, assignments, weekStart);
+
+  const collisions: ScheduleCollision[] = [];
+  const seen = new Set<string>();
+  const addCollision = (collision: ScheduleCollision): void => {
+    const key = `${collision.kind}|${collision.employeeId}|${collision.workDate}|${collision.startTime}|${collision.endTime}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      collisions.push(collision);
+    }
+  };
+
+  for (const [index, piece] of assignments.entries()) {
+    const others = assignments.filter((_, otherIndex) => otherIndex !== index);
+    for (const range of findUncoveredRanges(
+      availabilities,
+      piece.employeeId,
+      piece.workDate,
+      piece.startTime,
+      piece.endTime,
+    )) {
+      addCollision({
+        kind: "uncovered",
+        employeeId: piece.employeeId,
+        workDate: piece.workDate,
+        startTime: range.startTime,
+        endTime: range.endTime,
+      });
+    }
+    for (const range of findSelfOverlaps(others, piece)) {
+      addCollision({
+        kind: "self-overlap",
+        employeeId: piece.employeeId,
+        workDate: piece.workDate,
+        startTime: range.startTime,
+        endTime: range.endTime,
+      });
+    }
+  }
+
+  return { holes, collisions };
+}

@@ -255,3 +255,43 @@ export async function deleteSchedule(
   }
   return { data, error: null };
 }
+
+export async function saveSchedule(
+  supabase: Supabase,
+  businessId: string,
+  scheduleId: string,
+): Promise<ServiceResult<ScheduleRow>> {
+  const { data, error } = await supabase
+    .from("schedules")
+    .update({ status: "saved" })
+    .eq("id", scheduleId)
+    .eq("business_id", businessId)
+    .eq("status", "draft")
+    .select()
+    .single();
+
+  if (error) {
+    return { data: null, error };
+  }
+  return { data, error: null };
+}
+
+export async function unlockSchedule(
+  supabase: Supabase,
+  businessId: string,
+  scheduleId: string,
+): Promise<ServiceResult<ScheduleRow>> {
+  const { data, error } = await supabase
+    .from("schedules")
+    .update({ status: "draft" })
+    .eq("id", scheduleId)
+    .eq("business_id", businessId)
+    .eq("status", "saved")
+    .select()
+    .single();
+
+  if (error) {
+    return { data: null, error };
+  }
+  return { data, error: null };
+}
