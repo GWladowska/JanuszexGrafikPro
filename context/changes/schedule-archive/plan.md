@@ -522,23 +522,23 @@ Skala MVP (~5 pracowników, ≤ kilkanaście zmian/tydzień): brak nowych zapyta
 - [x] 3.9 Scenariusz E: zmiana bieżących godzin otwarcia nie zmienia archiwum; przyszły zapisany tydzień nadal pokazuje bieżące godziny — eab7bd8
 - [x] 3.10 Scenariusz F: bramka serwera przez API — 409 przy generowaniu/odblokowaniu minionego, 201/200 dla przyszłego — eab7bd8
 - [x] 3.11 Scenariusz G: kopia godzin zapisana przy zapisie i nadpisana po ponownym zapisie — eab7bd8
-- [ ] 3.12 Scenariusz H: usunięcie dostępności z minionego tygodnia nie tworzy fałszywych flag na archiwalnym zapisanym grafiku — eab7bd8
+- [x] 3.12 Scenariusz H: usunięcie dostępności z minionego tygodnia nie tworzy fałszywych flag na archiwalnym zapisanym grafiku — eab7bd8
 
 ### Phase 4: Zamrożenie edycji dostępności (rozszerzenie ad-hoc S-08)
 
 #### Automated
 
-- [x] 4.1 `supabase db reset` (WSL) aplikuje trigger i seed bez błędów
-- [x] 4.2 `npx astro sync` przechodzi
-- [x] 4.3 `npm run lint` bez błędów
-- [x] 4.4 `npx astro check` bez błędów typów
-- [x] 4.5 `npm run build` kończy się sukcesem
+- [x] 4.1 `supabase db reset` (WSL) aplikuje trigger i seed bez błędów — 86a2a81
+- [x] 4.2 `npx astro sync` przechodzi — 86a2a81
+- [x] 4.3 `npm run lint` bez błędów — 86a2a81
+- [x] 4.4 `npx astro check` bez błędów typów — 86a2a81
+- [x] 4.5 `npm run build` kończy się sukcesem — 86a2a81
 
 #### Manual
 
-- [x] 4.6 Miniony tydzień: akcje ukryte i komunikat; `POST` na minioną datę → 409
-- [x] 4.7 Bieżący tydzień bez zapisanego grafiku: edycja przez UI działa, `POST` działa
-- [x] 4.8 Bieżący tydzień z zapisanym grafikiem: akcje ukryte, `POST`/`PUT`/`DELETE` → 409
-- [x] 4.9 Przyszły tydzień: pełna edycja działa jak dotąd
-- [x] 4.10 `PUT` ze starą lub nową datą w zamrożonym tygodniu → 409 (bramka patrzy na obie daty)
-- [x] 4.11 Bezpośredni `insert` dostępności na minioną datę w bazie → błąd triggera (SQLSTATE 23000)
+- [x] 4.6 Miniony tydzień: akcje ukryte i komunikat; `POST` na minioną datę → 409 — 86a2a81
+- [x] 4.7 Bieżący tydzień bez zapisanego grafiku: edycja przez UI działa, `POST` działa — 86a2a81
+- [x] 4.8 Bieżący tydzień z zapisanym grafikiem: akcje ukryte, `POST`/`PUT`/`DELETE` → 409 — 86a2a81
+- [x] 4.9 Przyszły tydzień: pełna edycja działa jak dotąd — 86a2a81
+- [x] 4.10 `PUT` ze starą lub nową datą w zamrożonym tygodniu → 409 (bramka patrzy na obie daty) — 86a2a81
+- [x] 4.11 Bezpośredni `insert` dostępności na minioną datę w bazie → błąd triggera (SQLSTATE 23000) — 86a2a81
