@@ -1,19 +1,15 @@
-import type { APIContext, APIRoute } from "astro";
-import { createClient } from "@/lib/supabase";
+import type { APIRoute } from "astro";
+import { resolveBusinessId, resolveJsonBody, resolveRequestContext } from "@/lib/api";
 import {
   ERROR_AVAILABILITY_NOT_FOUND,
-  ERROR_BUSINESS_NOT_FOUND,
   ERROR_EMPLOYEE_NOT_FOUND,
   ERROR_INVALID_BODY,
-  ERROR_NOT_CONFIGURED,
   ERROR_OVERLAPPING_AVAILABILITY,
   ERROR_SERVER,
-  ERROR_UNAUTHORIZED,
   ERROR_VALIDATION,
   jsonResponse,
-  readJsonBody,
 } from "@/lib/http";
-import { getBusinessForOwner } from "@/lib/services/business";
+import type { createClient } from "@/lib/supabase";
 import { getEmployeeById } from "@/lib/services/employee";
 import {
   createAvailability,
@@ -27,42 +23,6 @@ import { parseAvailabilityTime, parseWorkDate, validateTimeRange } from "@/lib/s
 type Supabase = NonNullable<ReturnType<typeof createClient>>;
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-interface RequestContext {
-  supabase: Supabase;
-  ownerId: string;
-  body: Record<string, unknown>;
-}
-
-async function resolveRequestContext(context: APIContext): Promise<RequestContext | Response> {
-  const user = context.locals.user;
-  if (!user) {
-    return jsonResponse({ error: ERROR_UNAUTHORIZED }, 401);
-  }
-
-  const supabase = createClient(context.request.headers, context.cookies);
-  if (!supabase) {
-    return jsonResponse({ error: ERROR_NOT_CONFIGURED }, 500);
-  }
-
-  const body = await readJsonBody(context.request);
-  if (!body) {
-    return jsonResponse({ error: ERROR_INVALID_BODY }, 400);
-  }
-
-  return { supabase, ownerId: user.id, body };
-}
-
-async function resolveBusinessId(supabase: Supabase, ownerId: string): Promise<string | Response> {
-  const business = await getBusinessForOwner(supabase, ownerId);
-  if (business.error !== null) {
-    return jsonResponse({ error: ERROR_SERVER }, 500);
-  }
-  if (business.data === null) {
-    return jsonResponse({ error: ERROR_BUSINESS_NOT_FOUND }, 404);
-  }
-  return business.data.id;
-}
 
 function parseAvailabilityId(body: Record<string, unknown>): { id: string } | Response {
   const id = body.id;
@@ -148,11 +108,17 @@ async function resolveOverlapping(
 }
 
 export const POST: APIRoute = async (context) => {
-  const resolved = await resolveRequestContext(context);
+  const resolved = resolveRequestContext(context);
   if (resolved instanceof Response) {
     return resolved;
   }
-  const { supabase, ownerId, body } = resolved;
+  const { supabase, ownerId } = resolved;
+
+  const bodyResult = await resolveJsonBody(context);
+  if (bodyResult instanceof Response) {
+    return bodyResult;
+  }
+  const body = bodyResult;
 
   const employeeIdResult = parseEmployeeId(body);
   if (employeeIdResult instanceof Response) {
@@ -191,11 +157,17 @@ export const POST: APIRoute = async (context) => {
 };
 
 export const PUT: APIRoute = async (context) => {
-  const resolved = await resolveRequestContext(context);
+  const resolved = resolveRequestContext(context);
   if (resolved instanceof Response) {
     return resolved;
   }
-  const { supabase, ownerId, body } = resolved;
+  const { supabase, ownerId } = resolved;
+
+  const bodyResult = await resolveJsonBody(context);
+  if (bodyResult instanceof Response) {
+    return bodyResult;
+  }
+  const body = bodyResult;
 
   const idResult = parseAvailabilityId(body);
   if (idResult instanceof Response) {
@@ -248,11 +220,17 @@ export const PUT: APIRoute = async (context) => {
 };
 
 export const DELETE: APIRoute = async (context) => {
-  const resolved = await resolveRequestContext(context);
+  const resolved = resolveRequestContext(context);
   if (resolved instanceof Response) {
     return resolved;
   }
-  const { supabase, ownerId, body } = resolved;
+  const { supabase, ownerId } = resolved;
+
+  const bodyResult = await resolveJsonBody(context);
+  if (bodyResult instanceof Response) {
+    return bodyResult;
+  }
+  const body = bodyResult;
 
   const idResult = parseAvailabilityId(body);
   if (idResult instanceof Response) {

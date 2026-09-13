@@ -317,19 +317,19 @@ Brak migracji i zmian schematu; `npm run db:types` zbędne. Seed bez zmian — f
 
 #### Automated
 
-- [x] 1.1 `npx astro sync` przechodzi bez błędów typów
-- [x] 1.2 `npm run lint` bez błędów
-- [x] 1.3 `npx astro check` bez błędów typów
-- [x] 1.4 `npm run build` kończy się sukcesem
+- [x] 1.1 `npx astro sync` przechodzi bez błędów typów — 70fd7ef
+- [x] 1.2 `npm run lint` bez błędów — 70fd7ef
+- [x] 1.3 `npx astro check` bez błędów typów — 70fd7ef
+- [x] 1.4 `npm run build` kończy się sukcesem — 70fd7ef
 
 ### Phase 2: Endpointy API przypisań + wspólny kontekst endpointów
 
 #### Automated
 
-- [ ] 2.1 `npx astro sync` przechodzi
-- [ ] 2.2 `npm run lint` bez błędów
-- [ ] 2.3 `npx astro check` bez błędów typów
-- [ ] 2.4 `npm run build` kończy się sukcesem
+- [x] 2.1 `npx astro sync` przechodzi
+- [x] 2.2 `npm run lint` bez błędów
+- [x] 2.3 `npx astro check` bez błędów typów
+- [x] 2.4 `npm run build` kończy się sukcesem
 
 ### Phase 3: Islanda ScheduleBoard — edycja w miejscu
 
