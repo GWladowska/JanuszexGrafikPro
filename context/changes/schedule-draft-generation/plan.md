@@ -269,17 +269,17 @@ Brak migracji — schemat `schedules`/`assignments` istnieje od F-01; `npm run d
 
 #### Automated
 
-- [x] 1.1 `npx astro sync` przechodzi bez błędów typów
-- [x] 1.2 `npm run lint` bez błędów
-- [x] 1.3 `npm run build` kończy się sukcesem
+- [x] 1.1 `npx astro sync` przechodzi bez błędów typów — 6f0e09b
+- [x] 1.2 `npm run lint` bez błędów — 6f0e09b
+- [x] 1.3 `npm run build` kończy się sukcesem — 6f0e09b
 
 ### Phase 2: Endpointy API /api/schedules
 
 #### Automated
 
-- [ ] 2.1 `npx astro sync` przechodzi
-- [ ] 2.2 `npm run lint` bez błędów
-- [ ] 2.3 `npm run build` kończy się sukcesem
+- [x] 2.1 `npx astro sync` przechodzi — 6f45f3d
+- [x] 2.2 `npm run lint` bez błędów — 6f45f3d
+- [x] 2.3 `npm run build` kończy się sukcesem — 6f45f3d
 
 ### Phase 3: Strona /schedules, islanda ScheduleBoard, nawigacja
 

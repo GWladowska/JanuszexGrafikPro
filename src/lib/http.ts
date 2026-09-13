@@ -9,6 +9,11 @@ export const ERROR_EMPLOYEE_NOT_FOUND = "Nie znaleziono pracownika.";
 export const ERROR_AVAILABILITY_NOT_FOUND = "Nie znaleziono wpisu dostępności.";
 export const ERROR_OVERLAPPING_AVAILABILITY =
   "Ten pracownik ma już dostępność nakładającą się na ten przedział — zedytuj istniejący wpis.";
+export const ERROR_SCHEDULE_EXISTS = "Draft grafiku dla tego tygodnia już istnieje";
+export const ERROR_SCHEDULE_NOT_FOUND = "Nie znaleziono grafiku dla tego tygodnia";
+export const ERROR_SAVED_SCHEDULE = "Grafik jest już zapisany i nie można go zmieniać";
+export const ERROR_ASSIGNMENT_NOT_FOUND = "Nie znaleziono przypisania zmiany";
+export const ERROR_EMPLOYEE_NOT_AVAILABLE = "Wybrany pracownik nie jest dostępny w pełnym zakresie tej zmiany";
 export const ERROR_SERVER = "Wystąpił błąd serwera. Spróbuj ponownie.";
 
 export async function readJsonBody(request: Request): Promise<Record<string, unknown> | null> {
