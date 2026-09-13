@@ -3,7 +3,7 @@ project: JanuszexGrafikPro
 version: 1
 status: draft
 created: 2026-09-09
-updated: 2026-09-09
+updated: 2026-09-13
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -31,7 +31,7 @@ Rdzeń hipotezy produktu — założenie, że jeśli się nie sprawdzi, reszta n
 
 | ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
 |---|---|---|---|---|---|
-| F-01 | domain-schema-rls | (foundation) pełny schemat domeny z migracjami i RLS, dane izolowane per właściciel | — | Access Control, Business Logic | ready |
+| F-01 | domain-schema-rls | (foundation) pełny schemat domeny z migracjami i RLS, dane izolowane per właściciel | — | Access Control, Business Logic | done |
 | S-01 | business-opening-hours | założyć swój biznes i zdefiniować godziny otwarcia na każdy dzień tygodnia | F-01 | FR-003, FR-004 (FR-001, FR-002 — auth, w baseline) | proposed |
 | S-02 | employee-management | dodać pracownika do swojego biznesu | S-01 | FR-005 | proposed |
 | S-03 | availability-management | dodawać, przeglądać, edytować i usuwać dostępności pracownika | S-02 | FR-006, US-01 | proposed |
@@ -65,7 +65,7 @@ Foundations poniżej zakładają, że te warstwy są obecne, i NIE budują ich o
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Jedyna poprzeczna inwestycja (main_goal=speed każe ciąć do minimum, ale RLS i izolacja per-biznes to obowiązek z Access Control). Sekwencja na start: wszystko inne na niej stoi; błąd w izolacji danych między właścicielami byłby trudny i kosztowny do naprawy po wdrożeniu.
-- **Status:** ready
+- **Status:** done
 
 ## Slices
 
@@ -191,3 +191,5 @@ Foundations poniżej zakładają, że te warstwy są obecne, i NIE budują ich o
 ## Done
 
 (Pusto przy pierwszym wygenerowaniu. `/10x-archive` dopisuje tu wpis — i zmienia Status itemu na `done` — gdy zmiana, której Change ID pasuje do itemu roadmapy, zostanie zarchiwizowana. Nie wypełniać z góry.)
+
+- **F-01: (foundation) pełny schemat domeny — biznes, godziny otwarcia, pracownicy, dostępności, grafiki z przypisaniami — z migracjami oraz politykami RLS izolującymi dane per właściciel.** — Archived 2026-09-13 → `context/archive/2026-09-12-domain-schema-rls/`. Lesson: —.
