@@ -35,7 +35,7 @@ Rdzeń hipotezy produktu — założenie, że jeśli się nie sprawdzi, reszta n
 | S-01 | business-opening-hours | założyć swój biznes i zdefiniować godziny otwarcia na każdy dzień tygodnia | F-01 | FR-003, FR-004 (FR-001, FR-002 — auth, w baseline) | done |
 | S-02 | employee-management | dodać pracownika do swojego biznesu | S-01 | FR-005 | done |
 | S-03 | availability-management | dodawać, przeglądać, edytować i usuwać dostępności pracownika | S-02 | FR-006, US-01 | done |
-| S-04 | schedule-draft-generation | wygenerować bazowy draft grafiku z dostępności i zobaczyć nieobsadzone godziny (dziury) | S-03 | FR-007, FR-008, US-01 | proposed |
+| S-04 | schedule-draft-generation | wygenerować bazowy draft grafiku z dostępności i zobaczyć nieobsadzone godziny (dziury) | S-03 | FR-007, FR-008, US-01 | done |
 | S-05 | schedule-editing-collisions | ręcznie modyfikować draft; kolizje z niedostępnością są sygnalizowane przed zapisem | S-04 | FR-009, FR-010, US-01, US-03 | proposed |
 | S-06 | save-complete-schedule | zapisać kompletny grafik — dziury nie mogą zostać zapisane po cichu | S-05 | FR-011, US-01, Guardrails | proposed |
 | S-07 | schedule-text-export | skopiować tekstowy widok zapisanego grafiku (jedna akcja) i wkleić go na Messengera/WhatsAppa | S-06 | FR-012, US-02 | proposed |
@@ -120,7 +120,7 @@ Foundations poniżej zakładają, że te warstwy są obecne, i NIE budują ich o
 - **Unknowns:**
   - —
 - **Risk:** Rdzeń logiki domenowej (inwestycja "backend/logika" z ramki). Draft ma być pomocną bazą, nie optymalizacją — ryzyko to wciągnięcie rozwiązywania konfliktów (świadomie poza v1). Sekwencja przed S-05, bo to tu rodzi się wizualizacja pokrycia z Vision.
-- **Status:** proposed
+- **Status:** done
 
 ### S-05: Ręczna edycja draftu z ostrzeżeniami o kolizjach
 
@@ -211,3 +211,4 @@ Foundations poniżej zakładają, że te warstwy są obecne, i NIE budują ich o
 - **S-01: użytkownik (właściciel) zakłada swój biznes (jeden na konto) i definiuje godziny otwarcia lokalu na każdy dzień tygodnia.** — Archived 2026-09-13 → `context/archive/2026-09-12-business-opening-hours/`. Lesson: —.
 - **S-02: użytkownik dodaje pracowników do swojego biznesu.** — Archived 2026-09-13 → `context/archive/2026-09-13-employee-management/`. Lesson: —.
 - **S-03: użytkownik dodaje, przegląda, edytuje i usuwa dostępności pracownika (wprowadzane ręcznie).** — Archived 2026-09-13 → `context/archive/2026-09-13-availability-management/`. Lesson: —.
+- **S-04: użytkownik generuje bazowy draft grafiku z dostępności i widzi nieobsadzone godziny otwarcia ("dziury").** — Archived 2026-09-13 → `context/archive/2026-09-13-schedule-draft-generation/`. Lesson: —.
