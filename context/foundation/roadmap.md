@@ -32,7 +32,7 @@ Rdzeń hipotezy produktu — założenie, że jeśli się nie sprawdzi, reszta n
 | ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
 |---|---|---|---|---|---|
 | F-01 | domain-schema-rls | (foundation) pełny schemat domeny z migracjami i RLS, dane izolowane per właściciel | — | Access Control, Business Logic | done |
-| S-01 | business-opening-hours | założyć swój biznes i zdefiniować godziny otwarcia na każdy dzień tygodnia | F-01 | FR-003, FR-004 (FR-001, FR-002 — auth, w baseline) | proposed |
+| S-01 | business-opening-hours | założyć swój biznes i zdefiniować godziny otwarcia na każdy dzień tygodnia | F-01 | FR-003, FR-004 (FR-001, FR-002 — auth, w baseline) | done |
 | S-02 | employee-management | dodać pracownika do swojego biznesu | S-01 | FR-005 | proposed |
 | S-03 | availability-management | dodawać, przeglądać, edytować i usuwać dostępności pracownika | S-02 | FR-006, US-01 | proposed |
 | S-04 | schedule-draft-generation | wygenerować bazowy draft grafiku z dostępności i zobaczyć nieobsadzone godziny (dziury) | S-03 | FR-007, FR-008, US-01 | proposed |
@@ -80,7 +80,7 @@ Foundations poniżej zakładają, że te warstwy są obecne, i NIE budują ich o
 - **Unknowns:**
   - —
 - **Risk:** Pierwszy przekrój pionowy; kształtuje dane wejściowe reguły pokrycia (godziny otwarcia). Sekwencja najwcześniej, bo bez godzin otwarcia nie ma o czym pilnować pokrycia.
-- **Status:** proposed
+- **Status:** done
 
 ### S-02: Pracownicy
 
@@ -193,3 +193,4 @@ Foundations poniżej zakładają, że te warstwy są obecne, i NIE budują ich o
 (Pusto przy pierwszym wygenerowaniu. `/10x-archive` dopisuje tu wpis — i zmienia Status itemu na `done` — gdy zmiana, której Change ID pasuje do itemu roadmapy, zostanie zarchiwizowana. Nie wypełniać z góry.)
 
 - **F-01: (foundation) pełny schemat domeny — biznes, godziny otwarcia, pracownicy, dostępności, grafiki z przypisaniami — z migracjami oraz politykami RLS izolującymi dane per właściciel.** — Archived 2026-09-13 → `context/archive/2026-09-12-domain-schema-rls/`. Lesson: —.
+- **S-01: użytkownik (właściciel) zakłada swój biznes (jeden na konto) i definiuje godziny otwarcia lokalu na każdy dzień tygodnia.** — Archived 2026-09-13 → `context/archive/2026-09-12-business-opening-hours/`. Lesson: —.
