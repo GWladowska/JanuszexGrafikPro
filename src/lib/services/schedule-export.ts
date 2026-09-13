@@ -1,4 +1,5 @@
 import type { DraftPiece } from "@/lib/services/schedule-generation";
+import { formatRange } from "@/lib/format";
 import { addDays, formatDayLabel, formatWeekLabel, isoWeekday, weekdayLong } from "@/lib/week";
 
 export interface ScheduleExportDay {
@@ -60,10 +61,6 @@ function wrapBold(text: string): string {
 
 function wrapMono(text: string): string {
   return `\`${text}\``;
-}
-
-function formatRange(startTime: string, endTime: string): string {
-  return `${startTime} – ${endTime}`;
 }
 
 function buildVariant(days: ScheduleExportDay[], weekStart: string, withFormatting: boolean): string {

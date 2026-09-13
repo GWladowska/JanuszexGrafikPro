@@ -27,6 +27,7 @@ import {
 } from "@/lib/services/schedule-generation";
 import { parseShiftTime } from "@/lib/services/schedule-validation";
 import { buildScheduleText } from "@/lib/services/schedule-export";
+import { formatRange } from "@/lib/format";
 import { addDays, formatDayLabel, formatWeekLabel, isoWeekday, weekdayShort } from "@/lib/week";
 import { cn } from "@/lib/utils";
 
@@ -151,10 +152,6 @@ function toDraftPieces(assignments: AssignmentRow[]): DraftPiece[] {
   return assignments.map(toDraftPiece);
 }
 
-function formatRange(startTime: string, endTime: string): string {
-  return `${startTime} – ${endTime}`;
-}
-
 async function copyToClipboard(text: string): Promise<boolean> {
   const clipboard = (navigator as { clipboard?: Clipboard | undefined }).clipboard;
   if (clipboard !== undefined) {
@@ -170,6 +167,7 @@ async function copyToClipboard(text: string): Promise<boolean> {
   textarea.style.position = "fixed";
   textarea.style.opacity = "0";
   document.body.appendChild(textarea);
+  textarea.focus();
   textarea.select();
   let copied = false;
   try {
@@ -637,7 +635,7 @@ export default function ScheduleBoard({
         <div className="mb-3 flex items-center justify-between gap-2">
           <button
             type="button"
-            disabled={navPending}
+            disabled={navPending || copyPending}
             onClick={() => {
               void goToWeek(weekStart, addDays(weekStart, -7));
             }}
@@ -650,7 +648,7 @@ export default function ScheduleBoard({
           <p className="text-sm font-semibold text-blue-100">{formatWeekLabel(weekStart)}</p>
           <button
             type="button"
-            disabled={navPending}
+            disabled={navPending || copyPending}
             onClick={() => {
               void goToWeek(weekStart, addDays(weekStart, 7));
             }}
