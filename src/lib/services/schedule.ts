@@ -157,6 +157,8 @@ export async function createScheduleWithAssignments(
     .select();
 
   if (error) {
+    // Sprzątanie: nie zostawiaj osieroconego grafiku bez przypisań.
+    await supabase.from("schedules").delete().eq("id", schedule.id).eq("business_id", businessId);
     return { data: null, error };
   }
   return { data: { schedule, assignments: data.map(normalizeAssignmentRow) }, error: null };

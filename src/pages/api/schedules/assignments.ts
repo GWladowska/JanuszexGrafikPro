@@ -124,6 +124,9 @@ export const POST: APIRoute = async (context) => {
     endTime: endResult.value,
   });
   if (result.error !== null) {
+    if (result.error.code === "23000") {
+      return jsonResponse({ error: ERROR_SAVED_SCHEDULE }, 409);
+    }
     return jsonResponse({ error: ERROR_SERVER }, 500);
   }
 
@@ -241,6 +244,9 @@ export const PUT: APIRoute = async (context) => {
     if (updateResult.error.code === "PGRST116") {
       return jsonResponse({ error: ERROR_ASSIGNMENT_NOT_FOUND }, 404);
     }
+    if (updateResult.error.code === "23000") {
+      return jsonResponse({ error: ERROR_SAVED_SCHEDULE }, 409);
+    }
     return jsonResponse({ error: ERROR_SERVER }, 500);
   }
 
@@ -286,6 +292,9 @@ export const DELETE: APIRoute = async (context) => {
   if (result.error !== null) {
     if (result.error.code === "PGRST116") {
       return jsonResponse({ error: ERROR_ASSIGNMENT_NOT_FOUND }, 404);
+    }
+    if (result.error.code === "23000") {
+      return jsonResponse({ error: ERROR_SAVED_SCHEDULE }, 409);
     }
     return jsonResponse({ error: ERROR_SERVER }, 500);
   }
