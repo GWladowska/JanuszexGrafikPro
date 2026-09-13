@@ -1,5 +1,16 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, CircleCheck, LockOpen, Pencil, Plus, Sparkles, Trash2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  CircleCheck,
+  Copy,
+  HelpCircle,
+  LockOpen,
+  Pencil,
+  Plus,
+  Sparkles,
+  Trash2,
+} from "lucide-react";
 import { ServerError } from "@/components/auth/ServerError";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ERROR_NETWORK, useApiErrorState } from "@/components/hooks/useApiErrorState";
@@ -15,6 +26,7 @@ import {
   isWithinOpeningHours,
 } from "@/lib/services/schedule-generation";
 import { parseShiftTime } from "@/lib/services/schedule-validation";
+import { buildScheduleText } from "@/lib/services/schedule-export";
 import { addDays, formatDayLabel, formatWeekLabel, isoWeekday, weekdayShort } from "@/lib/week";
 import { cn } from "@/lib/utils";
 
@@ -143,6 +155,33 @@ function formatRange(startTime: string, endTime: string): string {
   return `${startTime} – ${endTime}`;
 }
 
+async function copyToClipboard(text: string): Promise<boolean> {
+  const clipboard = (navigator as { clipboard?: Clipboard | undefined }).clipboard;
+  if (clipboard !== undefined) {
+    try {
+      await clipboard.writeText(text);
+      return true;
+    } catch {
+      // fall back to execCommand below
+    }
+  }
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  let copied = false;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
+    copied = document.execCommand("copy");
+  } catch {
+    copied = false;
+  }
+  textarea.remove();
+  return copied;
+}
+
 function employeeSections(
   employees: { id: string; name: string }[],
   availabilities: DraftInput["availabilities"],
@@ -215,6 +254,10 @@ export default function ScheduleBoard({
   const [unlockConfirming, setUnlockConfirming] = useState(false);
   const [unlockPending, setUnlockPending] = useState(false);
   const [serverBlockers, setServerBlockers] = useState<ScheduleBlockers | null>(null);
+  const [copiedVariant, setCopiedVariant] = useState<"formatted" | "plain" | null>(null);
+  const [copyError, setCopyError] = useState<string | null>(null);
+  const [copyPending, setCopyPending] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const navApi = useApiErrorState();
   const generateApi = useApiErrorState();
@@ -246,6 +289,9 @@ export default function ScheduleBoard({
     setSaveConfirming(false);
     setUnlockConfirming(false);
     setServerBlockers(null);
+    setCopiedVariant(null);
+    setCopyError(null);
+    setHelpOpen(false);
   }
 
   async function goToWeek(previousWeekStart: string, nextWeekStart: string) {
@@ -544,6 +590,14 @@ export default function ScheduleBoard({
   const blockersSummary = blockerSummary(blockers.holes.length, blockers.collisions.length);
   const isDraft = weekData.schedule?.status === "draft";
   const isSaved = weekData.schedule?.status === "saved";
+  const scheduleText = isSaved
+    ? buildScheduleText({
+        weekStart,
+        assignments: toDraftPieces(weekData.assignments),
+        employees,
+        openingHours,
+      })
+    : null;
   const weekDays = Array.from({ length: 7 }, (_, index) => addDays(weekStart, index));
   const actionsPending =
     navPending ||
@@ -552,7 +606,30 @@ export default function ScheduleBoard({
     addPending ||
     removePendingId !== null ||
     savePending ||
-    unlockPending;
+    unlockPending ||
+    copyPending;
+
+  async function submitCopy(variant: "formatted" | "plain") {
+    if (scheduleText === null) {
+      return;
+    }
+    setCopyError(null);
+    setCopiedVariant(null);
+    setCopyPending(true);
+    try {
+      const text = variant === "formatted" ? scheduleText.formatted : scheduleText.plain;
+      const copied = await copyToClipboard(text);
+      if (copied) {
+        setCopiedVariant(variant);
+      } else {
+        setCopyError("Nie udało się skopiować grafiku. Zaznacz tekst z podglądu i skopiuj skrótem Ctrl+C.");
+      }
+    } catch {
+      setCopyError("Nie udało się skopiować grafiku. Zaznacz tekst z podglądu i skopiuj skrótem Ctrl+C.");
+    } finally {
+      setCopyPending(false);
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -1028,6 +1105,67 @@ export default function ScheduleBoard({
               </button>
             )}
             <ServerError message={unlockApi.serverError} />
+            {scheduleText !== null && !navPending ? (
+              <div className="space-y-2 rounded-lg border border-white/10 bg-white/5 p-3">
+                <p className="text-sm font-semibold text-blue-100">Tekstowy widok do wysłania załodze</p>
+                <textarea
+                  readOnly
+                  value={scheduleText.formatted}
+                  rows={8}
+                  onFocus={(event) => {
+                    event.currentTarget.select();
+                  }}
+                  className={cn(controlClass, "w-full resize-y font-mono text-xs leading-relaxed")}
+                />
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={actionsPending}
+                    onClick={() => {
+                      void submitCopy("formatted");
+                    }}
+                    className={cn(actionButtonClass(false), "flex items-center gap-1 disabled:opacity-50")}
+                  >
+                    <Copy className="size-4" />
+                    Kopiuj z formatowaniem
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Informacja o formatowaniu"
+                    title="Kliknij, aby zobaczyć informację o formatowaniu"
+                    onClick={() => {
+                      setHelpOpen((open) => !open);
+                    }}
+                    className={cn(smallButtonClass(false), "px-2")}
+                  >
+                    <HelpCircle className="size-4" />
+                  </button>
+                  <button
+                    type="button"
+                    disabled={actionsPending}
+                    onClick={() => {
+                      void submitCopy("plain");
+                    }}
+                    className={cn(actionButtonClass(false), "flex items-center gap-1 disabled:opacity-50")}
+                  >
+                    <Copy className="size-4" />
+                    Kopiuj bez formatowania
+                  </button>
+                </div>
+                {helpOpen ? (
+                  <p className="text-xs text-blue-100/70">
+                    Formatowanie może nie być widoczne na wszystkich urządzeniach i we wszystkich aplikacjach. Jeśli nie
+                    masz pewności, wybierz „Kopiuj bez formatowania”.
+                  </p>
+                ) : null}
+                {copiedVariant !== null ? (
+                  <p className="text-sm text-emerald-100">
+                    Skopiowano ({copiedVariant === "formatted" ? "z formatowaniem" : "bez formatowania"}).
+                  </p>
+                ) : null}
+                {copyError !== null ? <p className="text-sm text-red-200">{copyError}</p> : null}
+              </div>
+            ) : null}
           </>
         ) : (
           <>

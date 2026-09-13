@@ -237,26 +237,26 @@ Brak migracji i zmian schematu — `schedules`/`assignments` i enum `schedule_st
 
 #### Automated
 
-- [x] 1.1 `npx astro sync` przechodzi bez błędów typów
-- [x] 1.2 `npm run lint` bez błędów
-- [x] 1.3 `npx astro check` bez błędów typów
-- [x] 1.4 `npm run build` kończy się sukcesem
+- [x] 1.1 `npx astro sync` przechodzi bez błędów typów — 90359b9
+- [x] 1.2 `npm run lint` bez błędów — 90359b9
+- [x] 1.3 `npx astro check` bez błędów typów — 90359b9
+- [x] 1.4 `npm run build` kończy się sukcesem — 90359b9
 
 ### Phase 2: Podgląd i kopiowanie w ScheduleBoard
 
 #### Automated
 
-- [ ] 2.1 `npx astro sync` przechodzi
-- [ ] 2.2 `npm run lint` bez błędów
-- [ ] 2.3 `npx astro check` bez błędów typów
-- [ ] 2.4 `npm run build` kończy się sukcesem
+- [x] 2.1 `npx astro sync` przechodzi
+- [x] 2.2 `npm run lint` bez błędów
+- [x] 2.3 `npx astro check` bez błędów typów
+- [x] 2.4 `npm run build` kończy się sukcesem
 
 #### Manual
 
-- [ ] 2.5 Scenariusz A: świeże konto — zapis kompletnego grafiku pokazuje podgląd z poprawną treścią (nagłówek zakresu, dni Pn–Pt, dni nieczynne w kolejności)
-- [ ] 2.6 Scenariusz B: „Kopiuj z formatowaniem" na PC — wklejenie do Messengera daje pogrubione dni i monospace godzin
-- [ ] 2.7 Scenariusz C: „Kopiuj bez formatowania" na PC/iPhone/Samsungu — wszędzie identyczny czysty tekst bez znaczników
-- [ ] 2.8 Scenariusz D: ikona „?" pokazuje podpowiedź o ograniczeniach formatowania
-- [ ] 2.9 Scenariusz E: sekcja nieobecna dla draftu i tygodnia bez grafiku; powrót do zapisanego tygodnia resetuje feedback
-- [ ] 2.10 Scenariusz F: ręczne zaznaczenie i skopiowanie z podglądu działa jako fallback schowka
-- [ ] 2.11 Scenariusz G: kolejność zmian w dniu i dni nieczynne zgodne z chronologią
+- [x] 2.5 Scenariusz A: świeże konto — zapis kompletnego grafiku pokazuje podgląd z poprawną treścią (nagłówek zakresu, dni Pn–Pt, dni nieczynne w kolejności)
+- [x] 2.6 Scenariusz B: „Kopiuj z formatowaniem" na PC — wklejenie do Messengera daje pogrubione dni i monospace godzin
+- [x] 2.7 Scenariusz C: „Kopiuj bez formatowania" na PC/iPhone/Samsungu — wszędzie identyczny czysty tekst bez znaczników
+- [x] 2.8 Scenariusz D: ikona „?" pokazuje podpowiedź o ograniczeniach formatowania
+- [x] 2.9 Scenariusz E: sekcja nieobecna dla draftu i tygodnia bez grafiku; powrót do zapisanego tygodnia resetuje feedback
+- [x] 2.10 Scenariusz F: ręczne zaznaczenie i skopiowanie z podglądu działa jako fallback schowka
+- [x] 2.11 Scenariusz G: kolejność zmian w dniu i dni nieczynne zgodne z chronologią
