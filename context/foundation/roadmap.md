@@ -38,7 +38,7 @@ Rdzeń hipotezy produktu — założenie, że jeśli się nie sprawdzi, reszta n
 | S-04 | schedule-draft-generation | wygenerować bazowy draft grafiku z dostępności i zobaczyć nieobsadzone godziny (dziury) | S-03 | FR-007, FR-008, US-01 | done |
 | S-05 | schedule-editing-collisions | ręcznie modyfikować draft; kolizje z niedostępnością są sygnalizowane przed zapisem | S-04 | FR-009, FR-010, US-01, US-03 | done |
 | S-06 | save-complete-schedule | zapisać kompletny grafik — dziury nie mogą zostać zapisane po cichu | S-05 | FR-011, US-01, Guardrails | done |
-| S-07 | schedule-text-export | skopiować tekstowy widok zapisanego grafiku (jedna akcja) i wkleić go na Messengera/WhatsAppa | S-06 | FR-012, US-02 | proposed |
+| S-07 | schedule-text-export | skopiować tekstowy widok zapisanego grafiku (jedna akcja) i wkleić go na Messengera/WhatsAppa | S-06 | FR-012, US-02 | done |
 | S-08 | schedule-archive | przeglądać archiwalne zapisane grafiki (tydzień bieżący i minione) read-only, z historycznymi godzinami otwarcia; edycja/planowanie tylko dla tygodni przyszłych | S-06 | NFR trwałość danych; decyzje user 2026-09-13 | proposed |
 
 ## Baseline
@@ -160,7 +160,7 @@ Foundations poniżej zakładają, że te warstwy są obecne, i NIE budują ich o
 - **Unknowns:**
   - —
 - **Risk:** NFR "układ nie łamie się po wklejeniu" wymaga testu z prawdziwym Messengerem/WhatsAppem. Bez tego brak udostępnienia załodze (drugie kryterium primary), dlatego po zapisie.
-- **Status:** proposed
+- **Status:** done
 
 ### S-08: Archiwum zapisanych grafików
 
@@ -215,3 +215,4 @@ Foundations poniżej zakładają, że te warstwy są obecne, i NIE budują ich o
 - **S-04: użytkownik generuje bazowy draft grafiku z dostępności i widzi nieobsadzone godziny otwarcia ("dziury").** — Archived 2026-09-13 → `context/archive/2026-09-13-schedule-draft-generation/`. Lesson: —.
 - **S-05: użytkownik ręcznie modyfikuje draft (przesuwa i zmienia pracowników na zmianach); kolizja z niedostępnością pracownika jest sygnalizowana natychmiast, przed zapisem.** — Archived 2026-09-13 → `context/archive/2026-09-13-schedule-editing-collisions/`. Lesson: —.
 - **S-06: użytkownik zapisuje kompletny grafik; nieobsadzone godziny otwarcia nie mogą zostać zapisane po cichu (dziury blokują zapis, dopóki nie zostaną obsadzone).** — Archived 2026-09-13 → `context/archive/2026-09-13-save-complete-schedule/`. Lesson: —.
+- **S-07: użytkownik kopiuje tekstowy widok zapisanego grafiku (jedna akcja) i wkleja go na grupowy Messenger/WhatsApp — tekst czytelny, układ się nie łamie.** — Archived 2026-09-13 → `context/archive/2026-09-13-schedule-text-export/`. Lesson: —.
