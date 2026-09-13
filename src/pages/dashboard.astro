@@ -1,5 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import DbErrorState from "@/components/business/DbErrorState.astro";
 import { createClient } from "@/lib/supabase";
 import { getBusinessForOwner, getOpeningHours } from "@/lib/services/business";
 import { fillClosedDays, WEEKDAY_LABELS } from "@/components/business/opening-hours";
@@ -16,13 +17,15 @@ if (!supabase) {
 }
 
 const businessResult = await getBusinessForOwner(supabase, user.id);
-if (!businessResult.data) {
+if (businessResult.error === null && businessResult.data === null) {
   return Astro.redirect("/business/setup");
 }
-const business = businessResult.data;
+const business = businessResult.error === null ? businessResult.data : null;
+const dbError = businessResult.error;
 
-const hoursResult = await getOpeningHours(supabase, business.id);
-const days = fillClosedDays(hoursResult.data ?? []);
+const hoursResult = business !== null ? await getOpeningHours(supabase, business.id) : null;
+const hoursFailed = hoursResult !== null && hoursResult.error !== null;
+const days = hoursResult !== null && hoursResult.error === null ? fillClosedDays(hoursResult.data) : [];
 const dayRows = days.map((day) => ({
   label: WEEKDAY_LABELS[day.weekday],
   hours: isOpenDay(day) ? `${day.opensAt} – ${day.closesAt}` : "Zamknięte",
@@ -30,42 +33,52 @@ const dayRows = days.map((day) => ({
 }));
 ---
 
-<Layout title="Dashboard">
-  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <div class="w-full max-w-md rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
-      <h1 class="mb-1 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
-        {business.name}
-      </h1>
-      <p class="mb-6 text-sm text-blue-100/60">{user.email}</p>
+<Layout title={dbError !== null ? "Coś poszło nie tak" : "Dashboard"}>
+  {
+    dbError !== null ? (
+      <DbErrorState />
+    ) : (
+      <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
+        <div class="w-full max-w-md rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
+          <h1 class="mb-1 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
+            {business?.name}
+          </h1>
+          <p class="mb-6 text-sm text-blue-100/60">{user.email}</p>
 
-      <h2 class="mb-3 text-xs font-semibold tracking-wider text-blue-100/70 uppercase">Godziny otwarcia</h2>
-      <ul class="mb-6 space-y-2">
-        {
-          dayRows.map((row) => (
-            <li class="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2">
-              <span class="text-sm font-semibold text-blue-100">{row.label}</span>
-              <span class:list={["text-sm", row.open ? "text-white/80" : "text-white/40"]}>{row.hours}</span>
-            </li>
-          ))
-        }
-      </ul>
+          <h2 class="mb-3 text-xs font-semibold tracking-wider text-blue-100/70 uppercase">Godziny otwarcia</h2>
+          {hoursFailed ? (
+            <p class="mb-6 rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 text-sm text-red-100">
+              Nie udało się pobrać godzin otwarcia. Odśwież stronę, aby spróbować ponownie.
+            </p>
+          ) : (
+            <ul class="mb-6 space-y-2">
+              {dayRows.map((row) => (
+                <li class="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+                  <span class="text-sm font-semibold text-blue-100">{row.label}</span>
+                  <span class:list={["text-sm", row.open ? "text-white/80" : "text-white/40"]}>{row.hours}</span>
+                </li>
+              ))}
+            </ul>
+          )}
 
-      <div class="flex items-center justify-between gap-4">
-        <a
-          href="/business"
-          class="rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500"
-        >
-          Edytuj
-        </a>
-        <form method="POST" action="/api/auth/signout">
-          <button
-            type="submit"
-            class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-          >
-            Sign out
-          </button>
-        </form>
+          <div class="flex items-center justify-between gap-4">
+            <a
+              href="/business"
+              class="rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500"
+            >
+              Edytuj
+            </a>
+            <form method="POST" action="/api/auth/signout">
+              <button
+                type="submit"
+                class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+              >
+                Sign out
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
+    )
+  }
 </Layout>

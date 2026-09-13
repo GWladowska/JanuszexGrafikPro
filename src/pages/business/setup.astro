@@ -1,5 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import DbErrorState from "@/components/business/DbErrorState.astro";
 import BusinessSetupForm from "@/components/business/BusinessSetupForm";
 import { createClient } from "@/lib/supabase";
 import { getBusinessForOwner } from "@/lib/services/business";
@@ -15,23 +16,28 @@ if (!supabase) {
 }
 
 const businessResult = await getBusinessForOwner(supabase, user.id);
-if (businessResult.data) {
+if (businessResult.error === null && businessResult.data !== null) {
   return Astro.redirect("/business");
 }
+const dbError = businessResult.error !== null;
 ---
 
-<Layout title="Ustaw swój biznes">
-  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <div class="w-full max-w-xl rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
-      <h1
-        class="mb-2 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-2xl font-bold text-transparent"
-      >
-        Ustaw swój biznes
-      </h1>
-      <p class="mb-6 text-center text-sm text-blue-100/60">
-        Podaj nazwę lokalu i godziny otwarcia — wszystko będzie można później zmienić.
-      </p>
-      <BusinessSetupForm client:load />
-    </div>
-  </div>
+<Layout title={dbError ? "Coś poszło nie tak" : "Ustaw swój biznes"}>
+  {
+    dbError ? (
+      <DbErrorState />
+    ) : (
+      <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
+        <div class="w-full max-w-xl rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
+          <h1 class="mb-2 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-2xl font-bold text-transparent">
+            Ustaw swój biznes
+          </h1>
+          <p class="mb-6 text-center text-sm text-blue-100/60">
+            Podaj nazwę lokalu i godziny otwarcia — wszystko będzie można później zmienić.
+          </p>
+          <BusinessSetupForm client:load />
+        </div>
+      </div>
+    )
+  }
 </Layout>

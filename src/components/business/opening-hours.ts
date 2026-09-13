@@ -1,6 +1,6 @@
-import { isOpenDay, type OpeningHoursDay, type Weekday } from "@/lib/services/business-validation";
+import { isOpenDay, WEEKDAYS, type OpeningHoursDay, type Weekday } from "@/lib/services/business-validation";
 
-export const WEEKDAYS: readonly Weekday[] = [1, 2, 3, 4, 5, 6, 7];
+export { WEEKDAYS };
 
 export const WEEKDAY_LABELS: Record<Weekday, string> = {
   1: "Pn",

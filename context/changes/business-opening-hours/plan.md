@@ -237,6 +237,10 @@ Brak migracji — schemat i RLS z F-01 bez zmian. Dane seedowe są kompatybilne 
 - Wzorce: `src/pages/api/auth/signup.ts`, `src/components/auth/SignInForm.tsx`, `src/pages/dashboard.astro`
 - Seed: `supabase/seed.sql` (konta testowe)
 
+## Addenda
+
+- 2026-09-12 (impl-review F6): `eslint.config.js` wyłącza `no-misused-promises` dla plików `.astro` (obejście crasha `astro-eslint-parser`, opisane w kodzie) — zmiana enablement, bez wpływu na runtime. `src/lib/supabase.ts` zyskuje typowanie `SupabaseClient<Database, "public">` — doprecyzowanie typów wymagane przez kontrakt serwisu. Obie zmiany poza zakresem fazy, incydentalne i niezmieniające zachowania.
+
 ## Progress
 
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.

@@ -10,6 +10,9 @@ import cloudflare from "@astrojs/cloudflare";
 export default defineConfig({
   site: "https://januszex-grafik-pro.g-wladowska.workers.dev",
   output: "server",
+  devToolbar: {
+    enabled: false,
+  },
   integrations: [react(), sitemap()],
   vite: {
     plugins: [tailwindcss()],

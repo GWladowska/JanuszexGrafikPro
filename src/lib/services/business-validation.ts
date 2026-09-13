@@ -23,7 +23,7 @@ export type OpeningWeekParseResult =
   | { value: OpeningHoursDay[]; fieldErrors: null }
   | { value: null; fieldErrors: OpeningWeekFieldErrors };
 
-const WEEKDAYS: readonly Weekday[] = [1, 2, 3, 4, 5, 6, 7];
+export const WEEKDAYS: readonly Weekday[] = [1, 2, 3, 4, 5, 6, 7];
 const TIME_PATTERN = /^(\d{2}):(\d{2})(?::\d{2})?$/;
 const BUSINESS_NAME_MAX_LENGTH = 120;
 

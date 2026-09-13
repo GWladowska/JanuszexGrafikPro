@@ -3,51 +3,30 @@ import { Check, Store } from "lucide-react";
 import { FormField } from "@/components/auth/FormField";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ServerError } from "@/components/auth/ServerError";
+import { ERROR_NETWORK, useApiErrorState } from "@/components/hooks/useApiErrorState";
 import { parseBusinessName } from "@/lib/services/business-validation";
 
-const ERROR_SERVER = "Wystąpił błąd serwera. Spróbuj ponownie.";
-const ERROR_NETWORK = "Nie udało się połączyć z serwerem. Spróbuj ponownie.";
-
-interface ApiErrorBody {
-  error?: string;
-  fieldErrors?: Partial<Record<string, string>>;
-}
-
 interface BusinessNameFormProps {
-  businessId: string;
   currentName: string;
 }
 
 export default function BusinessNameForm({ currentName }: BusinessNameFormProps) {
   const [name, setName] = useState(currentName);
-  const [nameError, setNameError] = useState<string | undefined>(undefined);
-  const [serverError, setServerError] = useState<string | null>(null);
+  const { serverError, setServerError, fieldErrors, setFieldErrors, applyApiError } = useApiErrorState();
   const [saved, setSaved] = useState(false);
   const [pending, setPending] = useState(false);
-
-  function applyServerError(body: unknown) {
-    if (typeof body !== "object" || body === null) {
-      setServerError(ERROR_SERVER);
-      return;
-    }
-    const { error, fieldErrors } = body as ApiErrorBody;
-    const { name: fieldName } = fieldErrors ?? {};
-    if (fieldName) {
-      setNameError(fieldName);
-    }
-    setServerError(fieldName ? null : (error ?? ERROR_SERVER));
-  }
 
   async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const nameResult = parseBusinessName(name);
     const nextNameError = nameResult.fieldError ?? undefined;
-    setNameError(nextNameError);
     if (nextNameError) {
+      setFieldErrors({ name: nextNameError });
       return;
     }
 
+    setFieldErrors({});
     setPending(true);
     setServerError(null);
     setSaved(false);
@@ -59,7 +38,7 @@ export default function BusinessNameForm({ currentName }: BusinessNameFormProps)
       });
       const body: unknown = await response.json().catch(() => null);
       if (!response.ok) {
-        applyServerError(body);
+        applyApiError(body);
         return;
       }
       setSaved(true);
@@ -78,11 +57,11 @@ export default function BusinessNameForm({ currentName }: BusinessNameFormProps)
         value={name}
         onChange={(value) => {
           setName(value);
-          setNameError(undefined);
+          setFieldErrors((prev) => ({ ...prev, name: undefined }));
           setSaved(false);
         }}
         placeholder="Kawiarnia Januszex"
-        error={nameError}
+        error={fieldErrors.name}
         icon={<Store className="size-4" />}
       />
 

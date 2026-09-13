@@ -1,33 +1,17 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
+import {
+  ERROR_BUSINESS_NOT_FOUND,
+  ERROR_INVALID_BODY,
+  ERROR_NOT_CONFIGURED,
+  ERROR_SERVER,
+  ERROR_UNAUTHORIZED,
+  ERROR_VALIDATION,
+  jsonResponse,
+  readJsonBody,
+} from "@/lib/http";
 import { getBusinessForOwner, toOpeningHoursDays, upsertOpeningWeek } from "@/lib/services/business";
 import { parseOpeningWeek } from "@/lib/services/business-validation";
-
-const ERROR_UNAUTHORIZED = "Wymagane zalogowanie.";
-const ERROR_NOT_CONFIGURED = "Supabase is not configured";
-const ERROR_INVALID_BODY = "Nieprawidłowe dane wejściowe.";
-const ERROR_VALIDATION = "Formularz zawiera błędy.";
-const ERROR_BUSINESS_NOT_FOUND = "Nie znaleziono biznesu.";
-const ERROR_SERVER = "Wystąpił błąd serwera. Spróbuj ponownie.";
-
-async function readJsonBody(request: Request): Promise<Record<string, unknown> | null> {
-  try {
-    const body: unknown = await request.json();
-    if (typeof body === "object" && body !== null && !Array.isArray(body)) {
-      return body as Record<string, unknown>;
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-function jsonResponse(data: unknown, status: number): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
 
 export const PUT: APIRoute = async (context) => {
   const user = context.locals.user;

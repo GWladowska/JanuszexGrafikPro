@@ -3,41 +3,23 @@ import { CalendarClock, Store } from "lucide-react";
 import { FormField } from "@/components/auth/FormField";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ServerError } from "@/components/auth/ServerError";
+import { ERROR_NETWORK, useApiErrorState } from "@/components/hooks/useApiErrorState";
 import { OpeningHoursEditor } from "@/components/business/OpeningHoursEditor";
 import { defaultWeek } from "@/components/business/opening-hours";
 import { parseBusinessName, parseOpeningWeek, type OpeningHoursDay } from "@/lib/services/business-validation";
-
-const ERROR_SERVER = "Wystąpił błąd serwera. Spróbuj ponownie.";
-const ERROR_NETWORK = "Nie udało się połączyć z serwerem. Spróbuj ponownie.";
-
-interface ApiErrorBody {
-  error?: string;
-  fieldErrors?: Partial<Record<string, string>>;
-}
 
 export default function BusinessSetupForm() {
   const [name, setName] = useState("");
   const [days, setDays] = useState<OpeningHoursDay[]>(defaultWeek());
   const [nameError, setNameError] = useState<string | undefined>(undefined);
-  const [dayErrors, setDayErrors] = useState<Record<string, string | undefined>>({});
-  const [serverError, setServerError] = useState<string | null>(null);
+  const {
+    serverError,
+    setServerError,
+    fieldErrors: dayErrors,
+    setFieldErrors: setDayErrors,
+    applyApiError,
+  } = useApiErrorState();
   const [pending, setPending] = useState(false);
-
-  function applyServerError(body: unknown) {
-    if (typeof body !== "object" || body === null) {
-      setServerError(ERROR_SERVER);
-      return;
-    }
-    const { error, fieldErrors } = body as ApiErrorBody;
-    const { form, name: fieldName, ...rest } = fieldErrors ?? {};
-    if (fieldName) {
-      setNameError(fieldName);
-    }
-    if (Object.keys(rest).length > 0) {
-      setDayErrors(rest);
-    }
-    setServerError(form ?? error ?? ERROR_SERVER);
-  }
 
   async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -69,7 +51,14 @@ export default function BusinessSetupForm() {
       });
       const body: unknown = await response.json().catch(() => null);
       if (!response.ok) {
-        applyServerError(body);
+        if (response.status === 409) {
+          window.location.assign(`/business?prefill=${encodeURIComponent(JSON.stringify(weekResult.value))}`);
+          return;
+        }
+        const apiFieldErrors = applyApiError(body);
+        if (apiFieldErrors.name) {
+          setNameError(apiFieldErrors.name);
+        }
         return;
       }
       window.location.assign("/dashboard");

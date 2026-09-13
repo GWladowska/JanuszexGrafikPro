@@ -1,10 +1,12 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import DbErrorState from "@/components/business/DbErrorState.astro";
 import BusinessNameForm from "@/components/business/BusinessNameForm";
 import BusinessHoursForm from "@/components/business/BusinessHoursForm";
 import { createClient } from "@/lib/supabase";
 import { getBusinessForOwner, getOpeningHours } from "@/lib/services/business";
 import { fillClosedDays } from "@/components/business/opening-hours";
+import { parseOpeningWeek, type OpeningHoursDay } from "@/lib/services/business-validation";
 
 const user = Astro.locals.user;
 if (!user) {
@@ -17,33 +19,66 @@ if (!supabase) {
 }
 
 const businessResult = await getBusinessForOwner(supabase, user.id);
-if (!businessResult.data) {
+if (businessResult.error === null && businessResult.data === null) {
   return Astro.redirect("/business/setup");
 }
-const business = businessResult.data;
+const business = businessResult.error === null ? businessResult.data : null;
+const dbError = businessResult.error;
 
-const hoursResult = await getOpeningHours(supabase, business.id);
-const initialDays = fillClosedDays(hoursResult.data ?? []);
+const hoursResult = business !== null ? await getOpeningHours(supabase, business.id) : null;
+const hoursFailed = hoursResult !== null && hoursResult.error !== null;
+const dbDays = hoursResult !== null && hoursResult.error === null ? fillClosedDays(hoursResult.data) : [];
+
+let prefill: OpeningHoursDay[] | null = null;
+try {
+  const raw = Astro.url.searchParams.get("prefill");
+  if (raw !== null) {
+    prefill = parseOpeningWeek(JSON.parse(raw) as unknown).value;
+  }
+} catch {
+  prefill = null;
+}
+const initialDays = prefill ?? dbDays;
 ---
 
-<Layout title="Twój biznes">
-  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <div class="w-full max-w-xl space-y-6">
-      <div class="rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
-        <h1 class="mb-6 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
-          Twój biznes
-        </h1>
-        <BusinessNameForm businessId={business.id} currentName={business.name} client:load />
-      </div>
+<Layout title={dbError !== null ? "Coś poszło nie tak" : "Twój biznes"}>
+  {
+    dbError !== null ? (
+      <DbErrorState />
+    ) : (
+      <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
+        <div class="w-full max-w-xl space-y-6">
+          <div class="rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
+            <h1 class="mb-6 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
+              Twój biznes
+            </h1>
+            <BusinessNameForm currentName={business?.name ?? ""} client:load />
+          </div>
 
-      <div class="rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
-        <h2 class="mb-4 text-lg font-semibold text-blue-100">Godziny otwarcia</h2>
-        <BusinessHoursForm initialDays={initialDays} client:load />
-      </div>
+          <div class="rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
+            <h2 class="mb-4 text-lg font-semibold text-blue-100">Godziny otwarcia</h2>
+            {prefill !== null ? (
+              <p class="mb-4 rounded-lg border border-blue-400/30 bg-blue-500/10 px-3 py-2 text-sm text-blue-100">
+                Godziny przeniesione z formularza tworzenia biznesu — sprawdź je i kliknij „Zapisz tydzień”, aby je
+                utrwalić.
+              </p>
+            ) : null}
+            {hoursFailed ? (
+              <p class="rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 text-sm text-red-100">
+                Nie udało się pobrać godzin otwarcia. Odśwież stronę, aby spróbować ponownie.
+              </p>
+            ) : (
+              <BusinessHoursForm initialDays={initialDays} client:load />
+            )}
+          </div>
 
-      <p class="text-center">
-        <a href="/dashboard" class="text-sm text-purple-300 hover:underline">Wróć do dashboardu</a>
-      </p>
-    </div>
-  </div>
+          <p class="text-center">
+            <a href="/dashboard" class="text-sm text-purple-300 hover:underline">
+              Wróć do dashboardu
+            </a>
+          </p>
+        </div>
+      </div>
+    )
+  }
 </Layout>

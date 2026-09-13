@@ -8,12 +8,14 @@ export const POST: APIRoute = async (context) => {
 
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {
-    return context.redirect(`/auth/signin?error=${encodeURIComponent("Supabase is not configured")}`);
+    return context.redirect(`/auth/signin?error=${encodeURIComponent("Błąd konfiguracji serwera.")}`);
   }
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    return context.redirect(`/auth/signin?error=${encodeURIComponent(error.message)}`);
+    const isCredentialsError = typeof error.status === "number" && error.status >= 400 && error.status < 500;
+    const message = isCredentialsError ? error.message : "Serwer logowania chwilowo niedostępny. Spróbuj ponownie.";
+    return context.redirect(`/auth/signin?error=${encodeURIComponent(message)}`);
   }
 
   return context.redirect("/dashboard");

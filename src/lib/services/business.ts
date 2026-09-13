@@ -2,7 +2,7 @@ import type { PostgrestError } from "@supabase/supabase-js";
 import type { Database } from "@/lib/database.types";
 import type { createClient } from "@/lib/supabase";
 import type { OpeningHoursDay, Weekday } from "@/lib/services/business-validation";
-import { isClosedDay, isOpenDay } from "@/lib/services/business-validation";
+import { isClosedDay, isOpenDay, WEEKDAYS } from "@/lib/services/business-validation";
 
 type Supabase = NonNullable<ReturnType<typeof createClient>>;
 
@@ -100,7 +100,11 @@ export async function upsertOpeningWeek(
   days: OpeningHoursDay[],
 ): Promise<ServiceResult<OpeningHourRow[]>> {
   const openDays = days.filter(isOpenDay);
-  const closedWeekdays = days.filter(isClosedDay).map((day) => day.weekday);
+  const providedWeekdays = new Set(days.map((day) => day.weekday));
+  const closedWeekdays = [
+    ...days.filter(isClosedDay).map((day) => day.weekday),
+    ...WEEKDAYS.filter((weekday) => !providedWeekdays.has(weekday)),
+  ];
 
   if (openDays.length > 0) {
     const { error } = await supabase.from("opening_hours").upsert(
