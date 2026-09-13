@@ -13,8 +13,8 @@
 -- Dane: konto właściciela + kawiarnia „Kawiarnia Januszex":
 -- godziny otwarcia pon–sob (niedziela celowo pominięta = zamknięta),
 -- 5 pracowników, dostępności na trzy tygodnie (poprzedni, bieżący i następny) (od poniedziałka
--- date_trunc('week', now())::date), jeden grafik w statusie draft
--- z przypisaniami zmian.
+-- date_trunc('week', now())::date), jeden grafik w statusie draft (tydzień bieżący)
+-- oraz jeden zapisany grafik archiwalny (tydzień poprzedni) z przypisaniami zmian.
 -- =============================================================================
 
 -- Konto właściciela (stały UUID, hasło przez bcrypt, potwierdzony e-mail,
@@ -140,3 +140,40 @@ values
   ('00000000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000008', '00000000-0000-4000-8000-000000000006', date_trunc('week', now())::date + 1,   '14:00', '18:00'),
   ('00000000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000008', '00000000-0000-4000-8000-000000000007', date_trunc('week', now())::date + 2,   '08:00', '12:00'),
   ('00000000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000008', '00000000-0000-4000-8000-000000000003', date_trunc('week', now())::date + 2,   '12:00', '20:00');
+
+-- Grafik zapisany z poprzedniego tygodnia (archiwum S-08) — fixture widoku read-only
+-- z historycznymi godzinami otwarcia. Kopia godzin różni się od obecnych (Pn/Wt do 16:00,
+-- Śr od 12:00, Cz do 16:00), a przypisania pokrywają dokładnie godziny z kopii, więc
+-- archiwalny tydzień nie ma dziur ani kolizji z dostępnościami.
+insert into public.schedules (id, business_id, week_start, status)
+values (
+  '00000000-0000-4000-8000-000000000009',
+  '00000000-0000-4000-8000-000000000002',
+  date_trunc('week', now())::date - 7,
+  'draft'
+);
+
+insert into public.assignments (business_id, schedule_id, employee_id, work_date, start_time, end_time)
+values
+  ('00000000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000009', '00000000-0000-4000-8000-000000000003', date_trunc('week', now())::date - 7, '08:00', '16:00'),
+  ('00000000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000009', '00000000-0000-4000-8000-000000000003', date_trunc('week', now())::date - 6, '08:00', '16:00'),
+  ('00000000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000009', '00000000-0000-4000-8000-000000000004', date_trunc('week', now())::date - 5, '12:00', '20:00'),
+  ('00000000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000009', '00000000-0000-4000-8000-000000000005', date_trunc('week', now())::date - 4, '08:00', '16:00'),
+  ('00000000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000009', '00000000-0000-4000-8000-000000000006', date_trunc('week', now())::date - 3, '08:00', '22:00'),
+  ('00000000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000009', '00000000-0000-4000-8000-000000000007', date_trunc('week', now())::date - 2, '10:00', '22:00');
+
+-- Dopiero teraz zapisujemy grafik i dołączamy kopię godzin — trigger
+-- enforce_draft_assignment_writes (S-06) blokuje zapis przypisań do grafików
+-- o statusie innym niż draft, więc fixture musi przejść ścieżką draft → zapis.
+update public.schedules
+set
+  status = 'saved',
+  opening_hours_snapshot = '[
+    {"weekday":1,"opensAt":"08:00","closesAt":"16:00"},
+    {"weekday":2,"opensAt":"08:00","closesAt":"16:00"},
+    {"weekday":3,"opensAt":"12:00","closesAt":"20:00"},
+    {"weekday":4,"opensAt":"08:00","closesAt":"16:00"},
+    {"weekday":5,"opensAt":"08:00","closesAt":"22:00"},
+    {"weekday":6,"opensAt":"10:00","closesAt":"22:00"}
+  ]'::jsonb
+where id = '00000000-0000-4000-8000-000000000009';

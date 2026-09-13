@@ -4,6 +4,8 @@ const WEEKDAY_LONG = ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwarte
 
 const dayFormatter = new Intl.DateTimeFormat("pl-PL", { day: "2-digit", month: "2-digit", timeZone: "Europe/Warsaw" });
 
+const warsawDateFormatter = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Warsaw" });
+
 function parseUtcDate(date: string): Date {
   return new Date(`${date}T00:00:00Z`);
 }
@@ -48,4 +50,16 @@ export function formatDayLabel(date: string): string {
 
 export function formatWeekLabel(weekStart: string): string {
   return `Pn ${formatDayLabel(weekStart)} – Nd ${formatDayLabel(addDays(weekStart, 6))}`;
+}
+
+export function todayInWarsaw(now: Date = new Date()): string {
+  return warsawDateFormatter.format(now);
+}
+
+export function currentWeekStart(now: Date = new Date()): string {
+  return weekStartOf(todayInWarsaw(now));
+}
+
+export function isFrozenWeek(weekStart: string, reference: string = currentWeekStart()): boolean {
+  return weekStart <= reference;
 }
