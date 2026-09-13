@@ -28,3 +28,17 @@
 - **Problem**: Terse kroki testowe (jedna linia na przypadek) nie mówią testerowi-człowiekowi, od czego zacząć: konto seeda czy świeże, który tydzień, jakie dokładnie wartości i komunikaty. Tester traci czas na rekonstrukcję scenariusza albo pomija przypadki brzegowe.
 - **Rule**: Manual Testing Steps w planie pisz jako konkretne scenariusze E2E: punkt startowy (konto/URL), akcje klik-po-kliku z dokładnymi wartościami (dni, godziny, treści) oraz „Oczekiwane:" z precyzyjnym zachowaniem (w tym komunikatów błędów); grupuj per stan startowy (konto seeda vs świeże konto).
 - **Applies to**: plan, implement
+
+## Subagenty: typ `general-purpose` z skilli mapuj na hostowy `general`
+
+- **Context**: Uruchamianie sub-agentów w skillach przeglądowych (/10x-plan-review Step 3, /10x-impl-review Step 2 — treść skilli dyktuje `subagent_type: "general-purpose"`); środowisko: Kilo (to repo). Incident: dwa razy podczas review availability-management pierwszy spawn kończył się „Unknown agent type: general-purpose".
+- **Problem**: Skill nie zna hosta, więc literał typu agenta z jego treści nie jest wiążący — spawn pada natychmiast z błędem, przegląd traci rundę i wymaga ręcznego retry.
+- **Rule**: Przed spawnem sub-agenta sprawdź listę dostępnych typów w opisie narzędzia Task (tu: `explore` / `general`); `general-purpose` z treści skilli mapuj na `general` (deep analysis), a `explore` zostaw dla szybkiego wyszukiwania. Przy błędzie „Unknown agent type" natychmiast powtórz spawn z poprawnym typem, bez zmiany promptu.
+- **Applies to**: all
+
+## Pytania do użytkownika formułuj bez żargonu — terminy techniczne wyjaśniaj analogiami
+
+- **Context**: Interaktywne decyzje w /10x-plan-review i /10x-impl-review (triage findingów); incident: availability-management — F1 opisany żargonem („TOCTOU", „exclusion constraint btree_gist") bez tłumaczenia; użytkownik (właściciel produktu, bez znajomości technologii) poprosił o wytłumaczenie „krowie na rowie" i zrobienie z tego lekcji.
+- **Problem**: Decyzje oparte na żargonie są niemożliwe do podjęcia przez nietechnicznego właściciela — albo zatwierdza w ciemno, albo proces staje.
+- **Rule**: Każde pytanie decyzyjne do użytkownika pisz prostym językiem: najpierw analogia/opis co się dzieje („drzwi na klamkę vs na klucz"), potem konkretne opcje i ich realny koszt. Żargon techniczny dozwolony tylko jako dopisek w nawiasie, nigdy jako jedyny opis.
+- **Applies to**: all
