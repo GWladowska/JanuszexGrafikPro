@@ -375,8 +375,8 @@ Trzy poprawki zgłoszone podczas weryfikacji E2E fazy 3 — poza pierwotnym zakr
 
 #### Manual
 
-- [x] A.2 Dashboard: przyciski nawigacji i „Sign out" mieszczą się w karcie „Kawiarnia Januszex"
-- [x] A.3 Pracownicy: link „Dostępności" otwiera widok z wybranym danym pracownikiem
-- [x] A.4 Dostępności: „＋ Dodaj" przy każdym dniu otwiera inline formularz; zapis dodaje wpis; „Anuluj" zamyka bez skutków
+- [x] A.2 Dashboard: przyciski nawigacji i „Sign out" mieszczą się w karcie „Kawiarnia Januszex" — ca49e4b
+- [x] A.3 Pracownicy: link „Dostępności" otwiera widok z wybranym danym pracownikiem — ca49e4b
+- [x] A.4 Dostępności: „＋ Dodaj" przy każdym dniu otwiera inline formularz; zapis dodaje wpis; „Anuluj" zamyka bez skutków — ca49e4b
 - [x] A.5 Pracownicy: przyciski akcji pracownika (Dostępności/Edytuj/Usuń) mieszczą się w karcie — zawijanie wiersza — 6188245
 - [x] A.6 Pracownicy: przyciski akcji zawsze w nowej linii pod danymi wpisu (kolumna zamiast flex-wrap) — 33f4309
