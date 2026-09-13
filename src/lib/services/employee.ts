@@ -1,8 +1,7 @@
 import type { Database } from "@/lib/database.types";
 import type { createClient } from "@/lib/supabase";
-import type { ServiceResult } from "@/lib/services/business";
+import type { ServiceResult } from "@/lib/services/types";
 import type { EmployeeInput } from "@/lib/services/employee-validation";
-import { normalizeContactEmail, normalizeEmployeeName } from "@/lib/services/employee-validation";
 
 type Supabase = NonNullable<ReturnType<typeof createClient>>;
 
@@ -77,29 +76,4 @@ export async function deleteEmployee(
     return { data: null, error };
   }
   return { data, error: null };
-}
-
-export async function findDuplicateEmployee(
-  supabase: Supabase,
-  businessId: string,
-  input: EmployeeInput,
-  excludeEmployeeId?: string,
-): Promise<ServiceResult<EmployeeRow | null>> {
-  const listResult = await getEmployees(supabase, businessId);
-  if (listResult.error) {
-    return { data: null, error: listResult.error };
-  }
-
-  const normalizedName = normalizeEmployeeName(input.name);
-  const normalizedEmail = normalizeContactEmail(input.contactEmail);
-  const match =
-    listResult.data.find(
-      (row) =>
-        row.id !== excludeEmployeeId &&
-        normalizeEmployeeName(row.name) === normalizedName &&
-        row.contact_email !== null &&
-        normalizeContactEmail(row.contact_email) === normalizedEmail,
-    ) ?? null;
-
-  return { data: match, error: null };
 }

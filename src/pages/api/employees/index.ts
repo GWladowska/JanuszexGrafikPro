@@ -13,13 +13,7 @@ import {
   readJsonBody,
 } from "@/lib/http";
 import { getBusinessForOwner } from "@/lib/services/business";
-import {
-  createEmployee,
-  deleteEmployee,
-  findDuplicateEmployee,
-  updateEmployee,
-  type EmployeeRow,
-} from "@/lib/services/employee";
+import { createEmployee, deleteEmployee, updateEmployee } from "@/lib/services/employee";
 import type { EmployeeInput } from "@/lib/services/employee-validation";
 import { parseContactEmail, parseEmployeeName } from "@/lib/services/employee-validation";
 
@@ -29,7 +23,7 @@ const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{
 
 interface RequestContext {
   supabase: Supabase;
-  businessId: string;
+  ownerId: string;
   body: Record<string, unknown>;
 }
 
@@ -49,15 +43,18 @@ async function resolveRequestContext(context: APIContext): Promise<RequestContex
     return jsonResponse({ error: ERROR_INVALID_BODY }, 400);
   }
 
-  const business = await getBusinessForOwner(supabase, user.id);
+  return { supabase, ownerId: user.id, body };
+}
+
+async function resolveBusinessId(supabase: Supabase, ownerId: string): Promise<string | Response> {
+  const business = await getBusinessForOwner(supabase, ownerId);
   if (business.error !== null) {
     return jsonResponse({ error: ERROR_SERVER }, 500);
   }
   if (business.data === null) {
     return jsonResponse({ error: ERROR_BUSINESS_NOT_FOUND }, 404);
   }
-
-  return { supabase, businessId: business.data.id, body };
+  return business.data.id;
 }
 
 function parseEmployeeInput(body: Record<string, unknown>): { input: EmployeeInput } | Response {
@@ -82,14 +79,8 @@ function parseEmployeeId(body: Record<string, unknown>): { id: string } | Respon
   return { id };
 }
 
-function duplicateResponse(row: EmployeeRow): Response {
-  return jsonResponse(
-    {
-      error: ERROR_DUPLICATE_EMPLOYEE,
-      duplicateOf: { id: row.id, name: row.name, contactEmail: row.contact_email },
-    },
-    409,
-  );
+function isDuplicateViolation(error: { code?: string | null }): boolean {
+  return error.code === "23505";
 }
 
 export const POST: APIRoute = async (context) => {
@@ -97,25 +88,23 @@ export const POST: APIRoute = async (context) => {
   if (resolved instanceof Response) {
     return resolved;
   }
-  const { supabase, businessId, body } = resolved;
+  const { supabase, ownerId, body } = resolved;
 
   const parsed = parseEmployeeInput(body);
   if (parsed instanceof Response) {
     return parsed;
   }
 
-  if (body.confirmDuplicate !== true) {
-    const duplicate = await findDuplicateEmployee(supabase, businessId, parsed.input);
-    if (duplicate.error !== null) {
-      return jsonResponse({ error: ERROR_SERVER }, 500);
-    }
-    if (duplicate.data !== null) {
-      return duplicateResponse(duplicate.data);
-    }
+  const businessId = await resolveBusinessId(supabase, ownerId);
+  if (businessId instanceof Response) {
+    return businessId;
   }
 
   const result = await createEmployee(supabase, businessId, parsed.input);
   if (result.error !== null) {
+    if (isDuplicateViolation(result.error)) {
+      return jsonResponse({ error: ERROR_DUPLICATE_EMPLOYEE }, 409);
+    }
     return jsonResponse({ error: ERROR_SERVER }, 500);
   }
 
@@ -127,7 +116,7 @@ export const PUT: APIRoute = async (context) => {
   if (resolved instanceof Response) {
     return resolved;
   }
-  const { supabase, businessId, body } = resolved;
+  const { supabase, ownerId, body } = resolved;
 
   const idResult = parseEmployeeId(body);
   if (idResult instanceof Response) {
@@ -139,20 +128,18 @@ export const PUT: APIRoute = async (context) => {
     return parsed;
   }
 
-  if (body.confirmDuplicate !== true) {
-    const duplicate = await findDuplicateEmployee(supabase, businessId, parsed.input, idResult.id);
-    if (duplicate.error !== null) {
-      return jsonResponse({ error: ERROR_SERVER }, 500);
-    }
-    if (duplicate.data !== null) {
-      return duplicateResponse(duplicate.data);
-    }
+  const businessId = await resolveBusinessId(supabase, ownerId);
+  if (businessId instanceof Response) {
+    return businessId;
   }
 
   const result = await updateEmployee(supabase, businessId, idResult.id, parsed.input);
   if (result.error !== null) {
     if (result.error.code === "PGRST116") {
       return jsonResponse({ error: ERROR_EMPLOYEE_NOT_FOUND }, 404);
+    }
+    if (isDuplicateViolation(result.error)) {
+      return jsonResponse({ error: ERROR_DUPLICATE_EMPLOYEE }, 409);
     }
     return jsonResponse({ error: ERROR_SERVER }, 500);
   }
@@ -165,11 +152,16 @@ export const DELETE: APIRoute = async (context) => {
   if (resolved instanceof Response) {
     return resolved;
   }
-  const { supabase, businessId, body } = resolved;
+  const { supabase, ownerId, body } = resolved;
 
   const idResult = parseEmployeeId(body);
   if (idResult instanceof Response) {
     return idResult;
+  }
+
+  const businessId = await resolveBusinessId(supabase, ownerId);
+  if (businessId instanceof Response) {
+    return businessId;
   }
 
   const result = await deleteEmployee(supabase, businessId, idResult.id);

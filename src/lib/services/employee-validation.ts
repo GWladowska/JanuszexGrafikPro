@@ -39,11 +39,3 @@ export function parseContactEmail(email: unknown): EmployeeFieldParseResult {
   }
   return { value, fieldError: null };
 }
-
-export function normalizeEmployeeName(name: string): string {
-  return name.trim().toLowerCase().replace(/\s+/g, " ");
-}
-
-export function normalizeContactEmail(email: string): string {
-  return email.trim().toLowerCase();
-}

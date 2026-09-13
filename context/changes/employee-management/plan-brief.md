@@ -19,7 +19,7 @@ Zalogowany właścicz z biznesem wchodzi z dashboardu na `/employees`, gdzie dod
 | Decision | Choice | Why (1 sentence) | Source |
 | --- | --- | --- | --- |
 | Zakres zmiany | Pełny CRUD (dodaj/lista/edytuj/usuń) | FR-005 wymaga tylko dodania, ale roadmapa nazwała S-02 CRUD-em; decyzja użytkownika | Plan (user) |
-| Duplikaty | Dozwolone; ostrzeżenie tylko przy identycznej nazwie **i** e-mailu | Ostrzega przy realnie podejrzanej zbieżności, bez fałszywych alarmów (dwóch Marków z różnymi mailami przechodzi) | Plan (user) |
+| Duplikaty | Twarda blokada pary nazwa + e-mail (unikalny indeks w bazie) | Zastąpiono ostrzeżenie z potwierdzeniem błędem 409 — decyzja użytkownika podczas /10x-impl-review (F4, 2026-09-13) | Plan (user, triage) |
 | E-mail kontaktowy | Wymagany w formularzu | Kolumna istnieje; przydaje się do kontaktu i rozróżniania osób | Plan (user) |
 | Lokalizacja UI | Osobna strona `/employees` + link z dashboardu | Miejsce na rozbudowę S-03; zakładki na dashboardzie to wizja docelowa — po MVP | Plan (user) |
 | Testy | Bez testera na razie | Deadline 2026-09-14; tester wraca przy S-04 (logika grafiku) | Plan (user) |

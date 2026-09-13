@@ -1,15 +1,15 @@
-import type { PostgrestError } from "@supabase/supabase-js";
 import type { Database } from "@/lib/database.types";
 import type { createClient } from "@/lib/supabase";
 import type { OpeningHoursDay, Weekday } from "@/lib/services/business-validation";
 import { isClosedDay, isOpenDay, WEEKDAYS } from "@/lib/services/business-validation";
+import type { ServiceResult } from "@/lib/services/types";
+
+export type { ServiceResult };
 
 type Supabase = NonNullable<ReturnType<typeof createClient>>;
 
 type BusinessRow = Database["public"]["Tables"]["businesses"]["Row"];
 type OpeningHourRow = Database["public"]["Tables"]["opening_hours"]["Row"];
-
-export type ServiceResult<T> = { data: T; error: null } | { data: null; error: PostgrestError };
 
 export interface BusinessCreationInput {
   name: string;

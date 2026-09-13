@@ -2,7 +2,7 @@
 
 ## Overview
 
-Właściciel zarządza pracownikami swojego biznesu: dodaje (imię i nazwisko + wymagany e-mail kontaktowy), przegląda listę, edytuje w miejscu i usuwa z potwierdzeniem. Przy dodawaniu/edycji system ostrzega o możliwym duplikacie (identyczna nazwa **i** identyczny e-mail) i prosi o potwierdzenie „to inna osoba". Zero zmian w schemacie bazy — tabela `employees` z RLS istnieje od F-01.
+Właściciel zarządza pracownikami swojego biznesu: dodaje (imię i nazwisko + wymagany e-mail kontaktowy), przegląda listę, edytuje w miejscu i usuwa z potwierdzeniem. Próba dodania/edycji pracownika o identycznej znormalizowanej nazwie **i** e-mailu kończy się błędem 409 — unikalność pilnuje indeks w bazie (addendum z triage 2026-09-13). Tabela `employees` z RLS istnieje od F-01.
 
 ## Current State Analysis
 
@@ -17,7 +17,7 @@ Właściciel zarządza pracownikami swojego biznesu: dodaje (imię i nazwisko + 
 
 ## Desired End State
 
-Zalogowany właściciel z założonym biznesem wchodzi z dashboardu na `/employees`, gdzie widzi listę pracowników (nazwa, e-mail, data dodania) i może: dodać pracownika (formularz z walidacją), edytować wiersz inline, usunąć pracownika po dwuetapowym potwierdzeniu. Próba dodania pracownika o identycznej nazwie i e-mailu jak istniejący kończy się ostrzeżeniem z przyciskiem „To inna osoba — dodaj mimo to". Każde konto widzi wyłącznie swoich pracowników (RLS). Weryfikacja: ręczne E2E na dwóch kontach + `astro sync`/`lint`/`build`.
+Zalogowany właściciel z założonym biznesem wchodzi z dashboardu na `/employees`, gdzie widzi listę pracowników (nazwa, e-mail, data dodania) i może: dodać pracownika (formularz z walidacją), edytować wiersz inline, usunąć pracownika po dwuetapowym potwierdzeniu. Próba dodania lub zapisania pracownika o identycznej nazwie i e-mailu jak istniejący kończy się błędem 409 z polskim komunikatem (twarda blokada w bazie). Każde konto widzi wyłącznie swoich pracowników (RLS). Weryfikacja: ręczne E2E na dwóch kontach + `astro sync`/`lint`/`build`.
 
 ### Key Discoveries:
 
@@ -32,7 +32,7 @@ Zalogowany właściciel z założonym biznesem wchodzi z dashboardu na `/employe
 - Dostępności pracowników (S-03) i grafik (S-04+) — choć usuwanie pracownika kaskaduje na te dane (ostrzegamy w UI).
 - Konta / logowanie pracowników (parked w roadmapie — pracownik to tylko wpis kontaktowy).
 - Zakładki na dashboardzie (docelowa wizja użytkownika — po MVP; teraz osobna strona `/employees`).
-- Twarda blokada duplikatów — tylko ostrzeżenie z potwierdzeniem; ta sama nazwa + inny e-mail przechodzi bez pytania.
+- Miękka walidacja duplikatów w aplikacji — decyzja z triage /10x-impl-review (2026-09-13, F4): blokada przeniesiona do bazy jako unikalny indeks (patrz Addendum); ta sama nazwa + inny e-mail nadal przechodzi.
 - Zmiany w schemacie bazy, migracje, `db push`.
 - Automatyczne testy (decyzja: wracamy przy S-04, tam się opłacają).
 - Sortowanie, paginacja, awatary, dodatkowe pola, import pracowników z pliku.
@@ -232,6 +232,18 @@ Brak zmian w bazie — `employees` i RLS są już na produkcji (F-01, push 2026-
 - Lekcje: `context/foundation/lessons.md` (helpery w `src/lib/http.ts`)
 - Poprzedni plan: `context/changes/business-opening-hours/plan.md` (decyzje, Not Doing, notka o testerze)
 - Schemat/RLS: `supabase/migrations/20260912141307_domain_schema.sql:56-64`, `supabase/migrations/20260912144543_domain_rls.sql:76-91`
+
+## Addendum (impl-review triage, 2026-09-13)
+
+Przegląd `/10x-impl-review` (raport: `reviews/impl-review.md`, APPROVED) zakończył się triage z następującymi decyzjami:
+
+- **F1, F2, F3** — poprawione w kodzie: data „Dodano" formatowana ze strefą `Europe/Warsaw`; kolejność błędów endpointu 400 (walidacja pól) przed 404 (brak biznesu) — `resolveRequestContext` bez lookupu biznesu + helper `resolveBusinessId`.
+- **F4 — decyzja użytkownika zmieniona podczas triage:** duplikaty pary (nazwa, e-mail) są teraz **twardo blokowane** — zastępuje to kontrakt „409 + confirmDuplicate" z Critical Implementation Details i faz 2–3:
+  - Migracja `supabase/migrations/20260913034936_no_duplicate_employees.sql` — unikalny indeks `uq_employees_business_identity (business_id, lower(regexp_replace(trim(name), '\s+', ' ', 'g')), lower(btrim(contact_email)))`.
+  - Endpointy: naruszenie indeksu (`23505`) → `409 { error: ERROR_DUPLICATE_EMPLOYEE }`; `findDuplicateEmployee` i flaga `confirmDuplicate` usunięte.
+  - Islanda: brak panelu potwierdzenia — 409 pokazuje komunikat błędu w formularzu.
+  - **Wymaga ręcznego `npx supabase db push`** (deploy-plan: zmiany schematu są human-gated) przed/konając deploy na produkcję.
+- **F5** — odłożone: przy trzecim serwisie wynieść `ServiceResult` do `src/lib/services/types.ts`.
 
 ## Progress
 
