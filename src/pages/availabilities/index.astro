@@ -36,6 +36,12 @@ const listsFailed =
 const employees = employeesResult !== null && employeesResult.error === null ? employeesResult.data : [];
 const availabilities =
   availabilitiesResult !== null && availabilitiesResult.error === null ? availabilitiesResult.data : [];
+
+const requestedEmployee = Astro.url.searchParams.get("employee");
+const initialEmployeeId =
+  requestedEmployee !== null && employees.some((employee) => employee.id === requestedEmployee)
+    ? requestedEmployee
+    : (employees[0]?.id ?? null);
 ---
 
 <Layout title={dbError !== null ? "Coś poszło nie tak" : "Dostępności"}>
@@ -57,6 +63,7 @@ const availabilities =
               <AvailabilityManager
                 initialEmployees={employees}
                 initialAvailabilities={availabilities}
+                initialEmployeeId={initialEmployeeId}
                 defaultWeekStart={defaultWeekStart}
                 client:load
               />

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CalendarPlus, Check, ChevronLeft, ChevronRight, Pencil, Trash2, X } from "lucide-react";
+import { CalendarPlus, Check, ChevronLeft, ChevronRight, Pencil, Plus, Trash2, X } from "lucide-react";
 import { FormField } from "@/components/auth/FormField";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ServerError } from "@/components/auth/ServerError";
@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 interface AvailabilityManagerProps {
   initialEmployees: EmployeeRow[];
   initialAvailabilities: AvailabilityRow[];
+  initialEmployeeId?: string | null;
   defaultWeekStart: string;
 }
 
@@ -20,6 +21,9 @@ const darkInputClass = "[color-scheme:dark]";
 
 const selectClass =
   "w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-400 [color-scheme:dark]";
+
+const compactInputClass =
+  "rounded-lg border border-white/20 bg-white/10 px-2 py-1.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-purple-400 [color-scheme:dark]";
 
 function extractAvailability(body: unknown): AvailabilityRow | null {
   if (typeof body !== "object" || body === null) {
@@ -72,20 +76,22 @@ function parseEntryFields(
 export default function AvailabilityManager({
   initialEmployees,
   initialAvailabilities,
+  initialEmployeeId,
   defaultWeekStart,
 }: AvailabilityManagerProps) {
   const employees = initialEmployees;
+  const fallbackEmployeeId = initialEmployees.length > 0 ? initialEmployees[0].id : null;
   const [availabilities, setAvailabilities] = useState<AvailabilityRow[]>(initialAvailabilities);
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(initialEmployees[0]?.id ?? null);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(initialEmployeeId ?? fallbackEmployeeId);
   const [weekStart, setWeekStart] = useState(defaultWeekStart);
 
   const addApi = useApiErrorState();
   const editApi = useApiErrorState();
   const deleteApi = useApiErrorState();
 
-  const [workDate, setWorkDate] = useState(defaultWeekStart);
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
+  const [addingDate, setAddingDate] = useState<string | null>(null);
+  const [addStartTime, setAddStartTime] = useState("");
+  const [addEndTime, setAddEndTime] = useState("");
   const [addPending, setAddPending] = useState(false);
 
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -99,15 +105,15 @@ export default function AvailabilityManager({
 
   function goToWeek(nextWeekStart: string) {
     setWeekStart(nextWeekStart);
-    setWorkDate(nextWeekStart);
+    setAddingDate(null);
     setEditingId(null);
     setDeletingId(null);
   }
 
-  async function submitAdd(event: React.SubmitEvent<HTMLFormElement>) {
+  async function submitAdd(event: React.SubmitEvent<HTMLFormElement>, workDate: string) {
     event.preventDefault();
 
-    const parsed = parseEntryFields(workDate, startTime, endTime);
+    const parsed = parseEntryFields(workDate, addStartTime, addEndTime);
     if ("fieldErrors" in parsed) {
       addApi.setFieldErrors(parsed.fieldErrors);
       return;
@@ -134,10 +140,10 @@ export default function AvailabilityManager({
         if (targetWeek !== weekStart) {
           setWeekStart(targetWeek);
         }
-        setWorkDate(targetWeek);
       }
-      setStartTime("");
-      setEndTime("");
+      setAddingDate(null);
+      setAddStartTime("");
+      setAddEndTime("");
     } catch {
       addApi.setServerError(ERROR_NETWORK);
     } finally {
@@ -230,6 +236,11 @@ export default function AvailabilityManager({
         : "border-white/20 bg-white/10 text-white hover:bg-white/20",
     );
 
+  const smallButtonClass = cn(
+    actionButtonClass(false),
+    "flex items-center gap-1 px-2 py-1 text-xs disabled:opacity-50",
+  );
+
   if (employees.length === 0) {
     return (
       <div className="space-y-4">
@@ -258,6 +269,7 @@ export default function AvailabilityManager({
           value={selectedEmployeeId ?? ""}
           onChange={(event) => {
             setSelectedEmployeeId(event.target.value);
+            setAddingDate(null);
             setEditingId(null);
             setDeletingId(null);
             addApi.setFieldErrors({});
@@ -308,9 +320,28 @@ export default function AvailabilityManager({
 
             return (
               <li key={day} className="rounded-lg border border-white/10 bg-white/5 px-3 py-3">
-                <p className="text-sm font-semibold text-blue-100">
-                  {weekdayShort(day)} {formatDayLabel(day)}
-                </p>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm font-semibold text-blue-100">
+                    {weekdayShort(day)} {formatDayLabel(day)}
+                  </p>
+                  {addingDate === day ? null : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAddingDate(day);
+                        setAddStartTime("");
+                        setAddEndTime("");
+                        addApi.setFieldErrors({});
+                        addApi.setServerError(null);
+                      }}
+                      className={smallButtonClass}
+                      aria-label={`Dodaj dostępność na ${formatDayLabel(day)}`}
+                    >
+                      <Plus className="size-4" />
+                      Dodaj
+                    </button>
+                  )}
+                </div>
                 {dayEntries.length === 0 ? (
                   <p className="mt-1 text-sm text-blue-100/40">—</p>
                 ) : (
@@ -448,6 +479,70 @@ export default function AvailabilityManager({
                     ))}
                   </ul>
                 )}
+                {addingDate === day ? (
+                  <form
+                    onSubmit={(event) => submitAdd(event, day)}
+                    noValidate
+                    className="mt-2 space-y-2 rounded-lg border border-purple-400/30 bg-purple-500/5 px-3 py-3"
+                  >
+                    <p className="text-sm font-semibold text-blue-100">
+                      Nowa dostępność — {weekdayShort(day)} {formatDayLabel(day)}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <input
+                        type="time"
+                        value={addStartTime}
+                        onChange={(event) => {
+                          setAddStartTime(event.target.value);
+                          addApi.setFieldErrors((prev) => ({ ...prev, startTime: undefined }));
+                        }}
+                        className={compactInputClass}
+                        aria-label="Godzina od"
+                        disabled={addPending}
+                      />
+                      <span className="text-sm text-white/60">–</span>
+                      <input
+                        type="time"
+                        value={addEndTime}
+                        onChange={(event) => {
+                          setAddEndTime(event.target.value);
+                          addApi.setFieldErrors((prev) => ({ ...prev, endTime: undefined }));
+                        }}
+                        className={compactInputClass}
+                        aria-label="Godzina do"
+                        disabled={addPending}
+                      />
+                    </div>
+                    {addApi.fieldErrors.startTime ? (
+                      <p className="text-sm text-red-200">{addApi.fieldErrors.startTime}</p>
+                    ) : null}
+                    {addApi.fieldErrors.endTime ? (
+                      <p className="text-sm text-red-200">{addApi.fieldErrors.endTime}</p>
+                    ) : null}
+                    <ServerError message={addApi.serverError} />
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="submit"
+                        disabled={addPending}
+                        className={cn(actionButtonClass(false), "flex items-center gap-1 disabled:opacity-50")}
+                      >
+                        {addPending ? "Dodawanie..." : "Dodaj"}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={addPending}
+                        onClick={() => {
+                          setAddingDate(null);
+                          addApi.setFieldErrors({});
+                          addApi.setServerError(null);
+                        }}
+                        className={cn(actionButtonClass(false), "disabled:opacity-50")}
+                      >
+                        Anuluj
+                      </button>
+                    </div>
+                  </form>
+                ) : null}
               </li>
             );
           })}
@@ -455,59 +550,6 @@ export default function AvailabilityManager({
         <div className="mt-3">
           <ServerError message={deleteApi.serverError} />
         </div>
-      </section>
-
-      <section>
-        <h2 className="mb-3 text-sm font-semibold tracking-wider text-blue-100/70 uppercase">Dodaj dostępność</h2>
-        <form onSubmit={(event) => submitAdd(event)} noValidate className="space-y-4">
-          <FormField
-            id="availability-date"
-            type="date"
-            label="Data"
-            value={workDate}
-            onChange={(value) => {
-              setWorkDate(value);
-              addApi.setFieldErrors((prev) => ({ ...prev, workDate: undefined }));
-            }}
-            error={addApi.fieldErrors.workDate}
-            icon={<CalendarPlus className="size-4" />}
-            inputClassName={darkInputClass}
-          />
-          <div className="grid grid-cols-2 gap-3">
-            <FormField
-              id="availability-start"
-              type="time"
-              label="Od"
-              value={startTime}
-              onChange={(value) => {
-                setStartTime(value);
-                addApi.setFieldErrors((prev) => ({ ...prev, startTime: undefined }));
-              }}
-              error={addApi.fieldErrors.startTime}
-              icon={<CalendarPlus className="size-4" />}
-              inputClassName={darkInputClass}
-            />
-            <FormField
-              id="availability-end"
-              type="time"
-              label="Do"
-              value={endTime}
-              onChange={(value) => {
-                setEndTime(value);
-                addApi.setFieldErrors((prev) => ({ ...prev, endTime: undefined }));
-              }}
-              error={addApi.fieldErrors.endTime}
-              icon={<CalendarPlus className="size-4" />}
-              inputClassName={darkInputClass}
-            />
-          </div>
-
-          <ServerError message={addApi.serverError} />
-
-          <SubmitButton pendingText="Dodawanie..." icon={<CalendarPlus className="size-4" />} pending={addPending}>
-            Dodaj dostępność
-          </SubmitButton>
-        </form>
       </section>
     </div>
   );

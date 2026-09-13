@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Mail, Pencil, Trash2, User, UserPlus, X } from "lucide-react";
+import { CalendarPlus, Check, Mail, Pencil, Trash2, User, UserPlus, X } from "lucide-react";
 import { FormField } from "@/components/auth/FormField";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ServerError } from "@/components/auth/ServerError";
@@ -316,6 +316,13 @@ export default function EmployeeManager({ initialEmployees }: EmployeeManagerPro
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
+                        <a
+                          href={`/availabilities?employee=${employee.id}`}
+                          className={cn(actionButtonClass(false), "flex items-center gap-1")}
+                        >
+                          <CalendarPlus className="size-4" />
+                          Dostępności
+                        </a>
                         <button
                           type="button"
                           onClick={() => {

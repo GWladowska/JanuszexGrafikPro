@@ -315,6 +315,14 @@ Brak migracji i zmian schematu; `npm run db:types` zbędne. Seed bez zmian — f
 - Lekcje: `context/foundation/lessons.md` (helpery w `src/lib/`, `npx astro check` w bramce, scenariusze E2E klik-po-kliku)
 - Schemat: `supabase/migrations/20260912141307_domain_schema.sql:97-140` · Seed: `supabase/seed.sql`
 
+## Addendum: ad-hoc poprawki UI (2026-09-13, decyzja użytkownika)
+
+Trzy poprawki zgłoszone podczas weryfikacji E2E fazy 3 — poza pierwotnym zakresem faz, wykonane ad-hoc na wyraźną decyzję użytkownika, aby `/10x-impl-review` je objęło:
+
+1. **Dashboard** (`src/pages/dashboard.astro`) — nawigacja (Edytuj/Pracownicy/Dostępności/Grafik) zawija się w obrębie karty, a „Sign out" przeniesiony do osobnego, prawostronnie wyrównanego wiersza pod przyciskami; nie wystaje poza obramowanie karty biznesu.
+2. **Pracownicy → Dostępności** (`src/components/employees/EmployeeManager.tsx`, `src/pages/availabilities/index.astro`, `src/components/availabilities/AvailabilityManager.tsx`) — każdy wiersz pracownika ma link „Dostępności" prowadzący do `/availabilities?employee=<id>`; strona waliduje parametr i przekazuje `initialEmployeeId` do islandy, która otwiera widok na wskazanym pracowniku (fallback: pierwszy pracownik z listy).
+3. **Dostępności inline** (`src/components/availabilities/AvailabilityManager.tsx`) — formularz dodawania dostępności przeniesiony z dołu strony do karty każdego dnia: przycisk „＋ Dodaj" w nagłówku dnia otwiera kompaktowy formularz (Od/Do) wewnątrz karty; data wynika z dnia; dolna sekcja „Dodaj dostępność" usunięta.
+
 ## Progress
 
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.
@@ -356,3 +364,15 @@ Brak migracji i zmian schematu; `npm run db:types` zbędne. Seed bez zmian — f
 - [x] 3.10 Scenariusz F: dodanie z kolizją (środa, Maria 08:00 – 12:00) + usuwanie, dziura wraca — deaba00
 - [x] 3.11 Scenariusz G: podwójna rezerwacja tej samej osoby — flaga nakładki 12:00 – 13:00 na obu zmianach, znika po usunięciu — deaba00
 - [x] 3.12 Scenariusz H: świeże konto — generacja, usuwanie, dodanie z domyślnymi godzinami (flaga 09:00 – 10:00, 14:00 – 17:00), korekta czyści flagę — deaba00
+
+### Addendum: ad-hoc poprawki UI (2026-09-13)
+
+#### Automated
+
+- [ ] A.1 `npx astro sync` + `npm run lint` + `npx astro check` + `npm run build` czyste
+
+#### Manual
+
+- [ ] A.2 Dashboard: przyciski nawigacji i „Sign out" mieszczą się w karcie „Kawiarnia Januszex"
+- [ ] A.3 Pracownicy: link „Dostępności" otwiera widok z wybranym danym pracownikiem
+- [ ] A.4 Dostępności: „＋ Dodaj" przy każdym dniu otwiera inline formularz; zapis dodaje wpis; „Anuluj" zamyka bez skutków
