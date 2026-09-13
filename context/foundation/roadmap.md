@@ -39,7 +39,7 @@ Rdzeń hipotezy produktu — założenie, że jeśli się nie sprawdzi, reszta n
 | S-05 | schedule-editing-collisions | ręcznie modyfikować draft; kolizje z niedostępnością są sygnalizowane przed zapisem | S-04 | FR-009, FR-010, US-01, US-03 | done |
 | S-06 | save-complete-schedule | zapisać kompletny grafik — dziury nie mogą zostać zapisane po cichu | S-05 | FR-011, US-01, Guardrails | done |
 | S-07 | schedule-text-export | skopiować tekstowy widok zapisanego grafiku (jedna akcja) i wkleić go na Messengera/WhatsAppa | S-06 | FR-012, US-02 | proposed |
-| S-08 | schedule-archive | przeglądać zapisane grafiki minionych tygodni (widok read-only) | S-06 | NFR trwałość danych; decyzja user 2026-09-13 | proposed |
+| S-08 | schedule-archive | przeglądać archiwalne zapisane grafiki (tydzień bieżący i minione) read-only, z historycznymi godzinami otwarcia; edycja/planowanie tylko dla tygodni przyszłych | S-06 | NFR trwałość danych; decyzje user 2026-09-13 | proposed |
 
 ## Baseline
 
@@ -164,15 +164,15 @@ Foundations poniżej zakładają, że te warstwy są obecne, i NIE budują ich o
 
 ### S-08: Archiwum zapisanych grafików
 
-- **Outcome:** użytkownik przegląda zapisane grafiki minionych tygodni — widok read-only per tydzień, z nawigacją tygodniową spójną z dostępnościami (S-03).
+- **Outcome:** użytkownik przegląda archiwalne, zapisane grafiki tygodnia bieżącego i minionych — widok read-only z wiernym odwzorowaniem godzin otwarcia obowiązujących w danym tygodniu. Tygodnie ≤ bieżący (już minione albo w toku) są zamrożone: bez edycji, bez „Generuj draft", bez „Odblokuj do edycji". Edycja i planowanie są dostępne wyłącznie dla tygodni przyszłych. Bez spisu tygodni — nawigacja tygodniowa ‹ ›.
 - **Change ID:** schedule-archive
-- **PRD refs:** NFR trwałość danych ("Zapisany grafik… nie znikają między sesjami"); rozszerzenie poza FR — decyzja użytkownika 2026-09-13 podczas planowania S-03 (spójność nawigacji tygodniowej dostępności ↔ grafików).
+- **PRD refs:** NFR trwałość danych ("Zapisany grafik… nie znikają między sesjami"); rozszerzenie poza FR — decyzje użytkownika 2026-09-13 (read-only dla tygodni ≤ bieżący, edycja tylko dla przyszłości, brak listy tygodni, historyczne godziny otwarcia w widoku archiwalnym).
 - **Prerequisites:** S-06
-- **Parallel with:** S-07
+- **Parallel with:** S-07 (tekstowy widok z S-07 reużywany w widoku archiwalnym)
 - **Blockers:** —
 - **Unknowns:**
   - —
-- **Risk:** Poza krytyczną ścieżką north star (primary criteria zamykają się na S-07) — pierwszy kandydat do obcięcia, jeśli deadline 2026-09-14 zaciśnie plan. Koszt niski: widok read-only reużyjący wzorzec nawigacji tygodniowej z S-03 i tekstowy widok z S-07. Sekwencja po S-06, bo bez zapisanych grafików nie ma czego archiwizować.
+- **Risk:** Zmienia zachowanie strony `/schedules` dla tygodni przeszłych i bieżącego (zamrożenie edycji) — reguła „miniony tydzień się nie zmienia" musi być spójna z obecnym widokiem read-only zapisanych grafików (S-06) i z triggerem blokującym zapis przypisań do grafików `saved`. Historyczne godziny otwarcia wymagają decyzji o przechowywaniu (snapshot godzin przy zapisie grafiku albo wersjonowanie godzin otwarcia). Poza krytyczną ścieżką north star (primary criteria zamykają się na S-07) — kandydat do cięcia przy deadline 2026-09-14.
 - **Status:** proposed
 
 ## Backlog Handoff
@@ -187,7 +187,7 @@ Foundations poniżej zakładają, że te warstwy są obecne, i NIE budują ich o
 | S-05 | schedule-editing-collisions | [#9](https://github.com/GWladowska/JanuszexGrafikPro/issues/9) | Edycja draftu z ostrzeżeniami o kolizjach | no | Czeka na S-04 |
 | S-06 | save-complete-schedule | [#10](https://github.com/GWladowska/JanuszexGrafikPro/issues/10) | Zapis kompletnego grafiku (walidacja dziur) | no | Czeka na S-05 |
 | S-07 | schedule-text-export | [#11](https://github.com/GWladowska/JanuszexGrafikPro/issues/11) | Kopiowanie tekstowego widoku grafiku | no | Czeka na S-06 |
-| S-08 | schedule-archive | — | Archiwum zapisanych grafików (widok read-only) | no | Czeka na S-06; równoległe z S-07; issue do utworzenia |
+| S-08 | schedule-archive | — | Archiwum grafików: read-only dla tygodni minionych i bieżącego (historyczne godziny otwarcia), edycja tylko dla przyszłych | no | Czeka na S-06; równoległe z S-07; issue do utworzenia |
 
 ## Open Roadmap Questions
 
