@@ -1,0 +1,103 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import DbErrorState from "@/components/business/DbErrorState.astro";
+import ScheduleBoard from "@/components/schedules/ScheduleBoard";
+import { createClient } from "@/lib/supabase";
+import { getBusinessForOwner, getOpeningHours } from "@/lib/services/business";
+import { getEmployees } from "@/lib/services/employee";
+import { getAvailabilitiesForWeek, getAssignments, getScheduleByWeek } from "@/lib/services/schedule";
+import type { AssignmentRow } from "@/lib/services/schedule";
+import { nextMonday } from "@/lib/week";
+
+const user = Astro.locals.user;
+if (!user) {
+  return Astro.redirect("/auth/signin");
+}
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+if (!supabase) {
+  return Astro.redirect("/auth/signin");
+}
+
+const businessResult = await getBusinessForOwner(supabase, user.id);
+if (businessResult.error === null && businessResult.data === null) {
+  return Astro.redirect("/business/setup");
+}
+const business = businessResult.error === null ? businessResult.data : null;
+const dbError = businessResult.error;
+
+const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Warsaw" }).format(new Date());
+const defaultWeekStart = nextMonday(today);
+
+const employeesResult = business !== null ? await getEmployees(supabase, business.id) : null;
+const openingHoursResult = business !== null ? await getOpeningHours(supabase, business.id) : null;
+const scheduleResult = business !== null ? await getScheduleByWeek(supabase, business.id, defaultWeekStart) : null;
+const availabilitiesResult =
+  business !== null ? await getAvailabilitiesForWeek(supabase, business.id, defaultWeekStart) : null;
+
+let initialAssignments: AssignmentRow[] = [];
+let assignmentsFailed = false;
+if (scheduleResult !== null && scheduleResult.error === null && scheduleResult.data !== null) {
+  const assignmentsResult = await getAssignments(supabase, scheduleResult.data.id);
+  if (assignmentsResult.error !== null) {
+    assignmentsFailed = true;
+  } else {
+    initialAssignments = assignmentsResult.data;
+  }
+}
+
+const listsFailed =
+  assignmentsFailed ||
+  (employeesResult !== null && employeesResult.error !== null) ||
+  (openingHoursResult !== null && openingHoursResult.error !== null) ||
+  (scheduleResult !== null && scheduleResult.error !== null) ||
+  (availabilitiesResult !== null && availabilitiesResult.error !== null);
+
+const employees =
+  employeesResult !== null && employeesResult.error === null
+    ? employeesResult.data.map((employee) => ({ id: employee.id, name: employee.name }))
+    : [];
+const openingHours = openingHoursResult !== null && openingHoursResult.error === null ? openingHoursResult.data : [];
+const initialWeekData = {
+  schedule: scheduleResult !== null && scheduleResult.error === null ? scheduleResult.data : null,
+  assignments: initialAssignments,
+  availabilities: availabilitiesResult !== null && availabilitiesResult.error === null ? availabilitiesResult.data : [],
+};
+---
+
+<Layout title={dbError !== null ? "Coś poszło nie tak" : "Grafik"}>
+  {
+    dbError !== null ? (
+      <DbErrorState />
+    ) : (
+      <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
+        <div class="w-full max-w-2xl space-y-6">
+          <div class="rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
+            <h1 class="mb-6 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
+              Grafik
+            </h1>
+            {listsFailed ? (
+              <p class="rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 text-sm text-red-100">
+                Nie udało się pobrać danych. Odśwież stronę, aby spróbować ponownie.
+              </p>
+            ) : (
+              <ScheduleBoard
+                initialEmployees={employees}
+                openingHours={openingHours}
+                defaultWeekStart={defaultWeekStart}
+                initialWeekData={initialWeekData}
+                client:load
+              />
+            )}
+          </div>
+
+          <p class="text-center">
+            <a href="/dashboard" class="text-sm text-purple-300 hover:underline">
+              Wróć do dashboardu
+            </a>
+          </p>
+        </div>
+      </div>
+    )
+  }
+</Layout>

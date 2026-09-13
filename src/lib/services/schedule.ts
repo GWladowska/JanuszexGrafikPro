@@ -1,7 +1,6 @@
 import type { Database } from "@/lib/database.types";
 import { normalizeTime } from "@/lib/services/business";
-import type { AvailabilityRow } from "@/lib/services/availability";
-import type { DraftPiece } from "@/lib/services/schedule-generation";
+import type { DraftInput, DraftPiece } from "@/lib/services/schedule-generation";
 import type { createClient } from "@/lib/supabase";
 import type { ServiceResult } from "@/lib/services/types";
 import { addDays } from "@/lib/week";
@@ -93,7 +92,7 @@ export async function getAvailabilitiesForWeek(
   supabase: Supabase,
   businessId: string,
   weekStart: string,
-): Promise<ServiceResult<AvailabilityRow[]>> {
+): Promise<ServiceResult<DraftInput["availabilities"]>> {
   const { data, error } = await supabase
     .from("availabilities")
     .select("*")
@@ -108,9 +107,10 @@ export async function getAvailabilitiesForWeek(
   }
   return {
     data: data.map((row) => ({
-      ...row,
-      start_time: normalizeTime(row.start_time),
-      end_time: normalizeTime(row.end_time),
+      employeeId: row.employee_id,
+      workDate: row.work_date,
+      startTime: normalizeTime(row.start_time),
+      endTime: normalizeTime(row.end_time),
     })),
     error: null,
   };
