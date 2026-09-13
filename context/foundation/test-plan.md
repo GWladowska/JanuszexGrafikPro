@@ -6,173 +6,142 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-09-13
+> Last updated: 2026-09-14
 
 ## 1. Strategy
 
-Testy w tym projekcie podlegają trzem niepodważalnym zasadom:
+Testy w tym projekcie trzymają się trzech zasad, których nie wolno omijać:
 
-1. **Cost × signal.** Wygrywa najtańszy test dający realny sygnał dla
-   danego ryzyka. Nie promuj do e2e, bo e2e "czuje się bezpieczniej". Nie
-   kładź modelu wizyjnego na deterministyczny visual diff, który już łapie
-   regresję.
-2. **Obawy użytkownika są dowodem pierwszej klasy.** Ryzyka zakotwiczone w
-   "<zespół boi się X, a awaria wyszłaby w <obszar>>" mają tę samą wagę co
-   linie PRD czy dane hot-spotów.
-3. **Risks are scenarios, not code locations.** Ten plan dokumentuje *co
-   może się zepsuć* i *dlaczego wierzymy, że to prawdopodobne* — z
-   dokumentów, wywiadu i *sygnału* z kodu (churn, struktura, test base). Nie
-   twierdzi, która linia odpowiada za awarię. Ta wiedza powstaje w
-   `/10x-research` podczas każdej fazy rolloutu. Gdy plan i research się
-   różnią co do miejsca awarii, research jest źródłem prawdy.
+1. **Koszt × sygnał.** Wygrywa najtańszy test, który daje prawdziwy sygnał dla danego ryzyka. Nie promujemy do testu „od początku do końca", bo „wydaje się bezpieczniejszy". Nie dokładamy modelu rozpoznawania obrazu tam, gdzie zwykłe porównanie już łapie regresję.
+2. **Obawy użytkownika są pełnoprawnym dowodem.** Ryzyko oparte na „zespół boi się X, a awaria objawiłaby się gdzieś w obszarze Y" waży tyle samo, co linia w opisie produktu albo dane o częstych zmianach.
+3. **Ryzyka to scenariusze, nie miejsca w kodzie.** Ten plan opisuje *co może się zepsuć* i *dlaczego uważamy to za prawdopodobne* — na podstawie dokumentów, wywiadu i *sygnałów* z kodu (częstotliwość zmian, struktura, stan testów). Plan NIE twierdzi, że wie, która linia kodu odpowiada za awarię. Tę wiedzę produkuje `/10x-research` w każdym etapie robót. Jeśli plan i research nie zgadzają się co do miejsca awarii — wiążący jest research.
 
-Zakres hot-spotów do ważenia prawdopodobieństwa: `src/`, `supabase/`
-(migracje + seed), 16 commits/30d.
+Zakres skanowania częstych zmian (do oceny prawdopodobieństwa): `src/` (bez dokumentów, bez `supabase/`, bez archiwum, bez bibliotek i plików generowanych). Okres: ostatnie 30 dni, 87 zmian.
 
 ## 2. Risk Map
 
-Topowe scenariusze awarii, uporządkowane po ryzyku = impact × likelihood.
-Ryzyka to scenariusze w języku użytkownika/biznesu, nie nazwy testów. Kolumna
-Source cytuje *dowód, który wydobył to ryzyko* — nigdy konkretny plik jako
-"miejsce awarii" (to zadanie researchu, patrz §1 zasada 3).
+Najważniejsze scenariusze awarii, od najgroźniejszego (ryzyko = waga × prawdopodobieństwo). Ryzyka to scenariusze w języku użytkownika i biznesu, nie nazwy testów. Kolumna „Skąd wiemy" podaje *dowód, który wywindował ryzyko* — nigdy konkretny plik jako „miejsce awarii" (to zadanie researchu, patrz §1 zasada 3).
 
-| # | Risk (failure scenario) | Impact | Likelihood | Source (evidence — not anchor) |
-|---|---|---|---|---|
-| 1 | Grafik zapisany z nieobsadzoną godziną otwarcia — dziura znika po cichu, lokal domyślnie zamknięty | High | High | interview Q1; PRD Guardrails + US-01 AC; roadmap S-06 |
-| 2 | Zmiana na niedostępność pracownika zapisana bez ostrzeżenia | High | High | interview Q1; PRD FR-010, US-03; roadmap S-05 |
-| 3 | Draft pokrycia liczony błędnie (obsada poza dostępnością albo dziura mimo dostępności) | High | Medium | roadmap S-04; hot-spot `src/lib/services` (16 commits/30d); PRD Business Logic |
-| 4 | Przeciek danych między biznesami przez nowy endpoint grafiku (właściciel B widzi dane właściciela A) | High | Medium | PRD Access Control; archive F-01 (RLS = jedyna warstwa izolacji, klucz publiczny); hot-spot `src/pages/api` (13 commits/30d) — abuse lens |
-| 5 | Rozjazd tygodnia/strefy czasowej (kotwica poniedziałku ISO, Europe/Warsaw, SSR vs island, HH:MM:SS vs HH:MM) | Medium | High | interview Q3; archive S-03 (udokumentowane pułapki czasu); hot-spot `src/components/business` (10 commits/30d) |
-| 6 | Nowe endpointy grafiku mapują błędy bazy na złe kody — surowy błąd PostgREST zamiast 404/409 z polskim komunikatem | Medium | Medium | archive S-02/S-03 (wzorce kontraktów błędów); hot-spot `src/pages/api` (13 commits/30d) |
+| # | Ryzyko (scenariusz awarii) | Waga | Prawdopodobieństwo | Skąd wiemy |
+|---|----------------------------|------|--------------------|------------|
+| 1 | Grafik zapisuje się, mimo że brakuje obsady albo jest kolizja (poza dostępnością / nakładka tej samej osoby), albo ekran i serwer nie zgadzają się, czy grafik jest kompletny | Wysoka | Wysoka | Gwarancje z `prd.md` (dziura nie może zniknąć po cichu); `archive/2026-09-13-save-complete-schedule` oznacza brak testów tej reguły jako dług; wywiad Q1; hot-spot `src/pages/api` (24/30 dni) |
+| 2 | Logika obsady/dziur liczy źle albo dostaje dane w złym kształcie — ekran pokazuje pusty grafik, fałszywe dziury lub ogólnikowy błąd bez przyczyny | Wysoka | Wysoka | Wywiad Q2 (błąd ukryty za pustym ekranem, winą nieprzekazany parametr) i Q3; `lessons.md` — rozjazd kształtu danych z bazy przeszedł wszystkie bramki; hot-spot `src/lib/services` (37/30 dni) |
+| 3 | Zasady czasu (który to tydzień, kiedy tydzień jest zamknięty, północ, zmiana czasu) policzone źle → obsada lub dziura na złym dniu | Wysoka | Średnia | Wywiad Q3; `infrastructure.md` rejestr ryzyk ostrzega przed różnicami stref czasowych na Cloudflare/workerd; hot-spot `src/lib/week.ts` (4/30 dni) |
+| 4 | Izolacja między właścicielami psuje się po zmianie polityk lub migracji — dziś sprawdzana tylko ręcznie | Wysoka | Średnia | `prd.md` Access Control (izolacja danych per właściciel); `archive/2026-09-12-domain-schema-rls` — CI nie sprawdza SQL, a test jest ręczny |
+| 5 | **Nadużycie:** właściciel A wysyła żądanie z identyfikatorem zasobu właściciela B (pracownik/grafik/zmiana) i odczytuje lub zmienia cudze dane | Wysoka | Średnia | `prd.md` Access Control; hot-spot `src/pages/api` (24/30 dni); konfiguracja ochrony tras wymienia tylko strony, nie adresy API |
+| 6 | Zmiana wspólnego pomocnika/serwisu psuje inną, pozornie niezwiązaną ścieżkę — kody i komunikaty odpowiedzi się rozjeżdżają | Średnia | Wysoka | `lessons.md` — duplikaty zaczęły się rozjeżdżać (komunikaty widoczne dla użytkownika); hot-spot `src/lib/http.ts` (9/30 dni) |
+| 7 | Tekst grafiku dla załogi wychodzi z surowymi znacznikami, w złej kolejności albo bez dni nieczynnych — nieczytelny u pracownika | Średnia | Średnia | Kryterium sukcesu US-02 w `prd.md`; `archive/2026-09-13-schedule-text-export` — formatowanie jest „best-effort" i zależy od telefonu odbiorcy |
 
-Rubryka: High = utrata dostępu/danych/przychodu lub awaria publiczna / obszar
-zmieniany co tydzień lub już tam poparzeni; Medium = degradacja z
-obejściem / dotykane okazjonalnie; Low = kosmetyka / kod stabilny.
-
-Scenariusze High-impact × Low-likelihood (np. awaria Supabase/Cloudflare)
-należą do obserwowalności, nie do testów — świadomie poza mapą.
+Scenariusze o dużej wadze, ale znikomym prawdopodobieństwie i poza naszą kontrolą (awaria Cloudflare, wyczerpanie darmowego limitu 100 tys. żądań/dobę, awaria Supabase) należą do **alarmów i monitoringu**, nie do testów — świadomie pominięte.
 
 ### Risk Response Guidance
 
-| Risk | What would prove protection | Must challenge | Context `/10x-research` must ground | Likely cheapest layer | Anti-pattern to avoid |
-|------|-----------------------------|----------------|--------------------------------------|-----------------------|-----------------------|
-| #1 | Zapis grafiku z nieobsadzoną godziną otwarcia jest odrzucany; dziury widoczne przed zapisem; nic nie zapisane po cichu | "działający draft ⇒ kompletność przy zapisie" — test musi próbować zapisu niekompletnego | punkt wejścia zapisu grafiku, miejsce walidacji kompletności (aplikacja vs baza), statusy grafiku | integration (endpoint zapisu) | happy-path-only; lustro implementacji |
-| #2 | Przypisanie pracownika na godziny jego niedostępności sygnalizowane przed zapisem; żadna kolizja nie zapisana po cichu | "ostrzeżenie w UI ⇒ kontrakt serwerowy istnieje" | lokalizacja walidacji kolizji, decyzja ostrzeżenie-vs-blok (PRD Open Q1) | integration | asercja tylko finalnego statusu 200 |
-| #3 | Draft obsadza wyłącznie z dostępności i zostawia dziury, gdy obsada niemożliwa; styki przedziałów obsadzane poprawnie | "pusta odpowiedź = brak danych" — pusty draft może być poprawny | algorytm generacji draftu, kształt danych (dostępności × godziny otwarcia), przypadki brzegowe (styk przedziałów, wiele wpisów/dzień) | unit (czysta logika) | oracle problem — oczekiwana obsada liczona ręcznie z fixture, nie kopiowana z kodu |
-| #4 | Żądanie o cudzy business_id / cudzy zasób zwraca odmowę (pusto/403/404), nigdy dane drugiego właściciela | "zalogowany ⇒ uprawniony" — autentykacja ≠ własność | kształt polityk RLS, rozstrzyganie właściciela w endpointach, obrona kluczami kompozytowymi | integration na lokalnym Supabase (poziom SQL i API) | mockowanie klienta Supabase — mock warstwy izolacji unieważnia test |
-| #5 | Tydzień kotwiczony na poniedziałek ISO w Europe/Warsaw; SSR i island zgodne; granice dnia nie przesuwają się | "działa lokalnie ⇒ poprawne strefowo" — TZ maszyny dev ≠ Warszawa | gdzie liczona kotwica tygodnia (serwer vs klient), formatowanie wyświetlania, hydratacja | unit (funkcje dat/tygodnia/czasu) | e2e dla czystej arytmetyki dat; zależność od zegara systemowego |
-| #6 | Błędy bazy mapowane na udokumentowane kody (404/409) z polskim komunikatem przy nowych endpointach grafiku | "finalny status 200 ⇒ wszystko OK" — asercja kontraktu błędów, nie tylko sukcesu | wspólny helper mapowania błędów HTTP i jego stałe, wzorce z S-02/S-03 | integration | snapshot-bez-znaczenia; over-mocking |
+| Ryzyko | Co musi zostać udowodnione | Założenie, które trzeba podważyć | Co najpierw ustalić | Najtańszy sensowny rodzaj testu | Czego nie robić |
+|--------|----------------------------|----------------------------------|---------------------|--------------------------------|-----------------|
+| #1 | Zapis grafiku z brakującą godziną lub kolizją jest odrzucany przez serwer (nie tylko przez przycisk), a komunikat mówi, co blokuje | „Zielony przycisk = serwer też pozwoli"; „ostrzeżenie o kolizji to to samo co blokada przy zapisie" | Gdzie zapada decyzja o zapisie; czy sprawdzenie jest atomowe przy dwóch równoległych zapisach; czy serwer liczy kompletność z tych samych danych co ekran | unit (czysta reguła) + integration (adres zapisu) | Oczekiwana wartość skopiowana z kodu produkcyjnego (test zawsze zielony); sprawdzanie tylko szczęśliwej ścieżki |
+| #2 | Dla danych dostępności i godzin otwarcia funkcja zwraca dokładnie oczekiwane zmiany i dziury; złe lub pominięte dane widać jako błąd, nie jako pusty ekran | „Dane z bazy mają te same nazwy pól co logika"; „brak wyniku = brak grafiku" | Kształt danych na granicy bazy i logiki; pola wymagane; jak reprezentowany jest błąd odczytu | unit (czysta logika, dane wpisane w teście) | Test napisany pod to, co zwraca kod (problem wyroczni); asertowanie implementacji zamiast reguły z opisu produktu |
+| #3 | Dla dat granicznych funkcje zwracają właściwy tydzień i właściwą decyzję „zamknięte/otwarte" w strefie Europe/Warsaw, nie w strefie serwera | „Serwer działa w czasie lokalnym użytkownika"; „tydzień liczy się wszędzie tak samo" | Jak wyznaczany jest początek tygodnia; w jakiej strefie działa reguła zamrożenia; czy strefy są podane jawnie | unit (funkcje czasu z ustalonymi datami) | Test zależny od „dzisiaj" i od strefy maszyny (raz zielony, raz czerwony); brak przypadków brzegowych |
+| #4 | Konto drugiego właściciela nie odczyta i nie zapisze niczego z pierwszego lokalu — a test da się uruchomić jedną komendą, także w automacie | „Zielone CI wystarcza, skoro nie sprawdza SQL"; „RLS działa, bo tak było przy tworzeniu schematu" | Jak uruchomić test na lokalnej bazie; które tabele i operacje pokryć; jak wstawić konta i przełączyć kontekst | database test (pgTAP) przez lokalne CLI | Jednorazowy skrypt „od święta"; test tylko na odczyt bez próby zapisu |
+| #5 | Żądanie z cudzym identyfikatorem zasobu jest odrzucane; żądanie bez zalogowania nie zmienia danych | „Skoro ekran tego nie pokazuje, nikt tego nie wyśle"; „chroni nas warstwa bazy, więc adres API nie musi sprawdzać" | Które adresy API przyjmują identyfikatory; czy nieznajomy identyfikator jest odrzucany; gdzie sprawdzana jest przynależność zasobu | integration (wywołanie adresu w kontekście dwóch właścicieli) | Test tylko szczęśliwej ścieżki właściciela; poleganie na ukryciu przycisku w interfejsie |
+| #6 | Po zmianie wspólnej funkcji kluczowe odpowiedzi pozostają takie same na kilku różnych ścieżkach | „Zmiana dotyczy jednego miejsca"; „komunikaty błędów są nieistotne" | Które ścieżki korzystają z tego samego pomocnika; wspólny kształt odpowiedzi; gdzie żyją stałe komunikatów | integration (kilka adresów API naraz) | Test przyklejony do jednej trasy, który nie zauważy rozjazdu kształtu odpowiedzi na innej |
+| #7 | Tekst ma dni w kolejności, zmiany posortowane po godzinie, dni nieczynne obecne, a wariant „bez formatowania" nie zawiera żadnych znaczników | „Formatowanie działa wszędzie"; „skoro na ekranie wygląda dobrze, to w schowku też" | Skąd brane są dni i godziny; jak oznaczane są dni nieczynne; czym różnią się oba warianty tekstu | unit (czysta funkcja budująca tekst) | Poprawianie oczekiwanego tekstu pod to, co zwraca kod; test tylko jednego dnia tygodnia |
 
 ## 3. Phased Rollout
 
-Each row is a discrete rollout phase that will open its own change folder
-via `/10x-new`. Status moves left-to-right through the values below; the
-orchestrator updates Status as artifacts appear on disk.
+Każdy wiersz to osobny etap, który otworzy własny folder zmian przez `/10x-new`. Status przesuwa się od lewej do prawej; orchestrator aktualizuje go, gdy na dysku pojawiają się kolejne pliki.
 
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
-|---|---|---|---|---|---|---|
-| 1 | Runner + czysta logika | Bootstrap runnera i ochrona czystej logiki (draft, tydzień/strefa) | #3, #5 | unit | change opened | context/changes/testing-runner-core-logic/ |
-| 2 | Kontrakt API grafiku | Ciche złamanie reguły domenowej niemożliwe na poziomie endpointów | #1, #2, #6 | integration | not started | — |
-| 3 | Izolacja danych (RLS) | Automatyczny dowód, że biznesy nie przeciekają | #4 | integration / SQL-level | not started | — |
-| 4 | Quality gates w CI | Zablokowanie podłogi: `npm run test` w ci.yml jako quality gate | cross-cutting | gates | not started | — |
+|---|------------|-----------------|---------------|------------|--------|---------------|
+| 1 | Uruchomienie testów + czysta logika grafiku i czasu | Uruchomić narzędzie do testów i pokryć najtańszą warstwę: obsadę, dziury, reguły czasu i składanie tekstu | #2, #3, #7, część #1 | unit | change opened | context/changes/testing-core-logic/ |
+| 2 | Reguły po stronie serwera: zapis, zamrożenie, uprawnienia | Udowodnić, że serwer odrzuca niekompletny/cudzy zapis niezależnie od interfejsu | #1 (serwer), #3, #5, #6 | integration | not started | — |
+| 3 | Izolacja danych jako powtarzalny test | Zamienić ręczny test izolacji w komendę uruchamianą w automacie | #4 | database (pgTAP) | not started | — |
+| 4 | Bramki jakości w automacie | Wpiąć testy i `npx astro check` w CI, by czerwona zmiana nie trafiła na produkcję | wszystkie | gates | not started | — |
 
-Faza AI-native świadomie pominięta (cost × signal): solo, mała aplikacja,
-brak powierzchni wizualnej wartej review modelem; classic gates dają ten sam
-sygnał taniej.
+**Status vocabulary** (fixed — parser literals): `not started` → `change opened` → `researched` → `planned` → `implementing` → `complete`.
 
 ## 4. Stack
 
-Klasyczna baza testowa. Narzędzia AI-native (jeśli w ogóle) niosą datę
-`checked:`, żeby przyszły czytelnik widział, co wymaga weryfikacji.
-Rekomendacje oparte na lokalnych manifestach/konfiguracjach plus narzędzia
-MCP realnie dostępne w sesji. Docs-MCP (Context7) niedostępny — powiedziane
-wprost, nie założony.
+Klasyczna baza testowa projektu. Narzędzia zależne od dostawcy noszą datę `checked:`, by przyszły czytelnik wiedział, co wymaga ponownej weryfikacji.
 
-| Layer | Tool | Version | Notes |
-|---|---|---|---|
-| unit + integration | Vitest | none yet — see §3 Phase 1 | bootstrap w Fazie 1; Vitest natywny dla Vite/Astro |
-| API mocking | — | — | integracja na lokalnym Supabase (WSL Docker); mock tylko na krawędzi HTTP, jeśli w ogóle — patrz Faza 2 |
-| e2e | brak (ręczne E2E) | — | decyzja z S-01/S-02: budżet testowy tylko na rdzeń; patrz §7 |
-| accessibility | — | — | poza rdzeniem (§7) |
-| AI-native | pominięte | n/a | cost × signal — brak fazy |
+| Warstwa | Narzędzie | Wersja | Uwagi |
+|---------|-----------|--------|-------|
+| unit (czysta logika, tekst, czas) | Vitest | none yet — see §3 Phase 1 | Pasuje do Astro/Vite/TypeScript; brak jakiegokolwiek runnera w repo |
+| integration (adresy API na Workers) | `@cloudflare/vitest-pool-workers` | none yet — see §3 Phase 2 | Otwarta beta; w sierpniu 2026 przemianowane na wersję 1; izolacja magazynu per plik testowy |
+| database / RLS | pgTAP przez `supabase test db` | none yet — see §3 Phase 3 | Plik testowy musi trafić do `supabase/tests/database/`; wymaga lokalnego stacku (Docker + CLI z WSL) |
+| e2e | brak — patrz §5 | n/a | Testy „od początku do końca" nie są teraz uzasadnione kosztem; najpierw warstwy tańsze |
+| AI-native | brak | n/a | Nie ma potrzeby: reguły są deterministyczne, taniej złapie je zwykły test |
 
 **Stack grounding tools (current session):**
-- Docs: none (Context7 niedostępny w sesji) — rekomendacje oparte na manifestach i konfiguracji repo; checked: 2026-09-13
-- Search: wbudowany websearch — dostępny do weryfikacji statusu narzędzi w Fazie 1/4, jeśli zajdzie wątpliwość; checked: 2026-09-13
-- Runtime/browser: none (Playwright MCP niedostępny) — nie używany; checked: 2026-09-13
-- Provider/platform: Linear/Jira/Jenkins MCP (zarządzanie, nie jakość kodu); brak GitHub/Supabase/Cloudflare MCP — bramki w CI przez GitHub Actions; checked: 2026-09-13
+- Docs: brak w tej sesji (dostępny jest wyłącznie serwer dokumentacji VOCS, nie dotyczący tego projektu) — oparto się na lokalnych manifestach i oficjalnej dokumentacji; checked: 2026-09-14
+- Search: wbudowane wyszukiwanie w sieci — sprawdzono aktualny status narzędzi Cloudflare i Supabase; checked: 2026-09-14
+- Runtime/browser: brak w tej sesji (nie ma narzędzia Playwright) — nieużywane; checked: 2026-09-14
+- Provider/platform: Linear, Jenkins, Jira (zakładanie zgłoszeń / sygnał bramki) oraz CLI GitHub i Wrangler — potencjalne znaczenie dla przyszłych bramek jakości; nieużywane w tym etapie; checked: 2026-09-14
+
+Rekomendacje w tej sekcji opierają się na lokalnych manifestach i konfiguracji oraz na narzędziach faktycznie dostępnych w tej sesji. Jeśli przydatne narzędzie do dokumentacji (np. Context7) jest niedostępne, mówimy to wprost, zamiast zakładać dostęp.
 
 ## 5. Quality Gates
 
-Pełny zestaw bramek, które muszą przejść przed wejściem zmiany na produkcję.
-"Required for §3 Phase <N>" = brama egzekwowana, gdy ta faza ląduje; wcześniej
-`planned`.
+Pełny zestaw bramek, które muszą przejść, zanim zmiana trafi na produkcję. „Wymagane po etapie N" znaczy, że bramka działa od momentu wdrożenia danego etapu; wcześniej jest `planowana`.
 
-| Gate | Where | Required? | Catches |
-|---|---|---|---|
-| lint + typecheck | local + CI | required (wired: eslint, astro sync/build) | syntactic / type drift |
-| unit + integration | local od Fazy 1; CI od Fazy 4 | required after §3 Phase 1 (CI po Fazie 4) | logic regressions |
-| e2e on critical flows | manual (poza CI) | poza budżetem — patrz §7 | broken critical user paths (ręcznie) |
-| post-edit hook | local (agent loop) | optional — nie planowany | regressions at edit time |
-| visual diff / multimodal review | — | optional — pominięte (cost × signal) | rendering regressions |
-| pre-prod smoke | manual | optional — ręczne E2E przed wdrożeniem | environment-specific failures |
+| Bramka | Gdzie | Wymagana? | Co łapie |
+|--------|-------|-----------|----------|
+| lint | lokalnie + CI | wymagana (działa) | dryf składni i stylu |
+| typecheck (`npx astro check`) | lokalnie + CI | wymagana po §3 Phase 1 | rozjazd typów i kształtu danych między modułami (przeszedł sync+lint+build) |
+| testy jednostkowe | lokalnie + CI | wymagana po §3 Phase 1 | błędy logiki obsady, dziur, czasu i tekstu |
+| testy integracyjne | lokalnie + CI | wymagana po §3 Phase 2 | obejście bramki zapisu, uprawnienia, rozjazd odpowiedzi |
+| izolacja danych (pgTAP) | lokalnie + CI | wymagana po §3 Phase 3 | przeciek danych między właścicielami |
+| build | lokalnie + CI | wymagana (działa) | błędy budowania |
+| hook po zapisie pliku | lokalnie (pętla agenta) | zalecana po §3 Phase 3 | regresje w momencie edycji |
+| smoke przed produkcją | między merge a produkcją | opcjonalna | awarie specyficzne dla środowiska |
+
+Uwaga: publikację robi Cloudflare Workers Builds po mergu na `master`, a istniejący `ci.yml` jest tylko sygnałem jakości. Dlatego bramki w CI muszą być wymagane w ochronie gałęzi GitHuba — inaczej czerwona zmiana i tak trafi na produkcję.
 
 ## 6. Cookbook Patterns
 
-Jak dodawać nowe testy w tym projekcie. Każda podsekcja wypełniana, gdy
-dostępna faza rolloutu ląduje; wcześniej "TBD — see §3 Phase <N>".
+Jak dodawać nowe testy w tym projekcie. Każda podsekcja wypełnia się po wdrożeniu odpowiedniego etapu; wcześniej czyta się „TBD — patrz §3 Phase N".
 
-### 6.1 Dodanie testu jednostkowego logiki domenowej
+### 6.1 Adding a unit test
 
-- TBD — see §3 Phase 1 (wzorzec: generacja draftu / liczenie dziur / arytmetyka tygodnia i czasu; oczekiwane wartości z ręcznych fixture, nie z kodu).
+- TBD — patrz §3 Phase 1 (wzorzec dla czystej logiki obsady i dziur).
 
-### 6.2 Dodanie testu integracyjnego endpointu
+### 6.2 Adding a test for schedule/time logic
 
-- TBD — see §3 Phase 2 (wzorzec: kontrakt żądanie → odpowiedź + efekty uboczne; asercja kodów błędów 404/409, nie tylko happy path).
+- TBD — patrz §3 Phase 1 (wzorzec dla reguł tygodnia, zamrożenia i strefy Europe/Warsaw).
 
-### 6.3 Dodanie testu izolacji danych (RLS)
+### 6.3 Adding a test for the staff text export
 
-- TBD — see §3 Phase 3 (wzorzec: dwa konta właścicieli, próba dostępu do cudzych wierszy — odmowa na poziomie SQL i API; zero mocków klienta Supabase).
+- TBD — patrz §3 Phase 1 (wzorzec dla składania tekstu: kolejność dni, dni nieczynne, wariant bez znaczników).
 
-### 6.4 Dodanie testu dla nowego endpointu grafiku
+### 6.4 Adding an integration test for an API endpoint
 
-- TBD — see §3 Phase 2 (kiedy integration wystarcza, a kiedy sięgać dalej).
+- TBD — patrz §3 Phase 2 (wzorzec dla bramki zapisu, uprawnień i wspólnego kształtu odpowiedzi).
 
-### 6.5 Dodanie bramki do CI
+### 6.5 Adding a database / RLS isolation test
 
-- TBD — see §3 Phase 4 (`npm run test` w ci.yml jako quality gate).
+- TBD — patrz §3 Phase 3 (wzorzec dla `supabase/tests/database/`, uruchamiany przez `supabase test db`).
 
-### 6.6 Notes per rollout phase
+### 6.6 Per-rollout-phase notes
 
-(Faza ląduje → /10x-implement dopisuje tu 2-3 linijki o zaskoczeniach, np.
-potrzebne fixture albo nowe komendy.)
+(Opcjonalne. Po każdym wdrożonym etapie `/10x-implement` dopisuje tu 2–3 linie: co zaskoczyło, czego potrzebowały testy.)
 
 ## 7. What We Deliberately Don't Test
 
-Wyłączenia ustalone w rolloucie (wywiad Phase 2, Q5). Przyszli kontrybutorzy
-respektują je, dopóki nie zmieni się podstawowe założenie.
+Wyłączenia ustalone podczas wywiadu (pytanie Q5). Przyszli autorzy powinni je uszanować, dopóki założenie się nie zmieni.
 
-- **Wszystko poza rdzeniem (reguła domenowa + izolacja danych)** — budżet
-  testowy tylko na rdzeń; resztę pokrywa ręczne E2E. (Source: Phase 2
-  interview Q5.) Re-evaluate, jeśli zespół rozrośnie się poza solo albo
-  ręczne E2E zacznie przepuszczać regresje.
-- **Seed i dane demo** — niszczą się przez `supabase db reset`; testowana
-  logika nie może zależeć od seeda. (Source: Phase 2 interview Q5.)
-- **Komponenty czysto prezentacyjne i snapshoty UI** — łamią się przy każdym
-  restylu i nic nie łapią. (Source: Phase 2 interview Q5.)
-- **Auth pages (baseline, na produkcji od 2026-09-07)** — przetestowane
-  ręcznie wdrożenie; brak logiki domenowej. (Source: Phase 2 interview Q5,
-  roadmap Baseline.) Re-evaluate przy zmianie przepływu auth.
+- **Rzeczy poza zakresem produktu** — eksport obrazka, logowanie pracowników, optymalizacja algorytmiczna, integracje, których nie ma. Ponowna ocena, gdy któryś z tych obszarów wejdzie do zakresu. (Źródło: wywiad Q5.)
+- **Logowanie i konta** — rozwiązane i stabilne; wracamy, gdy pojawi się realna regresja. (Źródło: wywiad Q5.)
+- **Wygląd i styl ekranów** — łatwe do wychwycenia i poprawienia ręcznie; testy wizualne dopiero, gdy pojawi się krytyczny ekran. (Źródło: wywiad Q5.)
+- **Awarie poza kontrolą** — Cloudflare, Supabase, darmowe limity. Należą do monitoringu i alarmów, nie do testów. (Źródło: wywiad Q5 + analiza.)
 
 ## 8. Freshness Ledger
 
-- Strategy (§1–§5) last reviewed: 2026-09-13
-- Stack versions last verified: 2026-09-13
-- AI-native tool references last verified: 2026-09-13 (pominięte — brak)
+- Strategy (§1–§5) last reviewed: 2026-09-14
+- Stack versions last verified: 2026-09-14
+- AI-native tool references last verified: 2026-09-14
 
-Refresh (`/10x-test-plan --refresh`) when:
+Refresh (`/10x-test-plan --refresh`) gdy:
 
-- a new top-3 risk surfaces from the roadmap or archive,
-- a recommended tool's `checked:` date is older than three months,
-- the project's tech stack changes (new framework, new test runner),
-- §7 negative-space no longer matches what the team believes.
+- z roadmapy lub archiwum wypłynie nowe ryzyko z pierwszej trójki,
+- data `checked:` zalecanego narzędzia jest starsza niż trzy miesiące,
+- zmienia się technologia projektu (nowy framework, nowy runner testów),
+- §7 „czego nie testujemy" przestaje zgadzać się z tym, w co wierzy zespół.
