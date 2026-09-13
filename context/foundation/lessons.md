@@ -49,3 +49,10 @@
 - **Problem**: PowerShell 5.1 przy przekazywaniu zmiennej do natywnego polecenia rozbija argument na cudzysłowach ASCII — commit nie powstaje, a komunikat błędu (pathspec) nie wskazuje bezpośrednio na przyczynę, więc koszt diagnozy powtarza się za każdym razem.
 - **Rule**: Treść commit message pisz w here-stringu @'...'@ (nigdy heredoc — PowerShell go nie zna) i nigdy nie używaj w niej ASCII cudzysłowu " — do cytatów używaj pary polskiej „…" (oba znaki). Po błędzie „pathspec" przy commicie najpierw sprawdź cudzysłowy w treści, nie staging.
 - **Applies to**: all
+
+## Bramkę weryfikacji fazy rozszerz o `npx astro check` — sync/lint/build nie łapią błędów typów
+
+- **Context**: Weryfikacja automatyczna faz (/10x-implement, /10x-impl-review — plan definiuje bramki `npx astro sync` + `npm run lint` + `npm run build`); incident: schedule-draft-generation (S-04) — `getAvailabilitiesForWeek` zwracał wiersze bazy w snake_case, a `generateDraft`/`isFullyCovered`/`computeHoles` oczekiwały camelCase z kontraktu `DraftInput`; ScheduleBoard przekazywał AssignmentRow (snake_case) wprost do `computeHoles`. Rozjazd przeszedł przez wszystkie trzy bramki i wyszedł dopiero w scenariuszach E2E (pusty draft, fałszywe całodzienne dziury) — dwa round-tripy re-testów z użytkownikiem.
+- **Problem**: `astro sync` tylko generuje typy, eslint nie robi pełnego typechecku między modułami, a `astro build` (Vite/esbuild) wycina typy bez ich sprawdzania — rozjazd kontraktu typów między serwisem, czystą logiką i islandą nie daje żadnego czerwonego sygnału aż do ręcznych testów, gdzie koszt diagnozy jest największy.
+- **Rule**: Przy weryfikacji fazy/znaczącej zmiany uruchamiaj `npx astro check` obok sync/lint/build (i dodaj go do bramki CI). Dane z bazy (snake_case) na granicy serwisu mapuj jawnie do kształtu kontraktu (camelCase) — nigdy nie przepuszczaj surowych wierszy bazy do czystej logiki ani do islandy.
+- **Applies to**: implement, impl-review
