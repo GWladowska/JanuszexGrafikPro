@@ -348,11 +348,11 @@ Brak migracji i zmian schematu; `npm run db:types` zbędne. Seed bez zmian — f
 
 #### Manual
 
-- [x] 3.5 Scenariusz A: nagłówki dni z godzinami otwarcia + generacja + zamiana Anny na Piotra (pon) z flagą 08:00 – 12:00, trwałość po F5
-- [x] 3.6 Scenariusz B: przesuwanie zmiany (flaga 10:00 – 16:00, cała zmiana bez dostępności), walidacja okna (klient + zapora serwerowa)
-- [x] 3.7 Scenariusz C: fixture bieżącego tygodnia — nakładka dwóch osób bez flagi, flagi prezydencjące, zamiana Tomasz→Maria (flaga 16:00 – 18:00)
-- [x] 3.8 Scenariusz D: dodanie z dziury bez kolizji (czwartek, Maria 08:00 – 16:00, dziura kurczy się do 16:00 – 20:00)
-- [x] 3.9 Scenariusz E: usuwanie zmiany z potwierdzeniem — dziura wraca do 08:00 – 20:00
-- [x] 3.10 Scenariusz F: dodanie z kolizją (środa, Maria 08:00 – 12:00) + usuwanie, dziura wraca
-- [x] 3.11 Scenariusz G: podwójna rezerwacja tej samej osoby — flaga nakładki 12:00 – 13:00 na obu zmianach, znika po usunięciu
-- [x] 3.12 Scenariusz H: świeże konto — generacja, usuwanie, dodanie z domyślnymi godzinami (flaga 09:00 – 10:00, 14:00 – 17:00), korekta czyści flagę
+- [x] 3.5 Scenariusz A: nagłówki dni z godzinami otwarcia + generacja + zamiana Anny na Piotra (pon) z flagą 08:00 – 12:00, trwałość po F5 — deaba00
+- [x] 3.6 Scenariusz B: przesuwanie zmiany (flaga 10:00 – 16:00, cała zmiana bez dostępności), walidacja okna (klient + zapora serwerowa) — deaba00
+- [x] 3.7 Scenariusz C: fixture bieżącego tygodnia — nakładka dwóch osób bez flagi, flagi prezydencjące, zamiana Tomasz→Maria (flaga 16:00 – 18:00) — deaba00
+- [x] 3.8 Scenariusz D: dodanie z dziury bez kolizji (czwartek, Maria 08:00 – 16:00, dziura kurczy się do 16:00 – 20:00) — deaba00
+- [x] 3.9 Scenariusz E: usuwanie zmiany z potwierdzeniem — dziura wraca do 08:00 – 20:00 — deaba00
+- [x] 3.10 Scenariusz F: dodanie z kolizją (środa, Maria 08:00 – 12:00) + usuwanie, dziura wraca — deaba00
+- [x] 3.11 Scenariusz G: podwójna rezerwacja tej samej osoby — flaga nakładki 12:00 – 13:00 na obu zmianach, znika po usunięciu — deaba00
+- [x] 3.12 Scenariusz H: świeże konto — generacja, usuwanie, dodanie z domyślnymi godzinami (flaga 09:00 – 10:00, 14:00 – 17:00), korekta czyści flagę — deaba00
