@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Pencil, Plus, Sparkles, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, CircleCheck, LockOpen, Pencil, Plus, Sparkles, Trash2 } from "lucide-react";
 import { ServerError } from "@/components/auth/ServerError";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ERROR_NETWORK, useApiErrorState } from "@/components/hooks/useApiErrorState";
 import { ERROR_OUTSIDE_OPENING_HOURS } from "@/lib/http";
 import type { OpenDay } from "@/lib/services/business-validation";
 import type { AssignmentRow, ScheduleRow } from "@/lib/services/schedule";
-import type { DraftInput, DraftPiece } from "@/lib/services/schedule-generation";
+import type { DraftInput, DraftPiece, ScheduleBlockers } from "@/lib/services/schedule-generation";
 import {
-  computeHoles,
+  findScheduleBlockers,
   findSelfOverlaps,
   findUncoveredRanges,
   isFullyCovered,
@@ -51,6 +51,9 @@ const holeClass = "rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 t
 
 const flagClass = "rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-100";
 
+const savedBadgeClass =
+  "inline-flex items-center gap-1 rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-100";
+
 function extractWeekData(body: unknown): ScheduleWeekData | null {
   if (typeof body !== "object" || body === null) {
     return null;
@@ -89,6 +92,43 @@ function extractAssignment(body: unknown): AssignmentRow | null {
     return null;
   }
   return assignment as AssignmentRow;
+}
+
+function extractSchedule(body: unknown): ScheduleRow | null {
+  if (typeof body !== "object" || body === null) {
+    return null;
+  }
+  const schedule = (body as { schedule?: unknown }).schedule;
+  if (typeof schedule !== "object" || schedule === null) {
+    return null;
+  }
+  return schedule as ScheduleRow;
+}
+
+function extractBlockers(body: unknown): ScheduleBlockers | null {
+  if (typeof body !== "object" || body === null) {
+    return null;
+  }
+  const blockers = (body as { blockers?: unknown }).blockers;
+  if (typeof blockers !== "object" || blockers === null) {
+    return null;
+  }
+  const { holes, collisions } = blockers as { holes?: unknown; collisions?: unknown };
+  if (!Array.isArray(holes) || !Array.isArray(collisions)) {
+    return null;
+  }
+  return { holes: holes as ScheduleBlockers["holes"], collisions: collisions as ScheduleBlockers["collisions"] };
+}
+
+function blockerSummary(holesCount: number, collisionsCount: number): string {
+  const parts: string[] = [];
+  if (holesCount > 0) {
+    parts.push(`dziury (${holesCount})`);
+  }
+  if (collisionsCount > 0) {
+    parts.push(`kolizje (${collisionsCount})`);
+  }
+  return `Uzupełnij ${parts.join(" i ")}, aby zapisać`;
 }
 
 function toDraftPiece(row: AssignmentRow): DraftPiece {
@@ -170,6 +210,11 @@ export default function ScheduleBoard({
   const [addPending, setAddPending] = useState(false);
   const [removeConfirmId, setRemoveConfirmId] = useState<string | null>(null);
   const [removePendingId, setRemovePendingId] = useState<string | null>(null);
+  const [saveConfirming, setSaveConfirming] = useState(false);
+  const [savePending, setSavePending] = useState(false);
+  const [unlockConfirming, setUnlockConfirming] = useState(false);
+  const [unlockPending, setUnlockPending] = useState(false);
+  const [serverBlockers, setServerBlockers] = useState<ScheduleBlockers | null>(null);
 
   const navApi = useApiErrorState();
   const generateApi = useApiErrorState();
@@ -178,6 +223,8 @@ export default function ScheduleBoard({
   const editApi = useApiErrorState();
   const addApi = useApiErrorState();
   const removeApi = useApiErrorState();
+  const saveApi = useApiErrorState();
+  const unlockApi = useApiErrorState();
 
   const actionButtonClass = (danger: boolean) =>
     cn(
@@ -196,6 +243,9 @@ export default function ScheduleBoard({
     setAdding(null);
     setAddingError(null);
     setRemoveConfirmId(null);
+    setSaveConfirming(false);
+    setUnlockConfirming(false);
+    setServerBlockers(null);
   }
 
   async function goToWeek(previousWeekStart: string, nextWeekStart: string) {
@@ -412,6 +462,60 @@ export default function ScheduleBoard({
     }
   }
 
+  async function submitSave() {
+    saveApi.setServerError(null);
+    setServerBlockers(null);
+    setSavePending(true);
+    try {
+      const response = await fetch("/api/schedules", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ weekStart, status: "saved" }),
+      });
+      const responseBody: unknown = await response.json().catch(() => null);
+      if (!response.ok) {
+        saveApi.applyApiError(responseBody);
+        setServerBlockers(extractBlockers(responseBody));
+        return;
+      }
+      const updated = extractSchedule(responseBody);
+      if (updated !== null) {
+        setWeekData((prev) => ({ ...prev, schedule: updated }));
+        closeEditingForms();
+      }
+    } catch {
+      saveApi.setServerError(ERROR_NETWORK);
+    } finally {
+      setSavePending(false);
+    }
+  }
+
+  async function submitUnlock() {
+    unlockApi.setServerError(null);
+    setUnlockPending(true);
+    try {
+      const response = await fetch("/api/schedules", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ weekStart, status: "draft" }),
+      });
+      const responseBody: unknown = await response.json().catch(() => null);
+      if (!response.ok) {
+        unlockApi.applyApiError(responseBody);
+        return;
+      }
+      const updated = extractSchedule(responseBody);
+      if (updated !== null) {
+        setWeekData((prev) => ({ ...prev, schedule: updated }));
+        setUnlockConfirming(false);
+      }
+    } catch {
+      unlockApi.setServerError(ERROR_NETWORK);
+    } finally {
+      setUnlockPending(false);
+    }
+  }
+
   if (employees.length === 0) {
     return (
       <div className="space-y-4">
@@ -429,11 +533,26 @@ export default function ScheduleBoard({
 
   const employeesById = new Map(employees.map((employee) => [employee.id, employee]));
   const openingByWeekday = new Map<number, OpenDay>(openingHours.map((day) => [day.weekday, day]));
-  const weekHoles = computeHoles(openingHours, toDraftPieces(weekData.assignments), weekStart);
+  const blockers = findScheduleBlockers(
+    openingHours,
+    weekData.availabilities,
+    toDraftPieces(weekData.assignments),
+    weekStart,
+  );
+  const weekHoles = blockers.holes;
+  const canSave = blockers.holes.length === 0 && blockers.collisions.length === 0;
+  const blockersSummary = blockerSummary(blockers.holes.length, blockers.collisions.length);
+  const isDraft = weekData.schedule?.status === "draft";
+  const isSaved = weekData.schedule?.status === "saved";
   const weekDays = Array.from({ length: 7 }, (_, index) => addDays(weekStart, index));
-  const draft = weekData.schedule !== null;
   const actionsPending =
-    navPending || swapPendingId !== null || editPendingId !== null || addPending || removePendingId !== null;
+    navPending ||
+    swapPendingId !== null ||
+    editPendingId !== null ||
+    addPending ||
+    removePendingId !== null ||
+    savePending ||
+    unlockPending;
 
   return (
     <div className="space-y-8">
@@ -583,7 +702,7 @@ export default function ScheduleBoard({
                                       {employeesById.get(row.employee_id)?.name ?? "—"} · {row.start_time} –{" "}
                                       {row.end_time}
                                     </p>
-                                    {draft && !rowConfirmingRemove ? (
+                                    {isDraft && !rowConfirmingRemove ? (
                                       <div className="flex flex-wrap items-center gap-2">
                                         <button
                                           type="button"
@@ -704,7 +823,7 @@ export default function ScheduleBoard({
                         className={cn(holeClass, "mt-2 flex flex-wrap items-center justify-between gap-2")}
                       >
                         <span>Dziura {formatRange(hole.startTime, hole.endTime)}</span>
-                        {draft && !addingHere ? (
+                        {isDraft && !addingHere ? (
                           <button
                             type="button"
                             disabled={actionsPending}
@@ -726,7 +845,7 @@ export default function ScheduleBoard({
                         ) : null}
                       </div>
                     ))}
-                    {draft && !addingHere ? (
+                    {isDraft && !addingHere ? (
                       <button
                         type="button"
                         disabled={actionsPending}
@@ -859,16 +978,63 @@ export default function ScheduleBoard({
               Generuj draft
             </SubmitButton>
           </form>
+        ) : isSaved ? (
+          <>
+            <p className={savedBadgeClass}>
+              <CircleCheck className="size-4" />
+              Zapisany grafik
+            </p>
+            {unlockConfirming ? (
+              <div className="text-sm">
+                <p className="text-blue-100">Odblokować zapisany grafik do edycji?</p>
+                <ServerError message={unlockApi.serverError} />
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    disabled={unlockPending || navPending}
+                    onClick={() => {
+                      void submitUnlock();
+                    }}
+                    className={cn(actionButtonClass(false), "flex items-center gap-1 disabled:opacity-50")}
+                  >
+                    <LockOpen className="size-4" />
+                    {unlockPending ? "Odblokowywanie..." : "Odblokuj"}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={unlockPending}
+                    onClick={() => {
+                      setUnlockConfirming(false);
+                      unlockApi.setServerError(null);
+                    }}
+                    className={cn(actionButtonClass(false), "disabled:opacity-50")}
+                  >
+                    Anuluj
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                disabled={navPending}
+                onClick={() => {
+                  setUnlockConfirming(true);
+                  unlockApi.setServerError(null);
+                }}
+                className={cn(actionButtonClass(false), "flex items-center gap-1 disabled:opacity-50")}
+              >
+                <LockOpen className="size-4" />
+                Odblokuj do edycji
+              </button>
+            )}
+            <ServerError message={unlockApi.serverError} />
+          </>
         ) : (
           <>
             <button
               type="button"
               disabled
-              title={
-                weekData.schedule !== null
-                  ? "Draft już istnieje — użyj „Usuń draft”, aby zacząć od nowa."
-                  : "Ładowanie danych tygodnia…"
-              }
+              title="Draft już istnieje — użyj „Usuń draft”, aby zacząć od nowa."
               className={cn(actionButtonClass(false), "w-full cursor-not-allowed opacity-50")}
             >
               <span className="flex items-center justify-center gap-2">
@@ -876,52 +1042,115 @@ export default function ScheduleBoard({
                 Generuj draft
               </span>
             </button>
-            {weekData.schedule !== null ? (
-              <>
-                <p className="text-sm text-blue-100/70">
-                  Draft już istnieje — użyj „Usuń draft”, aby wygenerować grafik od nowa.
-                </p>
-                {deleting ? (
-                  <div className="text-sm">
-                    <p className="text-red-200">Na pewno usunąć draft grafiku wraz ze wszystkimi zmianami?</p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        disabled={deletePending || navPending}
-                        onClick={() => {
-                          void submitDelete();
-                        }}
-                        className={cn(actionButtonClass(true), "flex items-center gap-1 disabled:opacity-50")}
-                      >
-                        <Trash2 className="size-4" />
-                        {deletePending ? "Usuwanie..." : "Usuń"}
-                      </button>
-                      <button
-                        type="button"
-                        disabled={deletePending}
-                        onClick={() => {
-                          setDeleting(false);
-                        }}
-                        className={cn(actionButtonClass(false), "disabled:opacity-50")}
-                      >
-                        Anuluj
-                      </button>
-                    </div>
-                  </div>
-                ) : (
+            <p className="text-sm text-blue-100/70">
+              Draft już istnieje — użyj „Usuń draft”, aby wygenerować grafik od nowa.
+            </p>
+            {deleting ? (
+              <div className="text-sm">
+                <p className="text-red-200">Na pewno usunąć draft grafiku wraz ze wszystkimi zmianami?</p>
+                <div className="mt-3 flex flex-wrap gap-2">
                   <button
                     type="button"
-                    disabled={navPending}
+                    disabled={deletePending || navPending}
                     onClick={() => {
-                      setDeleting(true);
+                      void submitDelete();
                     }}
                     className={cn(actionButtonClass(true), "flex items-center gap-1 disabled:opacity-50")}
                   >
                     <Trash2 className="size-4" />
-                    Usuń draft
+                    {deletePending ? "Usuwanie..." : "Usuń"}
                   </button>
-                )}
-              </>
+                  <button
+                    type="button"
+                    disabled={deletePending}
+                    onClick={() => {
+                      setDeleting(false);
+                    }}
+                    className={cn(actionButtonClass(false), "disabled:opacity-50")}
+                  >
+                    Anuluj
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                disabled={navPending}
+                onClick={() => {
+                  setDeleting(true);
+                }}
+                className={cn(actionButtonClass(true), "flex items-center gap-1 disabled:opacity-50")}
+              >
+                <Trash2 className="size-4" />
+                Usuń draft
+              </button>
+            )}
+
+            {saveConfirming ? (
+              <div className="text-sm">
+                <p className="text-blue-100">Zapisać grafik? Po zapisie edycja będzie zablokowana.</p>
+                <ServerError message={saveApi.serverError} />
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    disabled={savePending || navPending}
+                    onClick={() => {
+                      void submitSave();
+                    }}
+                    className={cn(actionButtonClass(false), "flex items-center gap-1 disabled:opacity-50")}
+                  >
+                    <CircleCheck className="size-4" />
+                    {savePending ? "Zapisywanie..." : "Zapisz"}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={savePending}
+                    onClick={() => {
+                      setSaveConfirming(false);
+                      saveApi.setServerError(null);
+                      setServerBlockers(null);
+                    }}
+                    className={cn(actionButtonClass(false), "disabled:opacity-50")}
+                  >
+                    Anuluj
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                disabled={!canSave || navPending}
+                title={canSave ? undefined : blockersSummary}
+                onClick={() => {
+                  setSaveConfirming(true);
+                  saveApi.setServerError(null);
+                  setServerBlockers(null);
+                }}
+                className={cn(actionButtonClass(false), "flex items-center gap-1 disabled:opacity-50")}
+              >
+                <CircleCheck className="size-4" />
+                {canSave ? "Zapisz grafik" : blockersSummary}
+              </button>
+            )}
+            <ServerError message={saveApi.serverError} />
+            {serverBlockers !== null && (serverBlockers.holes.length > 0 || serverBlockers.collisions.length > 0) ? (
+              <div className="space-y-1 rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-100">
+                {serverBlockers.holes.map((hole) => (
+                  <p key={`hole-${hole.workDate}-${hole.startTime}-${hole.endTime}`}>
+                    Dziura {weekdayShort(hole.workDate)} {formatDayLabel(hole.workDate)}:{" "}
+                    {formatRange(hole.startTime, hole.endTime)}
+                  </p>
+                ))}
+                {serverBlockers.collisions.map((collision) => (
+                  <p
+                    key={`collision-${collision.kind}-${collision.employeeId}-${collision.workDate}-${collision.startTime}-${collision.endTime}`}
+                  >
+                    Kolizja · {employeesById.get(collision.employeeId)?.name ?? "—"} ·{" "}
+                    {formatDayLabel(collision.workDate)}: {formatRange(collision.startTime, collision.endTime)}
+                    {collision.kind === "self-overlap" ? " (nakładka)" : " (poza dostępnością)"}
+                  </p>
+                ))}
+              </div>
             ) : null}
           </>
         )}

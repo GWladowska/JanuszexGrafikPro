@@ -316,25 +316,25 @@ Brak migracji i zmian schematu — `schedule_status` istnieje od F-01. `npm run 
 
 #### Automated
 
-- [x] 2.1 `npx astro sync` przechodzi
-- [x] 2.2 `npm run lint` bez błędów
-- [x] 2.3 `npx astro check` bez błędów typów
-- [x] 2.4 `npm run build` kończy się sukcesem
+- [x] 2.1 `npx astro sync` przechodzi — 47de723
+- [x] 2.2 `npm run lint` bez błędów — 47de723
+- [x] 2.3 `npx astro check` bez błędów typów — 47de723
+- [x] 2.4 `npm run build` kończy się sukcesem — 47de723
 
 ### Phase 3: Islanda ScheduleBoard — przycisk zapisu, widok read-only, odblokowanie
 
 #### Automated
 
-- [ ] 3.1 `npx astro sync` przechodzi
-- [ ] 3.2 `npm run lint` bez błędów
-- [ ] 3.3 `npx astro check` bez błędów typów
-- [ ] 3.4 `npm run build` kończy się sukcesem
+- [x] 3.1 `npx astro sync` przechodzi
+- [x] 3.2 `npm run lint` bez błędów
+- [x] 3.3 `npx astro check` bez błędów typów
+- [x] 3.4 `npm run build` kończy się sukcesem
 
 #### Manual
 
-- [ ] 3.5 Scenariusz A: świeże konto — dziura, kolizja poza dostępnością i nakładka tej samej osoby kolejno blokują zapis (licznik + wyszarzony przycisk), usunięcie braku odblokowuje przycisk
-- [ ] 3.6 Scenariusz B: udany zapis z potwierdzeniem → read-only + plakietka „Zapisany grafik", trwałość po F5, „Odblokuj do edycji" i ponowny zapis
-- [ ] 3.7 Scenariusz C: konto seeda — bieżący tydzień (dziury + kolizje) i następny po generacji (same dziury) pokazują wyszarzony przycisk z licznikami
-- [ ] 3.8 Scenariusz D: zapora serwera — `PATCH` przy brakach 400 z listą blokad, kompletny 200, ponowny zapis 409, odblokowanie 200, odblokowanie draftu 409
-- [ ] 3.9 Scenariusz E: główna ścieżka — dziura obsadzona niedostępną osobą daje kolizję; rozszerzenie dostępności pracownika usuwa flagę i pozwala zapisać
-- [ ] 3.10 Scenariusz F: zapora awaryjna UI — nieświeże dane klienta (przycisk aktywny) → serwer 400 z listą blokad, UI ją pokazuje
+- [x] 3.5 Scenariusz A: świeże konto — dziura, kolizja poza dostępnością i nakładka tej samej osoby kolejno blokują zapis (licznik + wyszarzony przycisk), usunięcie braku odblokowuje przycisk
+- [x] 3.6 Scenariusz B: udany zapis z potwierdzeniem → read-only + plakietka „Zapisany grafik", trwałość po F5, „Odblokuj do edycji" i ponowny zapis
+- [x] 3.7 Scenariusz C: konto seeda — bieżący tydzień (dziury + kolizje) i następny po generacji (same dziury) pokazują wyszarzony przycisk z licznikami
+- [x] 3.8 Scenariusz D: zapora serwera — `PATCH` przy brakach 400 z listą blokad, kompletny 200, ponowny zapis 409, odblokowanie 200, odblokowanie draftu 409
+- [x] 3.9 Scenariusz E: główna ścieżka — dziura obsadzona niedostępną osobą daje kolizję; rozszerzenie dostępności pracownika usuwa flagę i pozwala zapisać
+- [x] 3.10 Scenariusz F: zapora awaryjna UI — nieświeże dane klienta (przycisk aktywny) → serwer 400 z listą blokad, UI ją pokazuje
