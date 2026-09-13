@@ -262,26 +262,26 @@ Brak zmian w bazie — `availabilities` i RLS są już na produkcji (F-01, push 
 
 #### Automated
 
-- [x] 2.1 `npx astro sync` przechodzi
-- [x] 2.2 `npm run lint` przechodzi
-- [x] 2.3 `npm run build` kończy się sukcesem
+- [x] 2.1 `npx astro sync` przechodzi — b2f0c4b
+- [x] 2.2 `npm run lint` przechodzi — b2f0c4b
+- [x] 2.3 `npm run build` kończy się sukcesem — b2f0c4b
 
 ### Phase 3: Strona /availabilities i nawigacja
 
 #### Automated
 
-- [ ] 3.1 `npx astro sync` przechodzi
-- [ ] 3.2 `npm run lint` przechodzi
-- [ ] 3.3 `npm run build` kończy się sukcesem
+- [x] 3.1 `npx astro sync` przechodzi
+- [x] 3.2 `npm run lint` przechodzi
+- [x] 3.3 `npm run build` kończy się sukcesem
 
 #### Manual
 
-- [ ] 3.4 Pusty stan przy 0 pracownikach z linkiem do /employees
-- [ ] 3.5 Dodanie wpisu pojawia się na liście tygodnia bez przeładowania
-- [ ] 3.6 Nakładanie odrzucone 409; stykające się przedziały przechodzą
-- [ ] 3.7 Edycja inline zapisuje zmiany; zmiana daty na inny tydzień przełącza widok
-- [ ] 3.8 Usunięcie z potwierdzeniem usuwa wpis
-- [ ] 3.9 Nawigacja ‹ › przegląda tygodnie; wpisy z przeszłości edytowalne
-- [ ] 3.10 Izolacja: drugie konto widzi pusto; wylogowanie blokuje /availabilities
-- [ ] 3.11 Konto seeda widzi dostępności z seeda
-- [ ] 3.12 Seed widoczny w trzech tygodniach (poprzednim, bieżącym, następnym) przez nawigację ‹ ›
+- [x] 3.4 Pusty stan przy 0 pracownikach z linkiem do /employees
+- [x] 3.5 Dodanie wpisu pojawia się na liście tygodnia bez przeładowania
+- [x] 3.6 Nakładanie odrzucone 409; stykające się przedziały przechodzą
+- [x] 3.7 Edycja inline zapisuje zmiany; zmiana daty na inny tydzień przełącza widok
+- [x] 3.8 Usunięcie z potwierdzeniem usuwa wpis
+- [x] 3.9 Nawigacja ‹ › przegląda tygodnie; wpisy z przeszłości edytowalne
+- [x] 3.10 Izolacja: drugie konto widzi pusto; wylogowanie blokuje /availabilities
+- [x] 3.11 Konto seeda widzi dostępności z seeda
+- [x] 3.12 Seed widoczny w trzech tygodniach (poprzednim, bieżącym, następnym) przez nawigację ‹ ›

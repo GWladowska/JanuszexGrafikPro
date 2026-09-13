@@ -17,6 +17,7 @@ interface FormFieldProps {
   hint?: ReactNode;
   icon: ReactNode;
   endContent?: ReactNode;
+  inputClassName?: string;
 }
 
 export function FormField({
@@ -31,6 +32,7 @@ export function FormField({
   hint,
   icon,
   endContent,
+  inputClassName,
 }: FormFieldProps) {
   return (
     <div>
@@ -50,6 +52,7 @@ export function FormField({
           placeholder={placeholder}
           className={cn(
             inputBase,
+            inputClassName,
             error ? "border-red-400/60 focus:ring-red-400" : "border-white/20 focus:ring-purple-400",
           )}
         />
