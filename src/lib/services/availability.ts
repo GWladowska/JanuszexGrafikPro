@@ -80,6 +80,24 @@ export async function updateAvailability(
   return { data: normalizeAvailabilityRow(data), error: null };
 }
 
+export async function getAvailabilityById(
+  supabase: Supabase,
+  businessId: string,
+  availabilityId: string,
+): Promise<ServiceResult<AvailabilityRow | null>> {
+  const { data, error } = await supabase
+    .from("availabilities")
+    .select("*")
+    .eq("id", availabilityId)
+    .eq("business_id", businessId)
+    .maybeSingle();
+
+  if (error) {
+    return { data: null, error };
+  }
+  return { data: data ? normalizeAvailabilityRow(data) : null, error: null };
+}
+
 export async function deleteAvailability(
   supabase: Supabase,
   businessId: string,

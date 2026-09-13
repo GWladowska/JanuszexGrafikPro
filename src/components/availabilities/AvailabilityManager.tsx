@@ -15,6 +15,7 @@ interface AvailabilityManagerProps {
   initialAvailabilities: AvailabilityRow[];
   initialEmployeeId?: string | null;
   defaultWeekStart: string;
+  currentWeekStart: string;
 }
 
 const darkInputClass = "[color-scheme:dark]";
@@ -34,6 +35,18 @@ function extractAvailability(body: unknown): AvailabilityRow | null {
     return null;
   }
   return availability as AvailabilityRow;
+}
+
+function extractScheduleStatus(body: unknown): string | null {
+  if (typeof body !== "object" || body === null) {
+    return null;
+  }
+  const schedule = (body as { schedule?: unknown }).schedule;
+  if (typeof schedule !== "object" || schedule === null) {
+    return null;
+  }
+  const status = (schedule as { status?: unknown }).status;
+  return typeof status === "string" ? status : null;
 }
 
 function isInWeek(date: string, weekStart: string): boolean {
@@ -78,12 +91,14 @@ export default function AvailabilityManager({
   initialAvailabilities,
   initialEmployeeId,
   defaultWeekStart,
+  currentWeekStart,
 }: AvailabilityManagerProps) {
   const employees = initialEmployees;
   const fallbackEmployeeId = initialEmployees.length > 0 ? initialEmployees[0].id : null;
   const [availabilities, setAvailabilities] = useState<AvailabilityRow[]>(initialAvailabilities);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(initialEmployeeId ?? fallbackEmployeeId);
   const [weekStart, setWeekStart] = useState(defaultWeekStart);
+  const [currentWeekSaved, setCurrentWeekSaved] = useState<boolean | null>(null);
 
   const addApi = useApiErrorState();
   const editApi = useApiErrorState();
@@ -103,11 +118,28 @@ export default function AvailabilityManager({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deletePending, setDeletePending] = useState(false);
 
+  async function loadCurrentWeekSaved() {
+    try {
+      const response = await fetch(`/api/schedules?week=${encodeURIComponent(currentWeekStart)}`);
+      const responseBody: unknown = await response.json().catch(() => null);
+      if (!response.ok) {
+        setCurrentWeekSaved(true);
+        return;
+      }
+      setCurrentWeekSaved(extractScheduleStatus(responseBody) === "saved");
+    } catch {
+      setCurrentWeekSaved(true);
+    }
+  }
+
   function goToWeek(nextWeekStart: string) {
     setWeekStart(nextWeekStart);
     setAddingDate(null);
     setEditingId(null);
     setDeletingId(null);
+    if (nextWeekStart === currentWeekStart && currentWeekSaved === null) {
+      void loadCurrentWeekSaved();
+    }
   }
 
   async function submitAdd(event: React.SubmitEvent<HTMLFormElement>, workDate: string) {
@@ -256,6 +288,10 @@ export default function AvailabilityManager({
     );
   }
 
+  const isPastWeek = weekStart < currentWeekStart;
+  const isCurrentWeek = weekStart === currentWeekStart;
+  const writesBlocked = isPastWeek || (isCurrentWeek && currentWeekSaved !== false);
+
   const weekDays = Array.from({ length: 7 }, (_, index) => addDays(weekStart, index));
   const weekAvailabilities = availabilities.filter(
     (row) => row.employee_id === selectedEmployeeId && isInWeek(row.work_date, weekStart),
@@ -312,6 +348,14 @@ export default function AvailabilityManager({
           </button>
         </div>
 
+        {writesBlocked ? (
+          <p className="mb-3 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-blue-100/70">
+            {isPastWeek
+              ? "Miniony tydzień — dostępności tylko do wglądu."
+              : "Grafik tego tygodnia jest już zapisany — dostępności tylko do wglądu."}
+          </p>
+        ) : null}
+
         <ul className="space-y-3">
           {weekDays.map((day) => {
             const dayEntries = weekAvailabilities
@@ -324,7 +368,7 @@ export default function AvailabilityManager({
                   <p className="text-sm font-semibold text-blue-100">
                     {weekdayShort(day)} {formatDayLabel(day)}
                   </p>
-                  {addingDate === day ? null : (
+                  {addingDate === day || writesBlocked ? null : (
                     <button
                       type="button"
                       onClick={() => {
@@ -348,7 +392,7 @@ export default function AvailabilityManager({
                   <ul className="mt-2 space-y-2">
                     {dayEntries.map((row) => (
                       <li key={row.id}>
-                        {editingId === row.id ? (
+                        {!writesBlocked && editingId === row.id ? (
                           <form onSubmit={(event) => submitEdit(event, row.id)} noValidate className="space-y-3">
                             <FormField
                               id={`edit-date-${row.id}`}
@@ -416,7 +460,7 @@ export default function AvailabilityManager({
                               </button>
                             </div>
                           </form>
-                        ) : deletingId === row.id ? (
+                        ) : !writesBlocked && deletingId === row.id ? (
                           <div className="text-sm">
                             <p className="text-red-200">
                               Na pewno usunąć ten wpis dostępności ({row.start_time} – {row.end_time})?
@@ -450,36 +494,38 @@ export default function AvailabilityManager({
                             <p className="text-sm text-white/80">
                               {row.start_time} – {row.end_time}
                             </p>
-                            <div className="flex items-center gap-2">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  startEdit(row);
-                                }}
-                                className={cn(actionButtonClass(false), "flex items-center gap-1")}
-                              >
-                                <Pencil className="size-4" />
-                                Edytuj
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setEditingId(null);
-                                  setDeletingId(row.id);
-                                }}
-                                className={cn(actionButtonClass(true), "flex items-center gap-1")}
-                              >
-                                <Trash2 className="size-4" />
-                                Usuń
-                              </button>
-                            </div>
+                            {!writesBlocked ? (
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    startEdit(row);
+                                  }}
+                                  className={cn(actionButtonClass(false), "flex items-center gap-1")}
+                                >
+                                  <Pencil className="size-4" />
+                                  Edytuj
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingId(null);
+                                    setDeletingId(row.id);
+                                  }}
+                                  className={cn(actionButtonClass(true), "flex items-center gap-1")}
+                                >
+                                  <Trash2 className="size-4" />
+                                  Usuń
+                                </button>
+                              </div>
+                            ) : null}
                           </div>
                         )}
                       </li>
                     ))}
                   </ul>
                 )}
-                {addingDate === day ? (
+                {addingDate === day && !writesBlocked ? (
                   <form
                     onSubmit={(event) => submitAdd(event, day)}
                     noValidate

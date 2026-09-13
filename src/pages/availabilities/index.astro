@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase";
 import { getBusinessForOwner } from "@/lib/services/business";
 import { getEmployees } from "@/lib/services/employee";
 import { getAvailabilities } from "@/lib/services/availability";
-import { nextMonday } from "@/lib/week";
+import { nextMonday, weekStartOf } from "@/lib/week";
 
 const user = Astro.locals.user;
 if (!user) {
@@ -27,6 +27,7 @@ const dbError = businessResult.error;
 
 const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Warsaw" }).format(new Date());
 const defaultWeekStart = nextMonday(today);
+const currentWeekStartValue = weekStartOf(today);
 
 const employeesResult = business !== null ? await getEmployees(supabase, business.id) : null;
 const availabilitiesResult = business !== null ? await getAvailabilities(supabase, business.id) : null;
@@ -65,6 +66,7 @@ const initialEmployeeId =
                 initialAvailabilities={availabilities}
                 initialEmployeeId={initialEmployeeId}
                 defaultWeekStart={defaultWeekStart}
+                currentWeekStart={currentWeekStartValue}
                 client:load
               />
             )}

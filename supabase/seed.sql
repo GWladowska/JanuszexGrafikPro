@@ -12,7 +12,7 @@
 --
 -- Dane: konto właściciela + kawiarnia „Kawiarnia Januszex":
 -- godziny otwarcia pon–sob (niedziela celowo pominięta = zamknięta),
--- 5 pracowników, dostępności na trzy tygodnie (poprzedni, bieżący i następny) (od poniedziałka
+-- 5 pracowników, dostępności na dwa tygodnie (bieżący i następny) (od poniedziałka
 -- date_trunc('week', now())::date), jeden grafik w statusie draft (tydzień bieżący)
 -- oraz jeden zapisany grafik archiwalny (tydzień poprzedni) z przypisaniami zmian.
 -- =============================================================================
@@ -104,8 +104,8 @@ values
   ('00000000-0000-4000-8000-000000000006', '00000000-0000-4000-8000-000000000002', 'Tomasz Zieliński', 'tomasz.zielinski@example.com'),
   ('00000000-0000-4000-8000-000000000007', '00000000-0000-4000-8000-000000000002', 'Katarzyna Lewandowska', 'katarzyna.lewandowska@example.com');
 
--- Dostępności na trzy tygodnie (poprzedni, bieżący, następny;
--- poniedziałek = date_trunc('week', now()))
+-- Dostępności na dwa tygodnie (bieżący, następny; poniedziałek = date_trunc('week', now())).
+-- Miniony tydzień celowo pominięty — trigger blokuje zapisy dostępności wstecz (Faza 4).
 insert into public.availabilities (business_id, employee_id, work_date, start_time, end_time)
 select
   v.business_id::uuid,
@@ -124,7 +124,7 @@ from (
     ('00000000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000006', date_trunc('week', now())::date + 4, '08:00', '22:00'),
     ('00000000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000007', date_trunc('week', now())::date + 5, '10:00', '22:00')
 ) as v(business_id, employee_id, work_date, start_time, end_time)
-cross join (values (-7), (0), (7)) as w(week_offset);
+cross join (values (0), (7)) as w(week_offset);
 
 -- Grafik szkic na bieżący tydzień
 insert into public.schedules (id, business_id, week_start, status)
@@ -143,8 +143,8 @@ values
 
 -- Grafik zapisany z poprzedniego tygodnia (archiwum S-08) — fixture widoku read-only
 -- z historycznymi godzinami otwarcia. Kopia godzin różni się od obecnych (Pn/Wt do 16:00,
--- Śr od 12:00, Cz do 16:00), a przypisania pokrywają dokładnie godziny z kopii, więc
--- archiwalny tydzień nie ma dziur ani kolizji z dostępnościami.
+-- Śr od 12:00, Cz do 16:00). Dostępności minionego tygodnia nie seedujemy (trigger Fazy 4
+-- blokuje zapisy wstecz), a zapisany grafik i tak nie pokazuje flag kolizji (Faza 3).
 insert into public.schedules (id, business_id, week_start, status)
 values (
   '00000000-0000-4000-8000-000000000009',

@@ -9,6 +9,8 @@ export const ERROR_EMPLOYEE_NOT_FOUND = "Nie znaleziono pracownika.";
 export const ERROR_AVAILABILITY_NOT_FOUND = "Nie znaleziono wpisu dostępności.";
 export const ERROR_OVERLAPPING_AVAILABILITY =
   "Ten pracownik ma już dostępność nakładającą się na ten przedział — zedytuj istniejący wpis.";
+export const ERROR_AVAILABILITY_WEEK_FROZEN =
+  "Miniony tydzień jest zablokowany, a bieżący — gdy grafik jest już zapisany. Dostępności można zmieniać na bieżący (do zapisania grafiku) i przyszłe tygodnie.";
 export const ERROR_SCHEDULE_EXISTS = "Draft grafiku dla tego tygodnia już istnieje";
 export const ERROR_SCHEDULE_NOT_FOUND = "Nie znaleziono grafiku dla tego tygodnia";
 export const ERROR_SAVED_SCHEDULE = "Grafik jest już zapisany i nie można go zmieniać";

@@ -25,6 +25,7 @@ Na `/schedules`, po nawigacji ‹ › do wybranego tygodnia:
 3. **Tydzień bieżący lub miniony** z istniejącym **draftem** → draft pokazany normalnie i nadal edytowalny/zapisywalny/usuwalny (dokończenie draftu), bez żadnych nowych blokad.
 4. **Tydzień bieżący lub miniony** z **zapisanym** grafikiem → widok tylko do odczytu: dni i godziny otwarcia z **kopii godzin z tego tygodnia** (a gdy kopii brak — z bieżących godzin), dyskretna linijka „Archiwum — godziny otwarcia z tego tygodnia", plakietka „Zapisany grafik", sekcja tekstowa S-07 policzona z historycznych godzin, **brak** „Odblokuj do edycji" i brak akcji edycji.
 5. **Serwer** nie pozwala obejść zamrożenia: `POST /api/schedules` (generowanie) i `PATCH` (odblokowanie) dla tygodni ≤ bieżący zwracają 409 z komunikatem o zamrożeniu; zapis kompletnego draftu w zamrożonym tygodniu nadal przechodzi.
+6. **Dostępności** (rozszerzenie ad-hoc, Faza 4): można dodawać/edytować/usuwać wyłącznie na tygodnie przyszłe oraz na tydzień bieżący, dopóki grafik tego tygodnia nie jest zapisany. Miniony tydzień jest read-only. Regułę egzekwują baza (trigger), serwer (API dostępności) i UI.
 
 ### Key Discoveries:
 
@@ -296,6 +297,101 @@ Islanda dostaje tydzień bieżący jako prop, pokazuje historyczne godziny i ozn
 
 ---
 
+## Phase 4: Zamrożenie edycji dostępności (rozszerzenie ad-hoc S-08)
+
+### Overview
+
+Dostępności pracowników można dodawać, edytować i usuwać wyłącznie na tygodnie przyszłe oraz na tydzień bieżący — i to tylko dopóki grafik tego tygodnia nie jest zapisany. Miniony tydzień jest read-only. Reguła jest egzekwowana na trzech warstwach: trigger w bazie (nie do obejścia), API dostępności (komunikat 409) i UI (akcje ukryte + informacja). Zmiana w tygodniu bieżącym dotyczy **każdego** zapisu, w tym przeniesienia wpisu z minionego tygodnia — dlatego przy `UPDATE` sprawdzana jest zarówno nowa, jak i poprzednia data.
+
+### Changes Required:
+
+#### 1. Komunikat błędu
+
+**File**: `src/lib/http.ts`
+
+**Intent**: Nowa stała w konwencji `ERROR_*` na odmowę zapisu dostępności w zamrożonym tygodniu.
+
+**Contract**: `export const ERROR_AVAILABILITY_WEEK_FROZEN = "Miniony tydzień jest zablokowany, a bieżący — gdy grafik jest już zapisany. Dostępności można zmieniać na bieżący (do zapisania grafiku) i przyszłe tygodnie.";`
+
+#### 2. Trigger bazy danych
+
+**File**: `supabase/migrations/<timestamp>_enforce_availability_week_writes.sql` (nowy; z WSL: `supabase migration new enforce_availability_week_writes`)
+
+**Intent**: Zamknąć regułę na poziomie bazy, żeby nie dało się jej obejść bezpośrednim zapisem i żeby wyścig „dostępność zmieniana w trakcie zapisu grafiku" był niemożliwy.
+
+**Contract**: Funkcja `public.enforce_availability_week_writes()` (BEFORE INSERT/UPDATE/DELETE na `availabilities`) liczy `date_trunc('week', candidate)::date` dla każdej daty z pary `(new.work_date, old.work_date)` (obecne przy INSERT/UPDATE/DELETE odpowiednio; `array_remove(..., null)`) i przy odwołaniu do `now() at time zone 'Europe/Warsaw'` odmawia, gdy: tydzień daty < bieżący tydzień, albo = bieżący tydzień i istnieje `schedules.status = 'saved'` dla `(business_id, week_start)`. `raise exception ... using errcode = '23000'` (PostgREST → 409). Wzorzec zgodny z `trg_assignments_enforce_draft` (S-06), łącznie z tolerancją dla kaskadowych kasowań, gdy biznes/schedule już nie istnieje.
+
+#### 3. Bramka serwera i odczyt wiersza
+
+**File**: `src/lib/services/availability.ts`, `src/lib/services/availability-guard.ts` (nowy)
+
+**Intent**: Jedna funkcja odpowiada na pytanie „czy ten tydzień wolno zmieniać", a API potrzebuje odczytu istniejącego wpisu, by sprawdzić jego datę przy edycji/usunięciu.
+
+**Contract**:
+```ts
+// availability.ts
+export async function getAvailabilityById(supabase, businessId, availabilityId): Promise<ServiceResult<AvailabilityRow | null>>;
+// select("*").eq("id", ...).eq("business_id", ...).maybeSingle() + normalizeAvailabilityRow
+
+// availability-guard.ts
+export async function isAvailabilityWeekEditable(supabase, businessId, workDate: string): Promise<ServiceResult<boolean>>;
+// weekStartOf(workDate) < currentWeekStart() → false
+// weekStartOf(workDate) > currentWeekStart() → true
+// == currentWeekStart() → false tylko gdy dla tego tygodnia istnieje zapisany grafik
+```
+
+#### 4. Bramka w API dostępności
+
+**File**: `src/pages/api/availabilities/index.ts`
+
+**Intent**: Odmówić zapisu w zamrożonym tygodniu, niezależnie od tego, skąd przyszło żądanie.
+
+**Contract**:
+- `POST`: po `resolveBusinessId` sprawdzić `isAvailabilityWeekEditable(..., parsed.input.workDate)`; `false` → 409 `ERROR_AVAILABILITY_WEEK_FROZEN`, `error` → 500.
+- `PUT`: pobrać wpis przez `getAvailabilityById` (brak → 404 `ERROR_AVAILABILITY_NOT_FOUND`); sprawdzić bramką **starą i nową** datę; dopiero potem walidacja nakładania i zapis.
+- `DELETE`: pobrać wpis (brak → 404); sprawdzić bramką jego `work_date` przed kasowaniem.
+
+#### 5. Seed bez minionego tygodnia
+
+**File**: `supabase/seed.sql`
+
+**Intent**: Seed nie może łamać nowego triggera — dostępności powstają teraz tylko na tydzień bieżący i przyszły.
+
+**Contract**: W `cross join (values (-7), (0), (7))` zostawić `(0)` i `(7)`; zaktualizować komentarz nagłówka („dwa tygodnie" zamiast „trzy", usunąć wzmiankę o poprzednim). Fixture archiwum (Faza 1) nie potrzebuje już dostępności z minionego tygodnia — flagi dla zapisanego grafiku i tak są ukryte (Faza 3).
+
+#### 6. UI — read-only dla zamrożonego tygodnia
+
+**File**: `src/pages/availabilities/index.astro`, `src/components/availabilities/AvailabilityManager.tsx`
+
+**Intent**: Użytkownik widzi od razu, że tygodnia minionego (lub bieżącego z zapisanym grafikiem) nie da się edytować — bez klikania, które kończy się błędem.
+
+**Contract**:
+- `index.astro`: `weekStartOf(today)` przekazane jako prop `currentWeekStart`.
+- `AvailabilityManager`: nowy prop `currentWeekStart: string`; stan `currentWeekSaved: boolean | null`; `writesBlocked = weekStart < currentWeekStart || (weekStart === currentWeekStart && currentWeekSaved !== false)`.
+- Przy wejściu w tydzień bieżący (i gdy `currentWeekSaved === null`) leniwy `fetch('/api/schedules?week=...')` → `currentWeekSaved = schedule?.status === "saved"`; przy błędzie/niepowodzeniu `true` (bezpieczniej blokować).
+- Gdy `writesBlocked`: brak przycisków „Dodaj", „Edytuj", „Usuń" i formularzy; komunikat rozróżniający miniony tydzień od bieżącego z zapisanym grafikiem; nawigacja ‹ › działa.
+
+### Success Criteria:
+
+#### Automated Verification:
+
+- `supabase db reset` (WSL) aplikuje trigger i seed bez błędów (seed bez offsetu -7)
+- `npx astro sync` przechodzi
+- `npm run lint` bez błędów
+- `npx astro check` bez błędów typów
+- `npm run build` kończy się sukcesem
+
+#### Manual Verification:
+
+- Miniony tydzień: brak „Dodaj"/„Edytuj"/„Usuń", komunikat o widoku tylko do odczytu; `POST /api/availabilities` na minioną datę → 409 o zamrożeniu
+- Bieżący tydzień bez zapisanego grafiku (draft): można dodać/edytować/usunąć dostępność przez UI; `POST` działa
+- Bieżący tydzień z zapisanym grafikiem: akcje znikają po wejściu w tydzień, `POST/PUT/DELETE` → 409
+- Przyszły tydzień: pełna edycja działa jak dotąd
+- `PUT` ze starą datą w zamrożonym tygodniu (edycja wpisu z bieżącego zapisanego tygodnia) albo nową datą w minionym tygodniu → 409 (bramka patrzy na obie daty)
+- Bezpośredni zapis do bazy (`insert` dostępności na minioną datę) → błąd triggera (SQLSTATE 23000)
+
+---
+
 ## Testing Strategy
 
 ### Unit Tests:
@@ -412,18 +508,37 @@ Skala MVP (~5 pracowników, ≤ kilkanaście zmian/tydzień): brak nowych zapyta
 
 #### Automated
 
-- [x] 3.1 `npx astro sync` przechodzi
-- [x] 3.2 `npm run lint` bez błędów
-- [x] 3.3 `npx astro check` bez błędów typów
-- [x] 3.4 `npm run build` kończy się sukcesem
+- [x] 3.1 `npx astro sync` przechodzi — eab7bd8
+- [x] 3.2 `npm run lint` bez błędów — eab7bd8
+- [x] 3.3 `npx astro check` bez błędów typów — eab7bd8
+- [x] 3.4 `npm run build` kończy się sukcesem — eab7bd8
 
 #### Manual
 
-- [x] 3.5 Scenariusz A: archiwum minionego tygodnia — linijka „Archiwum…", historyczne godziny z kopii, brak odblokowania i edycji, sekcja tekstowa S-07
-- [x] 3.6 Scenariusz B: draft w zamrożonym tygodniu bieżącym nadal edytowalny i dokończalny, bez linijki „Archiwum…"
-- [x] 3.7 Scenariusz C: pusty zamrożony tydzień — komunikat bez „Generuj draft"
-- [x] 3.8 Scenariusz D: przyszły tydzień — generowanie, zapis i odblokowanie działają jak dotąd
-- [x] 3.9 Scenariusz E: zmiana bieżących godzin otwarcia nie zmienia archiwum; przyszły zapisany tydzień nadal pokazuje bieżące godziny
-- [x] 3.10 Scenariusz F: bramka serwera przez API — 409 przy generowaniu/odblokowaniu minionego, 201/200 dla przyszłego
-- [x] 3.11 Scenariusz G: kopia godzin zapisana przy zapisie i nadpisana po ponownym zapisie
-- [x] 3.12 Scenariusz H: usunięcie dostępności z minionego tygodnia nie tworzy fałszywych flag na archiwalnym zapisanym grafiku
+- [x] 3.5 Scenariusz A: archiwum minionego tygodnia — linijka „Archiwum…", historyczne godziny z kopii, brak odblokowania i edycji, sekcja tekstowa S-07 — eab7bd8
+- [x] 3.6 Scenariusz B: draft w zamrożonym tygodniu bieżącym nadal edytowalny i dokończalny, bez linijki „Archiwum…" — eab7bd8
+- [x] 3.7 Scenariusz C: pusty zamrożony tydzień — komunikat bez „Generuj draft" — eab7bd8
+- [x] 3.8 Scenariusz D: przyszły tydzień — generowanie, zapis i odblokowanie działają jak dotąd — eab7bd8
+- [x] 3.9 Scenariusz E: zmiana bieżących godzin otwarcia nie zmienia archiwum; przyszły zapisany tydzień nadal pokazuje bieżące godziny — eab7bd8
+- [x] 3.10 Scenariusz F: bramka serwera przez API — 409 przy generowaniu/odblokowaniu minionego, 201/200 dla przyszłego — eab7bd8
+- [x] 3.11 Scenariusz G: kopia godzin zapisana przy zapisie i nadpisana po ponownym zapisie — eab7bd8
+- [ ] 3.12 Scenariusz H: usunięcie dostępności z minionego tygodnia nie tworzy fałszywych flag na archiwalnym zapisanym grafiku — eab7bd8
+
+### Phase 4: Zamrożenie edycji dostępności (rozszerzenie ad-hoc S-08)
+
+#### Automated
+
+- [x] 4.1 `supabase db reset` (WSL) aplikuje trigger i seed bez błędów
+- [x] 4.2 `npx astro sync` przechodzi
+- [x] 4.3 `npm run lint` bez błędów
+- [x] 4.4 `npx astro check` bez błędów typów
+- [x] 4.5 `npm run build` kończy się sukcesem
+
+#### Manual
+
+- [x] 4.6 Miniony tydzień: akcje ukryte i komunikat; `POST` na minioną datę → 409
+- [x] 4.7 Bieżący tydzień bez zapisanego grafiku: edycja przez UI działa, `POST` działa
+- [x] 4.8 Bieżący tydzień z zapisanym grafikiem: akcje ukryte, `POST`/`PUT`/`DELETE` → 409
+- [x] 4.9 Przyszły tydzień: pełna edycja działa jak dotąd
+- [x] 4.10 `PUT` ze starą lub nową datą w zamrożonym tygodniu → 409 (bramka patrzy na obie daty)
+- [x] 4.11 Bezpośredni `insert` dostępności na minioną datę w bazie → błąd triggera (SQLSTATE 23000)

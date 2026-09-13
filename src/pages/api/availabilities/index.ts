@@ -2,6 +2,7 @@ import type { APIRoute } from "astro";
 import { resolveBusinessId, resolveJsonBody, resolveRequestContext } from "@/lib/api";
 import {
   ERROR_AVAILABILITY_NOT_FOUND,
+  ERROR_AVAILABILITY_WEEK_FROZEN,
   ERROR_EMPLOYEE_NOT_FOUND,
   ERROR_INVALID_BODY,
   ERROR_OVERLAPPING_AVAILABILITY,
@@ -15,8 +16,10 @@ import {
   createAvailability,
   deleteAvailability,
   findOverlappingAvailability,
+  getAvailabilityById,
   updateAvailability,
 } from "@/lib/services/availability";
+import { isAvailabilityWeekEditable } from "@/lib/services/availability-guard";
 import type { AvailabilityInput } from "@/lib/services/availability-validation";
 import { parseAvailabilityTime, parseWorkDate, validateTimeRange } from "@/lib/services/availability-validation";
 
@@ -107,6 +110,19 @@ async function resolveOverlapping(
   return null;
 }
 
+async function resolveWeekGuard(supabase: Supabase, businessId: string, workDates: string[]): Promise<Response | null> {
+  for (const workDate of workDates) {
+    const editable = await isAvailabilityWeekEditable(supabase, businessId, workDate);
+    if (editable.error !== null) {
+      return jsonResponse({ error: ERROR_SERVER }, 500);
+    }
+    if (!editable.data) {
+      return jsonResponse({ error: ERROR_AVAILABILITY_WEEK_FROZEN }, 409);
+    }
+  }
+  return null;
+}
+
 export const POST: APIRoute = async (context) => {
   const resolved = resolveRequestContext(context);
   if (resolved instanceof Response) {
@@ -133,6 +149,11 @@ export const POST: APIRoute = async (context) => {
   const businessId = await resolveBusinessId(supabase, ownerId);
   if (businessId instanceof Response) {
     return businessId;
+  }
+
+  const weekError = await resolveWeekGuard(supabase, businessId, [parsed.input.workDate]);
+  if (weekError !== null) {
+    return weekError;
   }
 
   const membershipError = await resolveEmployeeMembership(supabase, businessId, parsed.input.employeeId);
@@ -189,6 +210,19 @@ export const PUT: APIRoute = async (context) => {
     return businessId;
   }
 
+  const existing = await getAvailabilityById(supabase, businessId, idResult.id);
+  if (existing.error !== null) {
+    return jsonResponse({ error: ERROR_SERVER }, 500);
+  }
+  if (existing.data === null) {
+    return jsonResponse({ error: ERROR_AVAILABILITY_NOT_FOUND }, 404);
+  }
+
+  const weekError = await resolveWeekGuard(supabase, businessId, [existing.data.work_date, parsed.input.workDate]);
+  if (weekError !== null) {
+    return weekError;
+  }
+
   const membershipError = await resolveEmployeeMembership(supabase, businessId, parsed.input.employeeId);
   if (membershipError !== null) {
     return membershipError;
@@ -240,6 +274,19 @@ export const DELETE: APIRoute = async (context) => {
   const businessId = await resolveBusinessId(supabase, ownerId);
   if (businessId instanceof Response) {
     return businessId;
+  }
+
+  const existing = await getAvailabilityById(supabase, businessId, idResult.id);
+  if (existing.error !== null) {
+    return jsonResponse({ error: ERROR_SERVER }, 500);
+  }
+  if (existing.data === null) {
+    return jsonResponse({ error: ERROR_AVAILABILITY_NOT_FOUND }, 404);
+  }
+
+  const weekError = await resolveWeekGuard(supabase, businessId, [existing.data.work_date]);
+  if (weekError !== null) {
+    return weekError;
   }
 
   const result = await deleteAvailability(supabase, businessId, idResult.id);
