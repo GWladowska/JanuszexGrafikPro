@@ -33,7 +33,7 @@ Rdzeń hipotezy produktu — założenie, że jeśli się nie sprawdzi, reszta n
 |---|---|---|---|---|---|
 | F-01 | domain-schema-rls | (foundation) pełny schemat domeny z migracjami i RLS, dane izolowane per właściciel | — | Access Control, Business Logic | done |
 | S-01 | business-opening-hours | założyć swój biznes i zdefiniować godziny otwarcia na każdy dzień tygodnia | F-01 | FR-003, FR-004 (FR-001, FR-002 — auth, w baseline) | done |
-| S-02 | employee-management | dodać pracownika do swojego biznesu | S-01 | FR-005 | proposed |
+| S-02 | employee-management | dodać pracownika do swojego biznesu | S-01 | FR-005 | done |
 | S-03 | availability-management | dodawać, przeglądać, edytować i usuwać dostępności pracownika | S-02 | FR-006, US-01 | proposed |
 | S-04 | schedule-draft-generation | wygenerować bazowy draft grafiku z dostępności i zobaczyć nieobsadzone godziny (dziury) | S-03 | FR-007, FR-008, US-01 | proposed |
 | S-05 | schedule-editing-collisions | ręcznie modyfikować draft; kolizje z niedostępnością są sygnalizowane przed zapisem | S-04 | FR-009, FR-010, US-01, US-03 | proposed |
@@ -93,7 +93,7 @@ Foundations poniżej zakładają, że te warstwy są obecne, i NIE budują ich o
 - **Unknowns:**
   - —
 - **Risk:** Prosty CRUD, ale wymaga S-01 (pracownik należy do biznesu — FK). Bez niego nie ma komu przypisywać dostępności.
-- **Status:** proposed
+- **Status:** done
 
 ### S-03: Dostępności pracowników
 
@@ -194,3 +194,4 @@ Foundations poniżej zakładają, że te warstwy są obecne, i NIE budują ich o
 
 - **F-01: (foundation) pełny schemat domeny — biznes, godziny otwarcia, pracownicy, dostępności, grafiki z przypisaniami — z migracjami oraz politykami RLS izolującymi dane per właściciel.** — Archived 2026-09-13 → `context/archive/2026-09-12-domain-schema-rls/`. Lesson: —.
 - **S-01: użytkownik (właściciel) zakłada swój biznes (jeden na konto) i definiuje godziny otwarcia lokalu na każdy dzień tygodnia.** — Archived 2026-09-13 → `context/archive/2026-09-12-business-opening-hours/`. Lesson: —.
+- **S-02: użytkownik dodaje pracowników do swojego biznesu.** — Archived 2026-09-13 → `context/archive/2026-09-13-employee-management/`. Lesson: —.
