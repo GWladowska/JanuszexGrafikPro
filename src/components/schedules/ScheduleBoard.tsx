@@ -26,6 +26,7 @@ import {
   isWithinOpeningHours,
 } from "@/lib/services/schedule-generation";
 import { parseShiftTime } from "@/lib/services/schedule-validation";
+import { resolveOpeningHours } from "@/lib/services/schedule-archive";
 import { buildScheduleText } from "@/lib/services/schedule-export";
 import { formatRange } from "@/lib/format";
 import { addDays, formatDayLabel, formatWeekLabel, isoWeekday, weekdayShort } from "@/lib/week";
@@ -41,6 +42,7 @@ interface ScheduleBoardProps {
   initialEmployees: { id: string; name: string }[];
   openingHours: OpenDay[];
   defaultWeekStart: string;
+  currentWeekStart: string;
   initialWeekData: ScheduleWeekData;
 }
 
@@ -228,6 +230,7 @@ export default function ScheduleBoard({
   initialEmployees,
   openingHours,
   defaultWeekStart,
+  currentWeekStart,
   initialWeekData,
 }: ScheduleBoardProps) {
   const employees = initialEmployees;
@@ -576,9 +579,18 @@ export default function ScheduleBoard({
   }
 
   const employeesById = new Map(employees.map((employee) => [employee.id, employee]));
-  const openingByWeekday = new Map<number, OpenDay>(openingHours.map((day) => [day.weekday, day]));
-  const blockers = findScheduleBlockers(
+  const isDraft = weekData.schedule?.status === "draft";
+  const isSaved = weekData.schedule?.status === "saved";
+  const isFrozen = weekStart <= currentWeekStart;
+  const isArchived = isFrozen && isSaved;
+  const weekOpeningHours = resolveOpeningHours(
     openingHours,
+    weekData.schedule?.opening_hours_snapshot ?? null,
+    isArchived,
+  );
+  const openingByWeekday = new Map<number, OpenDay>(weekOpeningHours.map((day) => [day.weekday, day]));
+  const blockers = findScheduleBlockers(
+    weekOpeningHours,
     weekData.availabilities,
     toDraftPieces(weekData.assignments),
     weekStart,
@@ -586,14 +598,12 @@ export default function ScheduleBoard({
   const weekHoles = blockers.holes;
   const canSave = blockers.holes.length === 0 && blockers.collisions.length === 0;
   const blockersSummary = blockerSummary(blockers.holes.length, blockers.collisions.length);
-  const isDraft = weekData.schedule?.status === "draft";
-  const isSaved = weekData.schedule?.status === "saved";
   const scheduleText = isSaved
     ? buildScheduleText({
         weekStart,
         assignments: toDraftPieces(weekData.assignments),
         employees,
-        openingHours,
+        openingHours: weekOpeningHours,
       })
     : null;
   const weekDays = Array.from({ length: 7 }, (_, index) => addDays(weekStart, index));
@@ -659,6 +669,10 @@ export default function ScheduleBoard({
             <ChevronRight className="size-4" />
           </button>
         </div>
+
+        {isArchived && !navPending ? (
+          <p className="mb-3 text-xs text-blue-100/60">Archiwum — godziny otwarcia z tego tygodnia</p>
+        ) : null}
 
         <ServerError message={navApi.serverError} />
 
@@ -871,13 +885,13 @@ export default function ScheduleBoard({
                                       </div>
                                     </div>
                                   ) : null}
-                                  {uncovered.length > 0 ? (
+                                  {isDraft && uncovered.length > 0 ? (
                                     <p className={flagClass}>
                                       ⚠ Poza dostępnością:{" "}
                                       {uncovered.map((range) => formatRange(range.startTime, range.endTime)).join(", ")}
                                     </p>
                                   ) : null}
-                                  {selfOverlaps.length > 0 ? (
+                                  {isDraft && selfOverlaps.length > 0 ? (
                                     <p className={flagClass}>
                                       ⚠ Nakładka z inną zmianą tej samej osoby:{" "}
                                       {selfOverlaps
@@ -1048,60 +1062,72 @@ export default function ScheduleBoard({
 
       <section className="space-y-3">
         {weekData.schedule === null && !navPending ? (
-          <form onSubmit={(event) => submitGenerate(event)} noValidate>
-            <SubmitButton pendingText="Generowanie..." icon={<Sparkles className="size-4" />} pending={generatePending}>
-              Generuj draft
-            </SubmitButton>
-          </form>
+          isFrozen ? (
+            <p className="rounded-lg border border-white/10 bg-white/5 px-3 py-3 text-sm text-blue-100/70">
+              Brak zapisanego grafiku dla tego tygodnia.
+            </p>
+          ) : (
+            <form onSubmit={(event) => submitGenerate(event)} noValidate>
+              <SubmitButton
+                pendingText="Generowanie..."
+                icon={<Sparkles className="size-4" />}
+                pending={generatePending}
+              >
+                Generuj draft
+              </SubmitButton>
+            </form>
+          )
         ) : isSaved ? (
           <>
             <p className={savedBadgeClass}>
               <CircleCheck className="size-4" />
               Zapisany grafik
             </p>
-            {unlockConfirming ? (
-              <div className="text-sm">
-                <p className="text-blue-100">Odblokować zapisany grafik do edycji?</p>
-                <ServerError message={unlockApi.serverError} />
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    disabled={unlockPending || navPending}
-                    onClick={() => {
-                      void submitUnlock();
-                    }}
-                    className={cn(actionButtonClass(false), "flex items-center gap-1 disabled:opacity-50")}
-                  >
-                    <LockOpen className="size-4" />
-                    {unlockPending ? "Odblokowywanie..." : "Odblokuj"}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={unlockPending}
-                    onClick={() => {
-                      setUnlockConfirming(false);
-                      unlockApi.setServerError(null);
-                    }}
-                    className={cn(actionButtonClass(false), "disabled:opacity-50")}
-                  >
-                    Anuluj
-                  </button>
+            {!isFrozen ? (
+              unlockConfirming ? (
+                <div className="text-sm">
+                  <p className="text-blue-100">Odblokować zapisany grafik do edycji?</p>
+                  <ServerError message={unlockApi.serverError} />
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      disabled={unlockPending || navPending}
+                      onClick={() => {
+                        void submitUnlock();
+                      }}
+                      className={cn(actionButtonClass(false), "flex items-center gap-1 disabled:opacity-50")}
+                    >
+                      <LockOpen className="size-4" />
+                      {unlockPending ? "Odblokowywanie..." : "Odblokuj"}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={unlockPending}
+                      onClick={() => {
+                        setUnlockConfirming(false);
+                        unlockApi.setServerError(null);
+                      }}
+                      className={cn(actionButtonClass(false), "disabled:opacity-50")}
+                    >
+                      Anuluj
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <button
-                type="button"
-                disabled={navPending}
-                onClick={() => {
-                  setUnlockConfirming(true);
-                  unlockApi.setServerError(null);
-                }}
-                className={cn(actionButtonClass(false), "flex items-center gap-1 disabled:opacity-50")}
-              >
-                <LockOpen className="size-4" />
-                Odblokuj do edycji
-              </button>
-            )}
+              ) : (
+                <button
+                  type="button"
+                  disabled={navPending}
+                  onClick={() => {
+                    setUnlockConfirming(true);
+                    unlockApi.setServerError(null);
+                  }}
+                  className={cn(actionButtonClass(false), "flex items-center gap-1 disabled:opacity-50")}
+                >
+                  <LockOpen className="size-4" />
+                  Odblokuj do edycji
+                </button>
+              )
+            ) : null}
             <ServerError message={unlockApi.serverError} />
             {scheduleText !== null && !navPending ? (
               <div className="space-y-2 rounded-lg border border-white/10 bg-white/5 p-3">

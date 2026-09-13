@@ -396,34 +396,34 @@ Skala MVP (~5 pracowników, ≤ kilkanaście zmian/tydzień): brak nowych zapyta
 
 #### Automated
 
-- [x] 2.1 `npx astro sync` przechodzi
-- [x] 2.2 `npm run lint` bez błędów
-- [x] 2.3 `npx astro check` bez błędów typów
-- [x] 2.4 `npm run build` kończy się sukcesem
+- [x] 2.1 `npx astro sync` przechodzi — 1499571
+- [x] 2.2 `npm run lint` bez błędów — 1499571
+- [x] 2.3 `npx astro check` bez błędów typów — 1499571
+- [x] 2.4 `npm run build` kończy się sukcesem — 1499571
 
 #### Manual
 
-- [x] 2.5 `POST` generowania dla minionego tygodnia → 409 o zamrożeniu; dla przyszłego → 201
-- [x] 2.6 `PATCH` odblokowania dla zapisanego minionego tygodnia → 409; dla przyszłego → 200
-- [x] 2.7 Zapis grafiku zapisuje niepusty `opening_hours_snapshot`
-- [x] 2.8 Ponowny zapis po odblokowaniu nadpisuje kopię godzin nowymi wartościami
+- [x] 2.5 `POST` generowania dla minionego tygodnia → 409 o zamrożeniu; dla przyszłego → 201 — 1499571
+- [x] 2.6 `PATCH` odblokowania dla zapisanego minionego tygodnia → 409; dla przyszłego → 200 — 1499571
+- [x] 2.7 Zapis grafiku zapisuje niepusty `opening_hours_snapshot` — 1499571
+- [x] 2.8 Ponowny zapis po odblokowaniu nadpisuje kopię godzin nowymi wartościami — 1499571
 
 ### Phase 3: Islanda i strona — widok archiwalny i zamrożone akcje
 
 #### Automated
 
-- [ ] 3.1 `npx astro sync` przechodzi
-- [ ] 3.2 `npm run lint` bez błędów
-- [ ] 3.3 `npx astro check` bez błędów typów
-- [ ] 3.4 `npm run build` kończy się sukcesem
+- [x] 3.1 `npx astro sync` przechodzi
+- [x] 3.2 `npm run lint` bez błędów
+- [x] 3.3 `npx astro check` bez błędów typów
+- [x] 3.4 `npm run build` kończy się sukcesem
 
 #### Manual
 
-- [ ] 3.5 Scenariusz A: archiwum minionego tygodnia — linijka „Archiwum…", historyczne godziny z kopii, brak odblokowania i edycji, sekcja tekstowa S-07
-- [ ] 3.6 Scenariusz B: draft w zamrożonym tygodniu bieżącym nadal edytowalny i dokończalny, bez linijki „Archiwum…"
-- [ ] 3.7 Scenariusz C: pusty zamrożony tydzień — komunikat bez „Generuj draft"
-- [ ] 3.8 Scenariusz D: przyszły tydzień — generowanie, zapis i odblokowanie działają jak dotąd
-- [ ] 3.9 Scenariusz E: zmiana bieżących godzin otwarcia nie zmienia archiwum; przyszły zapisany tydzień nadal pokazuje bieżące godziny
-- [ ] 3.10 Scenariusz F: bramka serwera przez API — 409 przy generowaniu/odblokowaniu minionego, 201/200 dla przyszłego
-- [ ] 3.11 Scenariusz G: kopia godzin zapisana przy zapisie i nadpisana po ponownym zapisie
-- [ ] 3.12 Scenariusz H: usunięcie dostępności z minionego tygodnia nie tworzy fałszywych flag na archiwalnym zapisanym grafiku
+- [x] 3.5 Scenariusz A: archiwum minionego tygodnia — linijka „Archiwum…", historyczne godziny z kopii, brak odblokowania i edycji, sekcja tekstowa S-07
+- [x] 3.6 Scenariusz B: draft w zamrożonym tygodniu bieżącym nadal edytowalny i dokończalny, bez linijki „Archiwum…"
+- [x] 3.7 Scenariusz C: pusty zamrożony tydzień — komunikat bez „Generuj draft"
+- [x] 3.8 Scenariusz D: przyszły tydzień — generowanie, zapis i odblokowanie działają jak dotąd
+- [x] 3.9 Scenariusz E: zmiana bieżących godzin otwarcia nie zmienia archiwum; przyszły zapisany tydzień nadal pokazuje bieżące godziny
+- [x] 3.10 Scenariusz F: bramka serwera przez API — 409 przy generowaniu/odblokowaniu minionego, 201/200 dla przyszłego
+- [x] 3.11 Scenariusz G: kopia godzin zapisana przy zapisie i nadpisana po ponownym zapisie
+- [x] 3.12 Scenariusz H: usunięcie dostępności z minionego tygodnia nie tworzy fałszywych flag na archiwalnym zapisanym grafiku
