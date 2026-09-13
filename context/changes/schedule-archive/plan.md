@@ -381,32 +381,32 @@ Skala MVP (~5 pracowników, ≤ kilkanaście zmian/tydzień): brak nowych zapyta
 
 #### Automated
 
-- [x] 1.1 `supabase db reset` (WSL) aplikuje nową migrację i seed bez błędów
-- [x] 1.2 `npm run db:types` generuje `src/lib/database.types.ts` zawierający `opening_hours_snapshot`
-- [x] 1.3 `npx astro sync` przechodzi bez błędów typów
-- [x] 1.4 `npm run lint` bez błędów
-- [x] 1.5 `npx astro check` bez błędów typów
-- [x] 1.6 `npm run build` kończy się sukcesem
+- [x] 1.1 `supabase db reset` (WSL) aplikuje nową migrację i seed bez błędów — 6dec4d4
+- [x] 1.2 `npm run db:types` generuje `src/lib/database.types.ts` zawierający `opening_hours_snapshot` — 6dec4d4
+- [x] 1.3 `npx astro sync` przechodzi bez błędów typów — 6dec4d4
+- [x] 1.4 `npm run lint` bez błędów — 6dec4d4
+- [x] 1.5 `npx astro check` bez błędów typów — 6dec4d4
+- [x] 1.6 `npm run build` kończy się sukcesem — 6dec4d4
 
 #### Manual
 
-- [x] 1.7 Seed zawiera zapisany grafik z minionego tygodnia z niepustą kopią godzin różną od obecnych
+- [x] 1.7 Seed zawiera zapisany grafik z minionego tygodnia z niepustą kopią godzin różną od obecnych — 6dec4d4
 
 ### Phase 2: Serwer — kopia godzin przy zapisie i bramka zamrożenia
 
 #### Automated
 
-- [ ] 2.1 `npx astro sync` przechodzi
-- [ ] 2.2 `npm run lint` bez błędów
-- [ ] 2.3 `npx astro check` bez błędów typów
-- [ ] 2.4 `npm run build` kończy się sukcesem
+- [x] 2.1 `npx astro sync` przechodzi
+- [x] 2.2 `npm run lint` bez błędów
+- [x] 2.3 `npx astro check` bez błędów typów
+- [x] 2.4 `npm run build` kończy się sukcesem
 
 #### Manual
 
-- [ ] 2.5 `POST` generowania dla minionego tygodnia → 409 o zamrożeniu; dla przyszłego → 201
-- [ ] 2.6 `PATCH` odblokowania dla zapisanego minionego tygodnia → 409; dla przyszłego → 200
-- [ ] 2.7 Zapis grafiku zapisuje niepusty `opening_hours_snapshot`
-- [ ] 2.8 Ponowny zapis po odblokowaniu nadpisuje kopię godzin nowymi wartościami
+- [x] 2.5 `POST` generowania dla minionego tygodnia → 409 o zamrożeniu; dla przyszłego → 201
+- [x] 2.6 `PATCH` odblokowania dla zapisanego minionego tygodnia → 409; dla przyszłego → 200
+- [x] 2.7 Zapis grafiku zapisuje niepusty `opening_hours_snapshot`
+- [x] 2.8 Ponowny zapis po odblokowaniu nadpisuje kopię godzin nowymi wartościami
 
 ### Phase 3: Islanda i strona — widok archiwalny i zamrożone akcje
 

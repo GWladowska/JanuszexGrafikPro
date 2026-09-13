@@ -9,6 +9,7 @@ import {
   ERROR_SAVED_SCHEDULE,
   ERROR_SERVER,
   ERROR_VALIDATION,
+  ERROR_WEEK_FROZEN,
   jsonResponse,
 } from "@/lib/http";
 import { getOpeningHours } from "@/lib/services/business";
@@ -24,6 +25,7 @@ import {
 } from "@/lib/services/schedule";
 import { findScheduleBlockers, generateDraft } from "@/lib/services/schedule-generation";
 import { parseWeekStart } from "@/lib/services/schedule-validation";
+import { isFrozenWeek } from "@/lib/week";
 
 function parseWeekStartField(body: Record<string, unknown>): { weekStart: string } | Response {
   const result = parseWeekStart(body.weekStart);
@@ -100,6 +102,10 @@ export const POST: APIRoute = async (context) => {
   const businessId = await resolveBusinessId(supabase, ownerId);
   if (businessId instanceof Response) {
     return businessId;
+  }
+
+  if (isFrozenWeek(weekField.weekStart)) {
+    return jsonResponse({ error: ERROR_WEEK_FROZEN }, 409);
   }
 
   const existing = await getScheduleByWeek(supabase, businessId, weekField.weekStart);
@@ -257,7 +263,7 @@ export const PATCH: APIRoute = async (context) => {
       return jsonResponse({ error: ERROR_SCHEDULE_INCOMPLETE, blockers }, 400);
     }
 
-    const saved = await saveSchedule(supabase, businessId, schedule.id);
+    const saved = await saveSchedule(supabase, businessId, schedule.id, openingHoursResult.data);
     if (saved.error !== null) {
       return jsonResponse({ error: ERROR_SAVED_SCHEDULE }, saved.error.code === "PGRST116" ? 409 : 500);
     }
@@ -266,6 +272,10 @@ export const PATCH: APIRoute = async (context) => {
 
   if (schedule.status !== "saved") {
     return jsonResponse({ error: ERROR_SCHEDULE_NOT_SAVED }, 409);
+  }
+
+  if (isFrozenWeek(weekField.weekStart)) {
+    return jsonResponse({ error: ERROR_WEEK_FROZEN }, 409);
   }
 
   const unlocked = await unlockSchedule(supabase, businessId, schedule.id);

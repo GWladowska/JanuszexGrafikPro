@@ -14,6 +14,8 @@ export const ERROR_SCHEDULE_NOT_FOUND = "Nie znaleziono grafiku dla tego tygodni
 export const ERROR_SAVED_SCHEDULE = "Grafik jest już zapisany i nie można go zmieniać";
 export const ERROR_SCHEDULE_INCOMPLETE = "Grafik nie jest kompletny — uzupełnij dziury i usuń kolizje przed zapisem.";
 export const ERROR_SCHEDULE_NOT_SAVED = "Grafik nie jest zapisany.";
+export const ERROR_WEEK_FROZEN =
+  "Miniony i bieżący tydzień są zablokowane — grafik można układać i odblokowywać tylko na przyszłe tygodnie.";
 export const ERROR_ASSIGNMENT_NOT_FOUND = "Nie znaleziono przypisania zmiany";
 export const ERROR_OUTSIDE_OPENING_HOURS = "Zmiana musi mieścić się w godzinach otwarcia lokalu na wybrany dzień.";
 export const ERROR_INVALID_TIME_RANGE = "Godzina „od” musi być wcześniejsza niż „do”.";

@@ -1,5 +1,6 @@
 import type { Database } from "@/lib/database.types";
 import { normalizeTime } from "@/lib/services/business";
+import type { OpenDay } from "@/lib/services/business-validation";
 import type { DraftInput, DraftPiece } from "@/lib/services/schedule-generation";
 import type { createClient } from "@/lib/supabase";
 import type { ServiceResult } from "@/lib/services/types";
@@ -262,10 +263,11 @@ export async function saveSchedule(
   supabase: Supabase,
   businessId: string,
   scheduleId: string,
+  openingHours: OpenDay[],
 ): Promise<ServiceResult<ScheduleRow>> {
   const { data, error } = await supabase
     .from("schedules")
-    .update({ status: "saved" })
+    .update({ status: "saved", opening_hours_snapshot: openingHours })
     .eq("id", scheduleId)
     .eq("business_id", businessId)
     .eq("status", "draft")
