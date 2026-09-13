@@ -306,7 +306,7 @@ export default function EmployeeManager({ initialEmployees }: EmployeeManagerPro
                       </div>
                     </div>
                   ) : (
-                    <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex flex-col items-start gap-3">
                       <div>
                         <p className="font-semibold text-blue-100">{employee.name}</p>
                         <p className="text-sm text-blue-100/60">{employee.contact_email ?? "—"}</p>
