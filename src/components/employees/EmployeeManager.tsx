@@ -306,7 +306,7 @@ export default function EmployeeManager({ initialEmployees }: EmployeeManagerPro
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-center justify-between gap-3">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
                         <p className="font-semibold text-blue-100">{employee.name}</p>
                         <p className="text-sm text-blue-100/60">{employee.contact_email ?? "—"}</p>
@@ -315,7 +315,7 @@ export default function EmployeeManager({ initialEmployees }: EmployeeManagerPro
                           {new Date(employee.created_at).toLocaleDateString("pl-PL", { timeZone: "Europe/Warsaw" })}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <a
                           href={`/availabilities?employee=${employee.id}`}
                           className={cn(actionButtonClass(false), "flex items-center gap-1")}
