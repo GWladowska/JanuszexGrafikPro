@@ -14,7 +14,7 @@ JanuszexGrafikPro is an Astro 6 full-SSR web app (React 19 islands, Tailwind 4, 
 ## Commands
 
 - **Środowisko:** Windows 11 (PowerShell) **bez Dockera** + WSL Ubuntu (tam Docker i Supabase CLI `~/bin/supabase`, na PATH jako `supabase`). Wszystko wymagające Dockera (lokalny Supabase) odpalaj **z WSL**, w katalogu projektu (`cd /mnt/c/Repositories/Own/JanuszexGrafikPro`). `npm run dev`/`build` odpalaj **z PowerShell** (Windows).
-- All scripts (`dev`, `build`, `preview`, `lint`, `format`) are in @package.json.
+- All scripts (`dev`, `build`, `preview`, `lint`, `format`, `check`, `test`, `test:watch`) are in @package.json.
 - `npm run dev` runs on Cloudflare workerd — lokalny Supabase najpierw startuj **z WSL** (`supabase start`), a sam `npm run dev` wykonuj **z PowerShell** (Windows).
 - Migrations (always from WSL, never `npx supabase` — fails in WSL on Windows-only binaries in node_modules, fails on Windows without Docker): `supabase migration new <nazwa>` (plik w `supabase/migrations/`), lokalnie `supabase db reset` (migracje + seed), na produkcję ręcznie `supabase link` + `supabase db push`. Seed (`supabase/seed.sql`) tylko lokalnie — nigdy na zdalnym projekcie.
 - Refresh DB types: `npm run db:types` → `src/lib/database.types.ts` (committed, excluded from eslint/prettier).
@@ -49,7 +49,11 @@ JanuszexGrafikPro is an Astro 6 full-SSR web app (React 19 islands, Tailwind 4, 
 
 ## Testing
 
-No test runner is configured. The CI gate is `npx astro sync` + `npm run lint` + `npm run build` (@.github/workflows/ci.yml).
+Unit tests run on Vitest 4 in a Node environment (`vitest.config.ts`): `npm test` (single run) / `npm run test:watch` (local). Tests live **next to the module** as `src/**/*.test.ts` and import `describe`/`it`/`expect` **explicitly from `vitest`** — do not add test globals to `tsconfig.json` or ESLint.
+
+Only pure, framework-free modules are unit-testable: `src/lib/week.ts`, `src/lib/format.ts`, `src/lib/services/{schedule-generation,schedule-validation,schedule-export}.ts`. Modules touching Supabase/Astro are import-safe (client is `import type`) but their DB functions need a mock — that is integration territory, not covered here.
+
+CI (`.github/workflows/ci.yml`) runs `astro sync` → `lint` → `check` → `test` → `build`. It is a quality gate only — Workers Builds publishes after merge to `master`, so these checks must also be required in GitHub branch protection or a red change still ships.
 
 ## Commits & PRs
 

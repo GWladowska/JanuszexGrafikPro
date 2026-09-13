@@ -102,7 +102,11 @@ Jak dodawać nowe testy w tym projekcie. Każda podsekcja wypełnia się po wdro
 
 ### 6.1 Adding a unit test
 
-- TBD — patrz §3 Phase 1 (wzorzec dla czystej logiki obsady i dziur).
+- **Gdzie:** obok modułu — `src/…/<moduł>.test.ts` (np. `src/lib/week.test.ts`, `src/lib/services/schedule-export.test.ts`).
+- **Jak:** importuj `describe`/`it`/`expect` jawnie z `vitest` (bez globali w `tsconfig`/ESLint) i importuj testowany moduł przez alias `@/…`. Środowisko to Node — nie zakładaj `window`/`document`.
+- **Uruchomienie:** `npm test` (jednorazowo) / `npm run test:watch` (lokalnie). Konfiguracja: `vitest.config.ts` (alias `@/*` → `src/`, `include: ["src/**/*.test.ts"]`).
+- **Wzorzec referencyjny:** `src/lib/format.test.ts`.
+- **Czego tu nie robić:** modułów dotykających Supabase/Astro bez mocka ani tras API — to §6.4 (Faza 2).
 
 ### 6.2 Adding a test for schedule/time logic
 
