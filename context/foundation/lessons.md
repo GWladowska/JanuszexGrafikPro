@@ -42,3 +42,10 @@
 - **Problem**: Decyzje oparte na żargonie są niemożliwe do podjęcia przez nietechnicznego właściciela — albo zatwierdza w ciemno, albo proces staje.
 - **Rule**: Każde pytanie decyzyjne do użytkownika pisz prostym językiem: najpierw analogia/opis co się dzieje („drzwi na klamkę vs na klucz"), potem konkretne opcje i ich realny koszt. Żargon techniczny dozwolony tylko jako dopisek w nawiasie, nigdy jako jedyny opis.
 - **Applies to**: all
+
+## Commit message w PowerShell: bez ASCII cudzysłowu w treści (here-string, polskie „”)
+
+- **Context**: Rytuał commitów na Windows/PowerShell 5.1 (/10x-implement, /10x-impl-review — bash-owy heredoc nie działa, wiadomość idzie przez here-string @'...'@ i zmienną). Incident: dwa razy podczas availability-management `git commit -m $msg` rozpadał się na pathspece („error: pathspec …"), gdy w treści był ASCII cudzysłów " (np. „Unknown agent type", „zero migracji").
+- **Problem**: PowerShell 5.1 przy przekazywaniu zmiennej do natywnego polecenia rozbija argument na cudzysłowach ASCII — commit nie powstaje, a komunikat błędu (pathspec) nie wskazuje bezpośrednio na przyczynę, więc koszt diagnozy powtarza się za każdym razem.
+- **Rule**: Treść commit message pisz w here-stringu @'...'@ (nigdy heredoc — PowerShell go nie zna) i nigdy nie używaj w niej ASCII cudzysłowu " — do cytatów używaj pary polskiej „…" (oba znaki). Po błędzie „pathspec" przy commicie najpierw sprawdź cudzysłowy w treści, nie staging.
+- **Applies to**: all
