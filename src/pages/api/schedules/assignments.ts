@@ -4,6 +4,7 @@ import {
   ERROR_ASSIGNMENT_NOT_FOUND,
   ERROR_EMPLOYEE_NOT_FOUND,
   ERROR_INVALID_BODY,
+  ERROR_INVALID_TIME_RANGE,
   ERROR_OUTSIDE_OPENING_HOURS,
   ERROR_SAVED_SCHEDULE,
   ERROR_SCHEDULE_NOT_FOUND,
@@ -20,8 +21,7 @@ import {
   deleteAssignment,
   getAssignmentWithSchedule,
   getScheduleByWeek,
-  updateAssignmentEmployee,
-  updateAssignmentTimes,
+  updateAssignmentFields,
 } from "@/lib/services/schedule";
 import { isWithinOpeningHours } from "@/lib/services/schedule-generation";
 import {
@@ -93,6 +93,10 @@ export const POST: APIRoute = async (context) => {
   const weekEnd = addDays(weekStartResult.value, 6);
   if (workDateResult.value < weekStartResult.value || workDateResult.value > weekEnd) {
     return jsonResponse({ error: ERROR_WORK_DATE_OUT_OF_WEEK }, 400);
+  }
+
+  if (startResult.value >= endResult.value) {
+    return jsonResponse({ error: ERROR_INVALID_TIME_RANGE }, 400);
   }
 
   const openingHoursResult = await getOpeningHours(supabase, businessId);
@@ -209,6 +213,9 @@ export const PUT: APIRoute = async (context) => {
   const targetStart = startTime ?? assignment.start_time;
   const targetEnd = endTime ?? assignment.end_time;
   if (timesProvided) {
+    if (targetStart >= targetEnd) {
+      return jsonResponse({ error: ERROR_INVALID_TIME_RANGE }, 400);
+    }
     const openingHoursResult = await getOpeningHours(supabase, businessId);
     if (openingHoursResult.error !== null) {
       return jsonResponse({ error: ERROR_SERVER }, 500);
@@ -218,37 +225,26 @@ export const PUT: APIRoute = async (context) => {
     }
   }
 
+  const fields: { employeeId?: string; startTime?: string; endTime?: string } = {};
   if (employeeId !== null) {
-    const employeeUpdate = await updateAssignmentEmployee(supabase, businessId, assignmentIdResult.value, employeeId);
-    if (employeeUpdate.error !== null) {
-      if (employeeUpdate.error.code === "PGRST116") {
-        return jsonResponse({ error: ERROR_ASSIGNMENT_NOT_FOUND }, 404);
-      }
-      return jsonResponse({ error: ERROR_SERVER }, 500);
-    }
-    if (!timesProvided) {
-      return jsonResponse({ assignment: employeeUpdate.data }, 200);
-    }
+    fields.employeeId = employeeId;
+  }
+  if (startTimeProvided) {
+    fields.startTime = targetStart;
+  }
+  if (endTimeProvided) {
+    fields.endTime = targetEnd;
   }
 
-  if (timesProvided) {
-    const timesUpdate = await updateAssignmentTimes(
-      supabase,
-      businessId,
-      assignmentIdResult.value,
-      targetStart,
-      targetEnd,
-    );
-    if (timesUpdate.error !== null) {
-      if (timesUpdate.error.code === "PGRST116") {
-        return jsonResponse({ error: ERROR_ASSIGNMENT_NOT_FOUND }, 404);
-      }
-      return jsonResponse({ error: ERROR_SERVER }, 500);
+  const updateResult = await updateAssignmentFields(supabase, businessId, assignmentIdResult.value, fields);
+  if (updateResult.error !== null) {
+    if (updateResult.error.code === "PGRST116") {
+      return jsonResponse({ error: ERROR_ASSIGNMENT_NOT_FOUND }, 404);
     }
-    return jsonResponse({ assignment: timesUpdate.data }, 200);
+    return jsonResponse({ error: ERROR_SERVER }, 500);
   }
 
-  return jsonResponse({ error: ERROR_SERVER }, 500);
+  return jsonResponse({ assignment: updateResult.data }, 200);
 };
 
 export const DELETE: APIRoute = async (context) => {

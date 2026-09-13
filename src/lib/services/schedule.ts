@@ -162,15 +162,26 @@ export async function createScheduleWithAssignments(
   return { data: { schedule, assignments: data.map(normalizeAssignmentRow) }, error: null };
 }
 
-export async function updateAssignmentEmployee(
+export async function updateAssignmentFields(
   supabase: Supabase,
   businessId: string,
   assignmentId: string,
-  employeeId: string,
+  fields: { employeeId?: string; startTime?: string; endTime?: string },
 ): Promise<ServiceResult<AssignmentRow>> {
+  const update: { employee_id?: string; start_time?: string; end_time?: string } = {};
+  if (fields.employeeId !== undefined) {
+    update.employee_id = fields.employeeId;
+  }
+  if (fields.startTime !== undefined) {
+    update.start_time = fields.startTime;
+  }
+  if (fields.endTime !== undefined) {
+    update.end_time = fields.endTime;
+  }
+
   const { data, error } = await supabase
     .from("assignments")
-    .update({ employee_id: employeeId })
+    .update(update)
     .eq("id", assignmentId)
     .eq("business_id", businessId)
     .select()
@@ -198,27 +209,6 @@ export async function createAssignment(
       start_time: piece.startTime,
       end_time: piece.endTime,
     })
-    .select()
-    .single();
-
-  if (error) {
-    return { data: null, error };
-  }
-  return { data: normalizeAssignmentRow(data), error: null };
-}
-
-export async function updateAssignmentTimes(
-  supabase: Supabase,
-  businessId: string,
-  assignmentId: string,
-  startTime: string,
-  endTime: string,
-): Promise<ServiceResult<AssignmentRow>> {
-  const { data, error } = await supabase
-    .from("assignments")
-    .update({ start_time: startTime, end_time: endTime })
-    .eq("id", assignmentId)
-    .eq("business_id", businessId)
     .select()
     .single();
 

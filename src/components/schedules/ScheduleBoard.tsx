@@ -551,6 +551,7 @@ export default function ScheduleBoard({
                                   {editingError !== null ? (
                                     <p className="text-sm text-red-200">{editingError}</p>
                                   ) : null}
+                                  <ServerError message={editApi.serverError} />
                                   <div className="flex flex-wrap gap-2">
                                     <button
                                       type="button"
@@ -643,12 +644,14 @@ export default function ScheduleBoard({
                                       </div>
                                     ) : null}
                                   </div>
+                                  <ServerError message={swapApi.serverError} />
                                   {rowConfirmingRemove ? (
                                     <div className="rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-2 text-sm">
                                       <p className="text-red-200">
                                         Na pewno usunąć zmianę {employeesById.get(row.employee_id)?.name ?? "—"}{" "}
                                         {formatRange(row.start_time, row.end_time)}?
                                       </p>
+                                      <ServerError message={removeApi.serverError} />
                                       <div className="mt-2 flex flex-wrap gap-2">
                                         <button
                                           type="button"
@@ -818,6 +821,7 @@ export default function ScheduleBoard({
                           />
                         </div>
                         {addingError !== null ? <p className="text-sm text-red-200">{addingError}</p> : null}
+                        <ServerError message={addApi.serverError} />
                         <div className="flex flex-wrap gap-2">
                           <button
                             type="submit"
@@ -924,10 +928,6 @@ export default function ScheduleBoard({
 
         <ServerError message={generateApi.serverError} />
         <ServerError message={deleteApi.serverError} />
-        <ServerError message={swapApi.serverError} />
-        <ServerError message={editApi.serverError} />
-        <ServerError message={addApi.serverError} />
-        <ServerError message={removeApi.serverError} />
       </section>
     </div>
   );

@@ -145,6 +145,7 @@ Foundations poniżej zakładają, że te warstwy są obecne, i NIE budują ich o
 - **Blockers:** —
 - **Unknowns:**
   - Czy zapisany grafik ma pozostać edytowalny? — Owner: user. Block: no (PRD Open Q #2; decyzja projektowa — wpływa na status grafiku w schemacie, nie na kolejność).
+  - Z trybu ostrzeżeń S-05: finalny zapis ma rozważyć twarde egzekwowanie kolizji (przypisanie poza dostępnością — dziś tylko flagi w UI, serwer przyjmuje) oraz atomowy guard statusu draftu (obecny check statusu jest TOCTOU). — Z przeglądu impl S-05, 2026-09-13.
 - **Risk:** Tu spełnia się AC "przed zapisem brak dziur" — sedno kryterium primary (< 10 min). Sekwencja po edycji, bo zapis weryfikuje kompletność dopiero po korektach.
 - **Status:** proposed
 

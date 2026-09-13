@@ -246,6 +246,8 @@ Pełna edycja w widoku listy: flagi kolizji, inline-edycja czasu, select z dwiem
 Scenariusze klik-po-kliku. Punkt startowy wszystkich: z WSL w katalogu projektu `supabase start` + `supabase db reset` (seed: `owner@example.com` / `haslo12345`), z PowerShell `npm run dev`; przeglądarka `http://localhost:4321`.
 
 > Addendum 2026-09-13 (weryfikacja użytkownika): oczekiwania przeliczone względem PRAWDZIWEGO seeda — Piotr ma dostępności **pon i śr 12:00–20:00** (bez wtorku), Katarzyna tylko sob, Tomasz tylko pt. Scenariusze przestawione: C–E na bieżącym tygodniu, F–G na następnym. Selecty osób to płaska lista (dostępni najpierw, niedostępni z dopiskiem) — optgroupy odrzucone po weryfikacji UX.
+>
+> Uwaga do kontraktów implementacji (impl-review 2026-09-13): nazwy stanów islandy to `editing` (id + godziny) i `adding` (+employeeId), a nie dosłowne `editingId`/`addingFor` z fazy 3 — semantyka identyczna, `adding` dodatkowo niesie wybranego pracownika. `resolveJsonBody` w `src/lib/api.ts` to wyciągnięty duplikat parse-body, poza kontraktem fazy 2 (lekcja: helpery w `src/lib/`). Selecty osób w islandzie: `<optgroup>` z opisu fazy 3 zastąpione płaską listą (dostępni → niedostępni z dopiskiem) — decyzja UX po weryfikacji, patrz wyżej.
 
 **A. Konto seeda — następny tydzień, generacja i flaga kolizji przy zamianie:**
 1. Zaloguj się (`/auth/signin`) na `owner@example.com` / `haslo12345`, z dashboardu kliknij „Grafik".
