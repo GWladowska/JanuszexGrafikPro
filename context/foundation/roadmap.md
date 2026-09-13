@@ -36,7 +36,7 @@ Rdzeń hipotezy produktu — założenie, że jeśli się nie sprawdzi, reszta n
 | S-02 | employee-management | dodać pracownika do swojego biznesu | S-01 | FR-005 | done |
 | S-03 | availability-management | dodawać, przeglądać, edytować i usuwać dostępności pracownika | S-02 | FR-006, US-01 | done |
 | S-04 | schedule-draft-generation | wygenerować bazowy draft grafiku z dostępności i zobaczyć nieobsadzone godziny (dziury) | S-03 | FR-007, FR-008, US-01 | done |
-| S-05 | schedule-editing-collisions | ręcznie modyfikować draft; kolizje z niedostępnością są sygnalizowane przed zapisem | S-04 | FR-009, FR-010, US-01, US-03 | proposed |
+| S-05 | schedule-editing-collisions | ręcznie modyfikować draft; kolizje z niedostępnością są sygnalizowane przed zapisem | S-04 | FR-009, FR-010, US-01, US-03 | done |
 | S-06 | save-complete-schedule | zapisać kompletny grafik — dziury nie mogą zostać zapisane po cichu | S-05 | FR-011, US-01, Guardrails | proposed |
 | S-07 | schedule-text-export | skopiować tekstowy widok zapisanego grafiku (jedna akcja) i wkleić go na Messengera/WhatsAppa | S-06 | FR-012, US-02 | proposed |
 | S-08 | schedule-archive | przeglądać zapisane grafiki minionych tygodni (widok read-only) | S-06 | NFR trwałość danych; decyzja user 2026-09-13 | proposed |
@@ -133,7 +133,7 @@ Foundations poniżej zakładają, że te warstwy są obecne, i NIE budują ich o
 - **Unknowns:**
   - Czy kolizja z niedostępnością pracownika ma być ostrzeżeniem czy twardym blokiem? — Owner: user. Block: no (PRD Open Q #1; do rozstrzygnięcia na etapie projektowania — US-03 AC skłania ku ostrzeżeniu).
 - **Risk:** NFR "natychmiastowa odpowiedź bez odświeżania" + guardrail "żadna kolizja nie zostaje zapisana po cichu" — UX ostrzeżenia decyduje o odbiorze asysty. Decyzja ostrzeżenie-vs-blok zostaje w /10x-plan.
-- **Status:** proposed
+- **Status:** done
 
 ### S-06: Zapis kompletnego grafiku
 
@@ -213,3 +213,4 @@ Foundations poniżej zakładają, że te warstwy są obecne, i NIE budują ich o
 - **S-02: użytkownik dodaje pracowników do swojego biznesu.** — Archived 2026-09-13 → `context/archive/2026-09-13-employee-management/`. Lesson: —.
 - **S-03: użytkownik dodaje, przegląda, edytuje i usuwa dostępności pracownika (wprowadzane ręcznie).** — Archived 2026-09-13 → `context/archive/2026-09-13-availability-management/`. Lesson: —.
 - **S-04: użytkownik generuje bazowy draft grafiku z dostępności i widzi nieobsadzone godziny otwarcia ("dziury").** — Archived 2026-09-13 → `context/archive/2026-09-13-schedule-draft-generation/`. Lesson: —.
+- **S-05: użytkownik ręcznie modyfikuje draft (przesuwa i zmienia pracowników na zmianach); kolizja z niedostępnością pracownika jest sygnalizowana natychmiast, przed zapisem.** — Archived 2026-09-13 → `context/archive/2026-09-13-schedule-editing-collisions/`. Lesson: —.

@@ -1,10 +1,10 @@
 ---
 change_id: schedule-editing-collisions
 title: Ręczna edycja draftu grafiku z ostrzeżeniami o kolizjach (S-05)
-status: impl_reviewed
+status: archived
 created: 2026-09-13
 updated: 2026-09-13
-archived_at: null
+archived_at: 2026-09-13T15:50:38Z
 ---
 
 ## Notes
