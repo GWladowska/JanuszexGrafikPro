@@ -245,53 +245,59 @@ Pełna edycja w widoku listy: flagi kolizji, inline-edycja czasu, select z dwiem
 
 Scenariusze klik-po-kliku. Punkt startowy wszystkich: z WSL w katalogu projektu `supabase start` + `supabase db reset` (seed: `owner@example.com` / `haslo12345`), z PowerShell `npm run dev`; przeglądarka `http://localhost:4321`.
 
+> Addendum 2026-09-13 (weryfikacja użytkownika): oczekiwania przeliczone względem PRAWDZIWEGO seeda — Piotr ma dostępności **pon i śr 12:00–20:00** (bez wtorku), Katarzyna tylko sob, Tomasz tylko pt. Scenariusze przestawione: C–E na bieżącym tygodniu, F–G na następnym. Selecty osób to płaska lista (dostępni najpierw, niedostępni z dopiskiem) — optgroupy odrzucone po weryfikacji UX.
+
 **A. Konto seeda — następny tydzień, generacja i flaga kolizji przy zamianie:**
 1. Zaloguj się (`/auth/signin`) na `owner@example.com` / `haslo12345`, z dashboardu kliknij „Grafik".
 2. Oczekiwane: widok następnego tygodnia (Pn 14.09 – Nd 20.09), nagłówki dni otwarcia z zakresem („Pn 14.09 · 08:00 – 18:00" … „So 19.09 · 10:00 – 22:00"), niedziela „Nieczynne", brak draftu, całodzienne dziury, „Generuj draft" aktywny.
 3. Kliknij „Generuj draft". Oczekiwane zmiany (reguła S-04): Pon: Anna 08:00–16:00 + Piotr 16:00–18:00; Wt: Anna 08:00–16:00 + dziura 16:00–18:00; Śr: dziura 08:00–12:00 + Piotr 12:00–20:00; Cz: Maria 08:00–16:00 + dziura 16:00–20:00; Pt: Tomasz 08:00–22:00; So: Katarzyna 10:00–22:00; Nd „Nieczynne". Żadna zmiana nie ma flagi.
-4. Przy zmianie Anny (Wt 08:00–16:00) otwórz „Zamień na…". Oczekiwane: dwie sekcje — „Dostępni": Maria Wiśniewska; „Niedostępni": Piotr Nowak i Tomasz Zieliński (z dopiskiem „(poza dostępnością)").
-5. Wybierz Piotra Nowaka z „Niedostępni". Oczekiwane: wiersz od razu pokazuje Piotra, a pod nim żółty chip „⚠ Poza dostępnością: 08:00 – 12:00" (Piotr ma we wt 12:00–20:00) — bez przeładowania strony.
+4. Przy zmianie Anny (Pon 08:00–16:00) otwórz „Zamień na…". Oczekiwane: sekcja „Dostępni" pusta (nikt poza Anną nie pokrywa w pełni pon 08:00–16:00); „Niedostępni": Piotr, Maria, Tomasz, Katarzyna (z dopiskiem „(poza dostępnością)").
+5. Wybierz Piotra Nowaka. Oczekiwane: wiersz od razu pokazuje Piotra, a pod nim żółty chip „⚠ Poza dostępnością: 08:00 – 12:00" (Piotr jest dostępny w pon od 12:00) — bez przeładowania strony.
 6. Odśwież stronę (F5). Oczekiwane: zamiana i flaga widoczne nadal identycznie (zapis do bazy, flaga liczona przy odczycie).
 
 **B. Przesuwanie zmiany i przeliczanie dziur:**
-1. Przy zmianie Piotra (Wt, po scenariuszu A: 08:00–16:00) kliknij „Edytuj". Oczekiwane: pola czasu wypełnione 08:00 / 16:00.
-2. Zmień na 10:00 – 16:00, kliknij „Zapisz". Oczekiwane: wiersz 10:00–16:00; chip aktualizuje się na „⚠ Poza dostępnością: 10:00 – 12:00"; dziury wtorku: 08:00–10:00 i 16:00–18:00.
+1. Przy zmianie Piotra (Wt 08:00–16:00 — po scenariuszu A to była zmiana Anny) kliknij „Edytuj". Oczekiwane: pola czasu wypełnione 08:00 / 16:00.
+2. Zmień na 10:00 – 16:00, kliknij „Zapisz". Oczekiwane: wiersz 10:00–16:00; chip „⚠ Poza dostępnością: 10:00 – 16:00" (Piotr nie ma ŻADNEJ dostępności we wt — flaga obejmuje całą zmianę); dziury wtorku: 08:00–10:00 i 16:00–18:00.
 3. Kliknij „Edytuj", ustaw 07:30 – 16:00, kliknij „Zapisz". Oczekiwane: błąd inline przy polu („Zmiana musi mieścić się w godzinach otwarcia lokalu…"), żądanie nie wychodzi, tryb edycji pozostaje otwarty.
 4. Anuluj edycję. Oczekiwane: powrót do wiersza 10:00–16:00 bez zmian w danych.
-5. Odśwież stronę (F5) i ponownie przejdź scenariusz B.2–B.4 przez bezpośrednie żądanie API (np. konsola przeglądarki: `fetch('/api/schedules/assignments', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({assignmentId:'<id zmiany>', startTime:'07:30', endTime:'16:00'})}).then(r=>r.status)`). Oczekiwane: HTTP 400 z komunikatem o godzinach otwarcia (zapora serwerowa).
+5. Odśwież stronę (F5) i ponownie wywołaj odrzucenie przez bezpośrednie żądanie API (konsola przeglądarki: `fetch('/api/schedules/assignments', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({assignmentId:'<id zmiany>', startTime:'07:30', endTime:'16:00'})}).then(r=>r.status)`; id zmiany podejrzyj w zakładce Network przy PUT). Oczekiwane: HTTP 400 z komunikatem o godzinach otwarcia (zapora serwerowa).
 
-**C. Dodawanie zmiany z dziury — bez kolizji:**
-1. W wtorek przy dziurze 16:00–18:00 kliknij „＋ Obsadź". Oczekiwane: formularz z czasami 16:00 / 18:00.
-2. Wybierz Piotra Nowaka (sekcja „Dostępni" — jego dostępność 12:00–20:00 pokrywa 16:00–18:00) i potwierdź.
-3. Oczekiwane: nowy wiersz Piotr 16:00–18:00 bez flagi; dziura 16:00–18:00 znika z wtorku.
-
-**D. Dodawanie zmiany z dziury — z kolizją:**
-1. W środę przy dziurze 08:00–12:00 kliknij „＋ Obsadź". Oczekiwane: formularz 08:00 / 12:00; w selekcie sekcja „Dostępni" pusta (nikt nie ma dostępności w Śr przed 12:00), wszyscy w „Niedostępni".
-2. Wybierz Marię Wiśniewską i potwierdź.
-3. Oczekiwane: wiersz Maria 08:00–12:00 z flagą „⚠ Poza dostępnością: 08:00 – 12:00" (Maria ma Śr brak dostępności); dziura 08:00–12:00 znika z widoku.
-
-**E. Usuwanie zmiany:**
-1. Przy zmianie Marii ze środy (scenariusz D) kliknij ikonę kosza. Oczekiwane: inline potwierdzenie („Usunąć zmianę…?").
-2. Potwierdź. Oczekiwane: wiersz znika, dziura 08:00–12:00 wraca.
-
-**F. Fixture na bieżącym tygodniu (‹ nawigacja) — flagi prezydencjące i test negatywny nakładki:**
+**C. Bieżący tydzień (‹ nawigacja) — fixture: nakładka bez flagi, flagi prezydencjące:**
 1. Kliknij „Poprzedni" (bieżący tydzień, draft ze seeda). Oczekiwane:
-   - Pon: Anna 08:00–14:00 i Piotr 13:00–18:00 — **bez flag** (oboje dostępni; nakładka dwóch różnych osób NIE jest kolizją),
+   - Pon: Anna 08:00–14:00 i Piotr 13:00–18:00 — **bez flag** (oboje dostępni; nakładka dwóch RÓŻNYCH osób NIE jest kolizją),
    - Wt: Maria 08:00–14:00 bez flagi; Tomasz 14:00–18:00 z flagą „⚠ Poza dostępnością: 14:00 – 18:00" (brak dostępności we wt),
    - Śr: Katarzyna 08:00–12:00 z flagą (całość) i Anna 12:00–20:00 z flagą (całość),
    - Cz–So: całodzienne dziury; Nd „Nieczynne".
-2. Przy zmianie Tomasza (Wt) otwórz „Zamień na…". Oczekiwane: sekcja „Dostępni" pusta/nieobecna, wszystkie osoby w „Niedostępni".
+2. Przy zmianie Tomasza (Wt) otwórz „Zamień na…". Oczekiwane: sekcja „Dostępni" pusta, wszystkie osoby w „Niedostępni".
 3. Wybierz Marię. Oczekiwane: wiersz Maria 14:00–18:00 z flagą „⚠ Poza dostępnością: 16:00 – 18:00" (Maria dostępna we wt 08:00–16:00).
 
-**G. Świeże konto — edycja od zera:**
+**D. Dodawanie zmiany z dziury — bez kolizji (bieżący tydzień):**
+1. Przy dziurze Cz 08:00–20:00 kliknij „＋ Obsadź". Oczekiwane: formularz z czasami 08:00 / 20:00.
+2. Zmień czasy na 08:00 / 16:00. Oczekiwane: „Dostępni": Maria Wiśniewska (jej dostępność w czw 08:00–16:00); pozostali w „Niedostępni".
+3. Wybierz Marię i potwierdź. Oczekiwane: nowy wiersz Maria 08:00–16:00 **bez flagi**; dziura Cz kurczy się do 16:00 – 20:00.
+
+**E. Usuwanie zmiany (bieżący tydzień):**
+1. Przy zmianie Marii z czwartku (scenariusz D) kliknij ikonę kosza. Oczekiwane: inline potwierdzenie („Na pewno usunąć zmianę Maria Wiśniewska 08:00 – 16:00?").
+2. Potwierdź. Oczekiwane: wiersz znika, dziura Cz wraca do 08:00 – 20:00.
+
+**F. Dodawanie zmiany z dziury — z kolizją (następny tydzień):**
+1. Kliknij „Następny" (powrót na następny tydzień). Przy dziurze Śr 08:00–12:00 kliknij „＋ Obsadź". Oczekiwane: formularz 08:00 / 12:00; w selekcie sekcja „Dostępni" pusta (nikt nie ma dostępności w Śr przed 12:00), wszyscy w „Niedostępni".
+2. Wybierz Marię Wiśniewską i potwierdź.
+3. Oczekiwane: wiersz Maria 08:00–12:00 z flagą „⚠ Poza dostępnością: 08:00 – 12:00" (Maria ma Śr brak dostępności); dziura 08:00–12:00 znika z widoku.
+4. Usuń tę zmianę (scenariusz E). Oczekiwane: wiersz znika, dziura Śr 08:00–12:00 wraca.
+
+**G. Podwójna rezerwacja tej samej osoby (fixture tworzony ręcznie, następny tydzień):**
+1. Po scenariuszu A Piotr ma zmianę Śr 12:00–20:00. Przy dziurze Śr 08:00–12:00 kliknij „＋ Obsadź", zmień czasy na 11:00 / 13:00, wybierz Piotra Nowaka i potwierdź.
+2. Oczekiwane: nowy wiersz Piotr 11:00–13:00 — bez flagi „poza dostępnością" (Piotr ma Śr 12:00–20:00, co pokrywa zmianę) — a OBIE zmiany Piotra (11:00–13:00 i 12:00–20:00) dostają chip „⚠ Nakładka z inną zmianą tej samej osoby: 12:00 – 13:00".
+3. Usuń zmianę 11:00–13:00. Oczekiwane: chip znika natychmiast z obu wierszy (flagi liczone przy renderze), dziura Śr 08:00–12:00 wraca.
+
+**H. Świeże konto — edycja od zera:**
 1. Wyloguj się, zarejestruj nowe konto, załóż biznes Pn–Pt 09:00–17:00, dodaj 1 pracownika z dostępnością w przyszły poniedziałek 10:00–14:00, wejdź na „Grafik", kliknij „Generuj draft".
 2. Oczekiwane: Pon: zmiana 10:00–14:00 + dziury 09:00–10:00 i 14:00–17:00; Wt–Pt całe dziury.
-3. Usuń jedyną zmianę (scenariusz E). Oczekiwane: Pon wraca do całodziennej dziury; „Dodaj zmianę" pozwala odtworzyć ją ręcznie (formularz z domyślnymi godzinami 09:00 / 17:00, po zapisie flaga „10:00 – 14:00", bo pracownik ma dostępność tylko 10:00–14:00).
-
-**H. Podwójna rezerwacja tej samej osoby (fixture tworzony ręcznie, następny tydzień):**
-1. Po scenariuszu A Piotr ma w środę zmianę 12:00–20:00. Przy dziurze Śr 08:00–12:00 kliknij „＋ Obsadź", zmień czasy na 11:00 / 13:00, wybierz Piotra Nowaka i potwierdź.
-2. Oczekiwane: nowy wiersz Piotr 11:00–13:00 — bez flagi „poza dostępnością" (Piotr ma Śr 12:00–20:00, co pokrywa… nakładkę, nie zmianę) — a OBIE zmiany Piotra (11:00–13:00 i 12:00–20:00) dostają chip „⚠ Nakładka z inną zmianą tej samej osoby: 12:00 – 13:00"; nakładka dwóch RÓŻNYCH osób (Pon: Anna + Piotr w bieżącym tygodniu) nadal nie daje flagi.
-3. Usuń zmianę 11:00–13:00. Oczekiwane: chip znika natychmiast z obu wierszy (flagi liczone przy renderze), dziura Śr 08:00–12:00 wraca.
+3. Usuń jedyną zmianę (scenariusz E). Oczekiwane: Pon wraca do całodziennej dziury.
+4. Kliknij „＋ Dodaj zmianę" (poniedziałek). Oczekiwane: formularz z domyślnymi godzinami 09:00 / 17:00.
+5. Wybierz pracownika i zapisz BEZ zmieniania godzin. Oczekiwane: wiersz 09:00–17:00 z flagą „⚠ Poza dostępnością: 09:00 – 10:00, 14:00 – 17:00" (dostępność tylko 10:00–14:00); walidacja okna przepuszcza (mieści się w godzinach otwarcia).
+6. Opcjonalnie: „Edytuj" → 10:00 / 14:00 → „Zapisz". Oczekiwane: flaga znika (pełne pokrycie).
 
 ## Performance Considerations
 
@@ -326,27 +332,27 @@ Brak migracji i zmian schematu; `npm run db:types` zbędne. Seed bez zmian — f
 
 #### Automated
 
-- [x] 2.1 `npx astro sync` przechodzi
-- [x] 2.2 `npm run lint` bez błędów
-- [x] 2.3 `npx astro check` bez błędów typów
-- [x] 2.4 `npm run build` kończy się sukcesem
+- [x] 2.1 `npx astro sync` przechodzi — ec9feac
+- [x] 2.2 `npm run lint` bez błędów — ec9feac
+- [x] 2.3 `npx astro check` bez błędów typów — ec9feac
+- [x] 2.4 `npm run build` kończy się sukcesem — ec9feac
 
 ### Phase 3: Islanda ScheduleBoard — edycja w miejscu
 
 #### Automated
 
-- [ ] 3.1 `npx astro sync` przechodzi
-- [ ] 3.2 `npm run lint` bez błędów
-- [ ] 3.3 `npx astro check` bez błędów typów
-- [ ] 3.4 `npm run build` kończy się sukcesem
+- [x] 3.1 `npx astro sync` przechodzi
+- [x] 3.2 `npm run lint` bez błędów
+- [x] 3.3 `npx astro check` bez błędów typów
+- [x] 3.4 `npm run build` kończy się sukcesem
 
 #### Manual
 
-- [ ] 3.5 Scenariusz A: nagłówki dni z godzinami otwarcia + generacja następnego tygodnia + zamiana na niedostępnego z natychmiastową flagą, trwałość po F5
-- [ ] 3.6 Scenariusz B: przesuwanie zmiany, przeliczanie dziur i flagi, walidacja okna (klient + zapora serwerowa)
-- [ ] 3.7 Scenariusz C: dodanie zmiany z dziury bez kolizji
-- [ ] 3.8 Scenariusz D: dodanie zmiany z dziury z kolizją (sekcja „Niedostępni" w formularzu)
-- [ ] 3.9 Scenariusz E: usuwanie zmiany z potwierdzeniem, dziura wraca
-- [ ] 3.10 Scenariusz F: fixture bieżącego tygodnia — nakładka dwóch osób bez flagi, flagi prezydencją, zamiana na niedostępnego
-- [ ] 3.11 Scenariusz G: świeże konto — edycja od zera (dodanie, usunięcie, flaga po dodaniu poza dostępnością)
-- [ ] 3.12 Scenariusz H: podwójna rezerwacja tej samej osoby — flaga na obu nakładających się zmianach, znika po usunięciu
+- [x] 3.5 Scenariusz A: nagłówki dni z godzinami otwarcia + generacja + zamiana Anny na Piotra (pon) z flagą 08:00 – 12:00, trwałość po F5
+- [x] 3.6 Scenariusz B: przesuwanie zmiany (flaga 10:00 – 16:00, cała zmiana bez dostępności), walidacja okna (klient + zapora serwerowa)
+- [x] 3.7 Scenariusz C: fixture bieżącego tygodnia — nakładka dwóch osób bez flagi, flagi prezydencjące, zamiana Tomasz→Maria (flaga 16:00 – 18:00)
+- [x] 3.8 Scenariusz D: dodanie z dziury bez kolizji (czwartek, Maria 08:00 – 16:00, dziura kurczy się do 16:00 – 20:00)
+- [x] 3.9 Scenariusz E: usuwanie zmiany z potwierdzeniem — dziura wraca do 08:00 – 20:00
+- [x] 3.10 Scenariusz F: dodanie z kolizją (środa, Maria 08:00 – 12:00) + usuwanie, dziura wraca
+- [x] 3.11 Scenariusz G: podwójna rezerwacja tej samej osoby — flaga nakładki 12:00 – 13:00 na obu zmianach, znika po usunięciu
+- [x] 3.12 Scenariusz H: świeże konto — generacja, usuwanie, dodanie z domyślnymi godzinami (flaga 09:00 – 10:00, 14:00 – 17:00), korekta czyści flagę
