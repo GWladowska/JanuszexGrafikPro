@@ -1,8 +1,11 @@
 import type { APIRoute } from "astro";
 import { resolveBusinessId, resolveJsonBody, resolveRequestContext } from "@/lib/api";
 import {
+  ERROR_INVALID_BODY,
   ERROR_SCHEDULE_EXISTS,
+  ERROR_SCHEDULE_INCOMPLETE,
   ERROR_SCHEDULE_NOT_FOUND,
+  ERROR_SCHEDULE_NOT_SAVED,
   ERROR_SAVED_SCHEDULE,
   ERROR_SERVER,
   ERROR_VALIDATION,
@@ -16,8 +19,10 @@ import {
   getAssignments,
   getAvailabilitiesForWeek,
   getScheduleByWeek,
+  saveSchedule,
+  unlockSchedule,
 } from "@/lib/services/schedule";
-import { generateDraft } from "@/lib/services/schedule-generation";
+import { findScheduleBlockers, generateDraft } from "@/lib/services/schedule-generation";
 import { parseWeekStart } from "@/lib/services/schedule-validation";
 
 function parseWeekStartField(body: Record<string, unknown>): { weekStart: string } | Response {
@@ -180,4 +185,92 @@ export const DELETE: APIRoute = async (context) => {
   }
 
   return jsonResponse({ deleted: true }, 200);
+};
+
+export const PATCH: APIRoute = async (context) => {
+  const resolved = resolveRequestContext(context);
+  if (resolved instanceof Response) {
+    return resolved;
+  }
+  const { supabase, ownerId } = resolved;
+
+  const bodyResult = await resolveJsonBody(context);
+  if (bodyResult instanceof Response) {
+    return bodyResult;
+  }
+  const body = bodyResult;
+
+  const weekField = parseWeekStartField(body);
+  if (weekField instanceof Response) {
+    return weekField;
+  }
+
+  const status = body.status;
+  if (status !== "saved" && status !== "draft") {
+    return jsonResponse({ error: ERROR_INVALID_BODY }, 400);
+  }
+
+  const businessId = await resolveBusinessId(supabase, ownerId);
+  if (businessId instanceof Response) {
+    return businessId;
+  }
+
+  const scheduleResult = await getScheduleByWeek(supabase, businessId, weekField.weekStart);
+  if (scheduleResult.error !== null) {
+    return jsonResponse({ error: ERROR_SERVER }, 500);
+  }
+  if (scheduleResult.data === null) {
+    return jsonResponse({ error: ERROR_SCHEDULE_NOT_FOUND }, 404);
+  }
+  const schedule = scheduleResult.data;
+
+  if (status === "saved") {
+    if (schedule.status !== "draft") {
+      return jsonResponse({ error: ERROR_SAVED_SCHEDULE }, 409);
+    }
+
+    const openingHoursResult = await getOpeningHours(supabase, businessId);
+    if (openingHoursResult.error !== null) {
+      return jsonResponse({ error: ERROR_SERVER }, 500);
+    }
+    const availabilitiesResult = await getAvailabilitiesForWeek(supabase, businessId, weekField.weekStart);
+    if (availabilitiesResult.error !== null) {
+      return jsonResponse({ error: ERROR_SERVER }, 500);
+    }
+    const assignmentsResult = await getAssignments(supabase, businessId, schedule.id);
+    if (assignmentsResult.error !== null) {
+      return jsonResponse({ error: ERROR_SERVER }, 500);
+    }
+
+    const blockers = findScheduleBlockers(
+      openingHoursResult.data,
+      availabilitiesResult.data,
+      assignmentsResult.data.map((row) => ({
+        employeeId: row.employee_id,
+        workDate: row.work_date,
+        startTime: row.start_time,
+        endTime: row.end_time,
+      })),
+      weekField.weekStart,
+    );
+    if (blockers.holes.length > 0 || blockers.collisions.length > 0) {
+      return jsonResponse({ error: ERROR_SCHEDULE_INCOMPLETE, blockers }, 400);
+    }
+
+    const saved = await saveSchedule(supabase, businessId, schedule.id);
+    if (saved.error !== null) {
+      return jsonResponse({ error: ERROR_SAVED_SCHEDULE }, saved.error.code === "PGRST116" ? 409 : 500);
+    }
+    return jsonResponse({ schedule: saved.data }, 200);
+  }
+
+  if (schedule.status !== "saved") {
+    return jsonResponse({ error: ERROR_SCHEDULE_NOT_SAVED }, 409);
+  }
+
+  const unlocked = await unlockSchedule(supabase, businessId, schedule.id);
+  if (unlocked.error !== null) {
+    return jsonResponse({ error: ERROR_SCHEDULE_NOT_SAVED }, unlocked.error.code === "PGRST116" ? 409 : 500);
+  }
+  return jsonResponse({ schedule: unlocked.data }, 200);
 };
