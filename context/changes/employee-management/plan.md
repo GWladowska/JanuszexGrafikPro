@@ -249,25 +249,25 @@ Brak zmian w bazie — `employees` i RLS są już na produkcji (F-01, push 2026-
 
 #### Automated
 
-- [x] 2.1 `npx astro sync` przechodzi
-- [x] 2.2 `npm run lint` przechodzi
-- [x] 2.3 `npm run build` kończy się sukcesem
+- [x] 2.1 `npx astro sync` przechodzi — 5dea812
+- [x] 2.2 `npm run lint` przechodzi — 5dea812
+- [x] 2.3 `npm run build` kończy się sukcesem — 5dea812
 
 ### Phase 3: Strona /employees i nawigacja
 
 #### Automated
 
-- [ ] 3.1 `npx astro sync` przechodzi
-- [ ] 3.2 `npm run lint` przechodzi
-- [ ] 3.3 `npm run build` kończy się sukcesem
+- [x] 3.1 `npx astro sync` przechodzi
+- [x] 3.2 `npm run lint` przechodzi
+- [x] 3.3 `npm run build` kończy się sukcesem
 
 #### Manual
 
-- [ ] 3.4 Dodanie pracownika pojawia się na liście bez przeładowania
-- [ ] 3.5 Walidacja formularza (pusta nazwa, pusty/zły e-mail) pokazuje błędy pod polami
-- [ ] 3.6 Duplikat (nazwa + e-mail) ostrzega; „To inna osoba" dodaje, „Anuluj" nie; nazwa + inny e-mail bez ostrzeżenia
-- [ ] 3.7 Edycja wiersza zapisuje nową nazwę i e-mail
-- [ ] 3.8 Usunięcie z potwierdzeniem usuwa pracownika (na koncie seeda także jego dostępności/przypisania)
-- [ ] 3.9 Link „Pracownicy" z dashboardu działa; wylogowanie blokuje `/employees`
-- [ ] 3.10 Izolacja: drugie konto widzi pustą listę, nie dane konta A
-- [ ] 3.11 Konto seeda widzi 5 pracowników z seeda
+- [x] 3.4 Dodanie pracownika pojawia się na liście bez przeładowania
+- [x] 3.5 Walidacja formularza (pusta nazwa, pusty/zły e-mail) pokazuje błędy pod polami
+- [x] 3.6 Duplikat (nazwa + e-mail) ostrzega; „To inna osoba" dodaje, „Anuluj" nie; nazwa + inny e-mail bez ostrzeżenia
+- [x] 3.7 Edycja wiersza zapisuje nową nazwę i e-mail
+- [x] 3.8 Usunięcie z potwierdzeniem usuwa pracownika (na koncie seeda także jego dostępności/przypisania)
+- [x] 3.9 Link „Pracownicy" z dashboardu działa; wylogowanie blokuje `/employees`
+- [x] 3.10 Izolacja: drugie konto widzi pustą listę, nie dane konta A
+- [x] 3.11 Konto seeda widzi 5 pracowników z seeda
