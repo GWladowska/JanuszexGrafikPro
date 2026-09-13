@@ -246,6 +246,15 @@ Brak zmian w bazie — `availabilities` i RLS są już na produkcji (F-01, push 
 - Lekcje: `context/foundation/lessons.md` (helpery `src/lib/http.ts`; Supabase CLI z WSL)
 - Reużycia: `parseTime` (`src/lib/services/business-validation.ts:51`), `ServiceResult` (`src/lib/services/types.ts`), `FormField`/`SubmitButton`/`ServerError`, `useApiErrorState`
 
+## Addendum (impl-review triage, 2026-09-13)
+
+Przegląd `/10x-impl-review` (raport: `reviews/impl-review.md`, APPROVED) — triage decyzje:
+
+- **F1 (TOCTOU nakładania) — decyzja użytkownika zmieniona podczas triage:** reguła „przedziały nie nachodzą" przeniesiona do bazy jako **wykluczający constraint** (`btree_gist` + `timerange` z `'[start,end)'`, styki dozwolone) — migracja `supabase/migrations/20260913040000_no_overlap_availabilities.sql`. Endpointy mapują naruszenie z bazy (`23P01`) na ten sam 409 z `ERROR_OVERLAPPING_AVAILABILITY`; aplikacyjny `findOverlappingAvailability` zostaje jako przyjazny pre-check. **Wymaga ręcznego `supabase db push` z WSL** (human-gate, jak w S-02/F4) + re-testu nakładania. Ta decyzja zastępuje „What We're NOT Doing → Blokada nakładania w bazie" i „zero migracji" w sekcjach powyżej.
+- **F2** — komentarz nagłówka `seed.sql` zaktualizowany („trzy tygodnie").
+- **F3** — sortowanie wpisów dnia przez `localeCompare` (równe godziny = 0).
+- **F4 (częściowo)** — `resolveEmployeeMembership` zwężone do `getEmployeeById` (`select("id")...limit(1)`); `getAvailabilities` **pozostaje celowo bez granicy dat**: widok pozwala przeskakiwać dowolne tygodnie ‹ › i auto-przełącza się po zapisie, więc pełna historia musi być w pamięci islandy. Filtr dat wraca przy S-04 (serwisowe pobieranie per tydzień) albo przy pierwszym realnym horizonie danych.
+
 ## Progress
 
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.
