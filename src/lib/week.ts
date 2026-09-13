@@ -1,5 +1,7 @@
 const WEEKDAY_SHORT = ["Nd", "Pn", "Wt", "Śr", "Cz", "Pt", "So"] as const;
 
+const WEEKDAY_LONG = ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"] as const;
+
 const dayFormatter = new Intl.DateTimeFormat("pl-PL", { day: "2-digit", month: "2-digit", timeZone: "Europe/Warsaw" });
 
 function parseUtcDate(date: string): Date {
@@ -34,6 +36,10 @@ export function weekStartOf(date: string): string {
 
 export function weekdayShort(date: string): (typeof WEEKDAY_SHORT)[number] {
   return WEEKDAY_SHORT[parseUtcDate(date).getUTCDay()];
+}
+
+export function weekdayLong(date: string): (typeof WEEKDAY_LONG)[number] {
+  return WEEKDAY_LONG[parseUtcDate(date).getUTCDay()];
 }
 
 export function formatDayLabel(date: string): string {
