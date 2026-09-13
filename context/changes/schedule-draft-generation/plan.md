@@ -285,15 +285,15 @@ Brak migracji — schemat `schedules`/`assignments` istnieje od F-01; `npm run d
 
 #### Automated
 
-- [x] 3.1 `npx astro sync` przechodzi
-- [x] 3.2 `npm run lint` bez błędów
-- [x] 3.3 `npm run build` kończy się sukcesem
+- [x] 3.1 `npx astro sync` przechodzi — 5899073
+- [x] 3.2 `npm run lint` bez błędów — 5899073
+- [x] 3.3 `npm run build` kończy się sukcesem — 5899073
 
 #### Manual
 
-- [x] 3.4 Scenariusz A: konto seeda, bieżący tydzień — draft widoczny, „Generuj" zablokowany
-- [x] 3.5 Scenariusz B: przyszły tydzień — generacja z oczekiwanym układem zmian i dziur, trwałość po F5
-- [x] 3.6 Scenariusz C: zamiana osoby w puli dostępnych; Piotr niedostępny na Poniedziałek
-- [x] 3.7 Scenariusz D: „Usuń draft" → regeneracja od zera
-- [x] 3.8 Scenariusz E: świeże konto — stany puste i przycinanie do godzin otwarcia
-- [x] 3.9 Scenariusz F: izolacja danych między dwoma kontami
+- [x] 3.4 Scenariusz A: konto seeda, bieżący tydzień — draft widoczny, „Generuj" zablokowany — 5899073
+- [x] 3.5 Scenariusz B: przyszły tydzień — generacja z oczekiwanym układem zmian i dziur, trwałość po F5 — 5899073
+- [x] 3.6 Scenariusz C: zamiana osoby w puli dostępnych; Piotr niedostępny na Poniedziałek — 5899073
+- [x] 3.7 Scenariusz D: „Usuń draft" → regeneracja od zera — 5899073
+- [x] 3.8 Scenariusz E: świeże konto — stany puste i przycinanie do godzin otwarcia — 5899073
+- [x] 3.9 Scenariusz F: izolacja danych między dwoma kontami — 5899073
