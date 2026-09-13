@@ -377,4 +377,4 @@ Trzy poprawki zgłoszone podczas weryfikacji E2E fazy 3 — poza pierwotnym zakr
 - [x] A.3 Pracownicy: link „Dostępności" otwiera widok z wybranym danym pracownikiem
 - [x] A.4 Dostępności: „＋ Dodaj" przy każdym dniu otwiera inline formularz; zapis dodaje wpis; „Anuluj" zamyka bez skutków
 - [x] A.5 Pracownicy: przyciski akcji pracownika (Dostępności/Edytuj/Usuń) mieszczą się w karcie — zawijanie wiersza — 6188245
-- [ ] A.6 Pracownicy: przyciski akcji zawsze w nowej linii pod danymi wpisu (kolumna zamiast flex-wrap)
+- [x] A.6 Pracownicy: przyciski akcji zawsze w nowej linii pod danymi wpisu (kolumna zamiast flex-wrap) — 33f4309
