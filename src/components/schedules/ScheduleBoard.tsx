@@ -7,7 +7,7 @@ import type { OpeningHoursDay } from "@/lib/services/business-validation";
 import type { AssignmentRow, ScheduleRow } from "@/lib/services/schedule";
 import type { DraftInput, DraftPiece } from "@/lib/services/schedule-generation";
 import { computeHoles, isFullyCovered } from "@/lib/services/schedule-generation";
-import { addDays, formatDayLabel, formatWeekLabel, weekdayShort } from "@/lib/week";
+import { addDays, formatDayLabel, formatWeekLabel, isoWeekday, weekdayShort } from "@/lib/week";
 import { cn } from "@/lib/utils";
 
 export interface ScheduleWeekData {
@@ -68,10 +68,6 @@ function extractAssignment(body: unknown): AssignmentRow | null {
   return assignment as AssignmentRow;
 }
 
-function isoWeekdayOf(date: string): number {
-  return ((new Date(`${date}T00:00:00Z`).getUTCDay() + 6) % 7) + 1;
-}
-
 function toDraftPieces(assignments: AssignmentRow[]): DraftPiece[] {
   return assignments.map((row) => ({
     employeeId: row.employee_id,
@@ -110,7 +106,7 @@ export default function ScheduleBoard({
         : "border-white/20 bg-white/10 text-white hover:bg-white/20",
     );
 
-  async function goToWeek(nextWeekStart: string) {
+  async function goToWeek(previousWeekStart: string, nextWeekStart: string) {
     setDeleting(false);
     navApi.setServerError(null);
     setWeekStart(nextWeekStart);
@@ -120,14 +116,18 @@ export default function ScheduleBoard({
       const responseBody: unknown = await response.json().catch(() => null);
       if (!response.ok) {
         navApi.applyApiError(responseBody);
+        setWeekStart(previousWeekStart);
         return;
       }
       const data = extractWeekData(responseBody);
       if (data !== null) {
         setWeekData(data);
+      } else {
+        setWeekStart(previousWeekStart);
       }
     } catch {
       navApi.setServerError(ERROR_NETWORK);
+      setWeekStart(previousWeekStart);
     } finally {
       setNavPending(false);
     }
@@ -242,7 +242,7 @@ export default function ScheduleBoard({
             type="button"
             disabled={navPending}
             onClick={() => {
-              void goToWeek(addDays(weekStart, -7));
+              void goToWeek(weekStart, addDays(weekStart, -7));
             }}
             className={cn(actionButtonClass(false), "flex items-center gap-1 disabled:opacity-50")}
             aria-label="Poprzedni tydzień"
@@ -255,7 +255,7 @@ export default function ScheduleBoard({
             type="button"
             disabled={navPending}
             onClick={() => {
-              void goToWeek(addDays(weekStart, 7));
+              void goToWeek(weekStart, addDays(weekStart, 7));
             }}
             className={cn(actionButtonClass(false), "flex items-center gap-1 disabled:opacity-50")}
             aria-label="Następny tydzień"
@@ -269,7 +269,7 @@ export default function ScheduleBoard({
 
         <ul className="space-y-3">
           {weekDays.map((day) => {
-            const opening = openingByWeekday.get(isoWeekdayOf(day));
+            const opening = openingByWeekday.get(isoWeekday(day));
             const dayAssignments = weekData.assignments
               .filter((row) => row.work_date === day)
               .sort((a, b) => a.start_time.localeCompare(b.start_time));
@@ -346,7 +346,7 @@ export default function ScheduleBoard({
       </section>
 
       <section className="space-y-3">
-        {weekData.schedule === null ? (
+        {weekData.schedule === null && !navPending ? (
           <form onSubmit={(event) => submitGenerate(event)} noValidate>
             <SubmitButton pendingText="Generowanie..." icon={<Sparkles className="size-4" />} pending={generatePending}>
               Generuj draft
@@ -357,7 +357,11 @@ export default function ScheduleBoard({
             <button
               type="button"
               disabled
-              title="Draft już istnieje — użyj „Usuń draft”, aby zacząć od nowa."
+              title={
+                weekData.schedule !== null
+                  ? "Draft już istnieje — użyj „Usuń draft”, aby zacząć od nowa."
+                  : "Ładowanie danych tygodnia…"
+              }
               className={cn(actionButtonClass(false), "w-full cursor-not-allowed opacity-50")}
             >
               <span className="flex items-center justify-center gap-2">
@@ -365,48 +369,53 @@ export default function ScheduleBoard({
                 Generuj draft
               </span>
             </button>
-            <p className="text-sm text-blue-100/70">
-              Draft już istnieje — użyj „Usuń draft”, aby wygenerować grafik od nowa.
-            </p>
-            {deleting ? (
-              <div className="text-sm">
-                <p className="text-red-200">Na pewno usunąć draft grafiku wraz ze wszystkimi zmianami?</p>
-                <div className="mt-3 flex flex-wrap gap-2">
+            {weekData.schedule !== null ? (
+              <>
+                <p className="text-sm text-blue-100/70">
+                  Draft już istnieje — użyj „Usuń draft”, aby wygenerować grafik od nowa.
+                </p>
+                {deleting ? (
+                  <div className="text-sm">
+                    <p className="text-red-200">Na pewno usunąć draft grafiku wraz ze wszystkimi zmianami?</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        disabled={deletePending || navPending}
+                        onClick={() => {
+                          void submitDelete();
+                        }}
+                        className={cn(actionButtonClass(true), "flex items-center gap-1 disabled:opacity-50")}
+                      >
+                        <Trash2 className="size-4" />
+                        {deletePending ? "Usuwanie..." : "Usuń"}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={deletePending}
+                        onClick={() => {
+                          setDeleting(false);
+                        }}
+                        className={cn(actionButtonClass(false), "disabled:opacity-50")}
+                      >
+                        Anuluj
+                      </button>
+                    </div>
+                  </div>
+                ) : (
                   <button
                     type="button"
-                    disabled={deletePending}
+                    disabled={navPending}
                     onClick={() => {
-                      void submitDelete();
+                      setDeleting(true);
                     }}
                     className={cn(actionButtonClass(true), "flex items-center gap-1 disabled:opacity-50")}
                   >
                     <Trash2 className="size-4" />
-                    {deletePending ? "Usuwanie..." : "Usuń"}
+                    Usuń draft
                   </button>
-                  <button
-                    type="button"
-                    disabled={deletePending}
-                    onClick={() => {
-                      setDeleting(false);
-                    }}
-                    className={cn(actionButtonClass(false), "disabled:opacity-50")}
-                  >
-                    Anuluj
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  setDeleting(true);
-                }}
-                className={cn(actionButtonClass(true), "flex items-center gap-1")}
-              >
-                <Trash2 className="size-4" />
-                Usuń draft
-              </button>
-            )}
+                )}
+              </>
+            ) : null}
           </>
         )}
 

@@ -22,6 +22,10 @@ export function nextMonday(from: string): string {
   return addDays(from, daysUntilNextMonday);
 }
 
+export function isoWeekday(date: string): number {
+  return ((parseUtcDate(date).getUTCDay() + 6) % 7) + 1;
+}
+
 export function weekStartOf(date: string): string {
   const parsed = parseUtcDate(date);
   const isoWeekday = (parsed.getUTCDay() + 6) % 7;

@@ -46,10 +46,15 @@ export async function getScheduleByWeek(
   return { data, error: null };
 }
 
-export async function getAssignments(supabase: Supabase, scheduleId: string): Promise<ServiceResult<AssignmentRow[]>> {
+export async function getAssignments(
+  supabase: Supabase,
+  businessId: string,
+  scheduleId: string,
+): Promise<ServiceResult<AssignmentRow[]>> {
   const { data, error } = await supabase
     .from("assignments")
     .select("*")
+    .eq("business_id", businessId)
     .eq("schedule_id", scheduleId)
     .order("work_date", { ascending: true })
     .order("start_time", { ascending: true });

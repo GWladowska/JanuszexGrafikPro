@@ -1,4 +1,4 @@
-import { addDays } from "@/lib/week";
+import { addDays, isoWeekday } from "@/lib/week";
 
 export interface DraftInput {
   employees: { id: string; name: string }[];
@@ -18,10 +18,6 @@ export type DraftHole = Omit<DraftPiece, "employeeId">;
 interface Interval {
   start: string;
   end: string;
-}
-
-function isoWeekday(date: string): number {
-  return ((new Date(`${date}T00:00:00Z`).getUTCDay() + 6) % 7) + 1;
 }
 
 function compareIntervals(a: Interval, b: Interval): number {

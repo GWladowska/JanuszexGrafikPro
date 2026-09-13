@@ -110,7 +110,7 @@ export const GET: APIRoute = async (context) => {
     return jsonResponse({ schedule: null, assignments: [], availabilities: availabilitiesResult.data }, 200);
   }
 
-  const assignmentsResult = await getAssignments(supabase, scheduleResult.data.id);
+  const assignmentsResult = await getAssignments(supabase, businessId, scheduleResult.data.id);
   if (assignmentsResult.error !== null) {
     return jsonResponse({ error: ERROR_SERVER }, 500);
   }
@@ -201,12 +201,12 @@ export const PUT: APIRoute = async (context) => {
 
   const assignmentIdResult = parseAssignmentId(body.assignmentId);
   if (assignmentIdResult.fieldError !== null) {
-    return jsonResponse({ error: ERROR_VALIDATION, fieldErrors: { assignmentId: assignmentIdResult.fieldError } }, 400);
+    return jsonResponse({ error: ERROR_INVALID_BODY }, 400);
   }
 
   const employeeIdResult = parseEmployeeId(body.employeeId);
   if (employeeIdResult.fieldError !== null) {
-    return jsonResponse({ error: ERROR_VALIDATION, fieldErrors: { employeeId: employeeIdResult.fieldError } }, 400);
+    return jsonResponse({ error: ERROR_INVALID_BODY }, 400);
   }
 
   const businessId = await resolveBusinessId(supabase, ownerId);
