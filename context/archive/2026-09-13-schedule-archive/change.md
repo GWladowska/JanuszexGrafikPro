@@ -1,10 +1,10 @@
 ---
 change_id: schedule-archive
 title: Archiwum zapisanych grafików — read-only dla tygodni minionych i bieżącego
-status: impl_reviewed
+status: archived
 created: 2026-09-13
 updated: 2026-09-13
-archived_at: null
+archived_at: 2026-09-13T22:01:48Z
 ---
 
 ## Notes

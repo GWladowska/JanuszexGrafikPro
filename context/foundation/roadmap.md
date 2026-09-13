@@ -39,7 +39,7 @@ Rdzeń hipotezy produktu — założenie, że jeśli się nie sprawdzi, reszta n
 | S-05 | schedule-editing-collisions | ręcznie modyfikować draft; kolizje z niedostępnością są sygnalizowane przed zapisem | S-04 | FR-009, FR-010, US-01, US-03 | done |
 | S-06 | save-complete-schedule | zapisać kompletny grafik — dziury nie mogą zostać zapisane po cichu | S-05 | FR-011, US-01, Guardrails | done |
 | S-07 | schedule-text-export | skopiować tekstowy widok zapisanego grafiku (jedna akcja) i wkleić go na Messengera/WhatsAppa | S-06 | FR-012, US-02 | done |
-| S-08 | schedule-archive | przeglądać archiwalne zapisane grafiki (tydzień bieżący i minione) read-only, z historycznymi godzinami otwarcia; edycja/planowanie tylko dla tygodni przyszłych | S-06 | NFR trwałość danych; decyzje user 2026-09-13 | proposed |
+| S-08 | schedule-archive | przeglądać archiwalne zapisane grafiki (tydzień bieżący i minione) read-only, z historycznymi godzinami otwarcia; edycja/planowanie tylko dla tygodni przyszłych | S-06 | NFR trwałość danych; decyzje user 2026-09-13 | done |
 
 ## Baseline
 
@@ -173,7 +173,7 @@ Foundations poniżej zakładają, że te warstwy są obecne, i NIE budują ich o
 - **Unknowns:**
   - —
 - **Risk:** Zmienia zachowanie strony `/schedules` dla tygodni przeszłych i bieżącego (zamrożenie edycji) — reguła „miniony tydzień się nie zmienia" musi być spójna z obecnym widokiem read-only zapisanych grafików (S-06) i z triggerem blokującym zapis przypisań do grafików `saved`. Historyczne godziny otwarcia wymagają decyzji o przechowywaniu (snapshot godzin przy zapisie grafiku albo wersjonowanie godzin otwarcia). Poza krytyczną ścieżką north star (primary criteria zamykają się na S-07) — kandydat do cięcia przy deadline 2026-09-14.
-- **Status:** proposed
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -216,3 +216,4 @@ Foundations poniżej zakładają, że te warstwy są obecne, i NIE budują ich o
 - **S-05: użytkownik ręcznie modyfikuje draft (przesuwa i zmienia pracowników na zmianach); kolizja z niedostępnością pracownika jest sygnalizowana natychmiast, przed zapisem.** — Archived 2026-09-13 → `context/archive/2026-09-13-schedule-editing-collisions/`. Lesson: —.
 - **S-06: użytkownik zapisuje kompletny grafik; nieobsadzone godziny otwarcia nie mogą zostać zapisane po cichu (dziury blokują zapis, dopóki nie zostaną obsadzone).** — Archived 2026-09-13 → `context/archive/2026-09-13-save-complete-schedule/`. Lesson: —.
 - **S-07: użytkownik kopiuje tekstowy widok zapisanego grafiku (jedna akcja) i wkleja go na grupowy Messenger/WhatsApp — tekst czytelny, układ się nie łamie.** — Archived 2026-09-13 → `context/archive/2026-09-13-schedule-text-export/`. Lesson: —.
+- **S-08: użytkownik przegląda archiwalne, zapisane grafiki tygodnia bieżącego i minionych — widok read-only z wiernym odwzorowaniem godzin otwarcia obowiązujących w danym tygodniu. Tygodnie ≤ bieżący (już minione albo w toku) są zamrożone: bez edycji, bez „Generuj draft", bez „Odblokuj do edycji". Edycja i planowanie są dostępne wyłącznie dla tygodni przyszłych. Bez spisu tygodni — nawigacja tygodniowa ‹ ›.** — Archived 2026-09-13 → `context/archive/2026-09-13-schedule-archive/`. Lesson: —.
