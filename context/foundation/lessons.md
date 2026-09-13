@@ -21,3 +21,10 @@
 **Rule**: Komendy Supabase dyktuj i wykonuj jako `supabase <cmd>` z terminala WSL w katalogu projektu (`cd /mnt/c/Repositories/Own/JanuszexGrafikPro`); nigdy `npx supabase`. Odwrotnie dla dev-serwera: `npm run dev` zawsze z PowerShell (Windows). Nie mieszaj środowisk dla tego samego `node_modules` — przejście na drugą stronę wymaga reinstalu.
 
 **Applies to**: all
+
+## Kroki testowe manualne jako scenariusze E2E klik-po-kliku
+
+- **Context**: Ręczna weryfikacja E2E w planach (/10x-plan → Manual Testing Steps, /10x-implement → bramka manualna); incident: availability-management (S-03), faza 3 — skrótowe kroki testowe zmusiły użytkownika do proszenia o rozpisanie klik-po-kliku.
+- **Problem**: Terse kroki testowe (jedna linia na przypadek) nie mówią testerowi-człowiekowi, od czego zacząć: konto seeda czy świeże, który tydzień, jakie dokładnie wartości i komunikaty. Tester traci czas na rekonstrukcję scenariusza albo pomija przypadki brzegowe.
+- **Rule**: Manual Testing Steps w planie pisz jako konkretne scenariusze E2E: punkt startowy (konto/URL), akcje klik-po-kliku z dokładnymi wartościami (dni, godziny, treści) oraz „Oczekiwane:" z precyzyjnym zachowaniem (w tym komunikatów błędów); grupuj per stan startowy (konto seeda vs świeże konto).
+- **Applies to**: plan, implement
