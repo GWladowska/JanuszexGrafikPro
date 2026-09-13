@@ -22,6 +22,25 @@ export async function getEmployees(supabase: Supabase, businessId: string): Prom
   return { data, error: null };
 }
 
+export async function getEmployeeById(
+  supabase: Supabase,
+  businessId: string,
+  employeeId: string,
+): Promise<ServiceResult<{ id: string } | null>> {
+  const { data, error } = await supabase
+    .from("employees")
+    .select("id")
+    .eq("id", employeeId)
+    .eq("business_id", businessId)
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    return { data: null, error };
+  }
+  return { data, error: null };
+}
+
 export async function createEmployee(
   supabase: Supabase,
   businessId: string,

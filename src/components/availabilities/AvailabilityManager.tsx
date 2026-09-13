@@ -304,7 +304,7 @@ export default function AvailabilityManager({
           {weekDays.map((day) => {
             const dayEntries = weekAvailabilities
               .filter((row) => row.work_date === day)
-              .sort((a, b) => (a.start_time < b.start_time ? -1 : 1));
+              .sort((a, b) => a.start_time.localeCompare(b.start_time));
 
             return (
               <li key={day} className="rounded-lg border border-white/10 bg-white/5 px-3 py-3">

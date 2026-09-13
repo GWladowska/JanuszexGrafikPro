@@ -14,7 +14,7 @@ import {
   readJsonBody,
 } from "@/lib/http";
 import { getBusinessForOwner } from "@/lib/services/business";
-import { getEmployees } from "@/lib/services/employee";
+import { getEmployeeById } from "@/lib/services/employee";
 import {
   createAvailability,
   deleteAvailability,
@@ -112,11 +112,11 @@ async function resolveEmployeeMembership(
   businessId: string,
   employeeId: string,
 ): Promise<Response | null> {
-  const employees = await getEmployees(supabase, businessId);
-  if (employees.error !== null) {
+  const employee = await getEmployeeById(supabase, businessId, employeeId);
+  if (employee.error !== null) {
     return jsonResponse({ error: ERROR_SERVER }, 500);
   }
-  if (!employees.data.some((employee) => employee.id === employeeId)) {
+  if (employee.data === null) {
     return jsonResponse({ error: ERROR_EMPLOYEE_NOT_FOUND }, 404);
   }
   return null;
@@ -181,6 +181,9 @@ export const POST: APIRoute = async (context) => {
 
   const result = await createAvailability(supabase, businessId, parsed.input);
   if (result.error !== null) {
+    if (result.error.code === "23P01") {
+      return jsonResponse({ error: ERROR_OVERLAPPING_AVAILABILITY }, 409);
+    }
     return jsonResponse({ error: ERROR_SERVER }, 500);
   }
 
@@ -234,6 +237,9 @@ export const PUT: APIRoute = async (context) => {
   if (result.error !== null) {
     if (result.error.code === "PGRST116") {
       return jsonResponse({ error: ERROR_AVAILABILITY_NOT_FOUND }, 404);
+    }
+    if (result.error.code === "23P01") {
+      return jsonResponse({ error: ERROR_OVERLAPPING_AVAILABILITY }, 409);
     }
     return jsonResponse({ error: ERROR_SERVER }, 500);
   }

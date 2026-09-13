@@ -12,7 +12,7 @@
 --
 -- Dane: konto właściciela + kawiarnia „Kawiarnia Januszex":
 -- godziny otwarcia pon–sob (niedziela celowo pominięta = zamknięta),
--- 5 pracowników, dostępności na bieżący tydzień (od poniedziałka
+-- 5 pracowników, dostępności na trzy tygodnie (poprzedni, bieżący i następny) (od poniedziałka
 -- date_trunc('week', now())::date), jeden grafik w statusie draft
 -- z przypisaniami zmian.
 -- =============================================================================
