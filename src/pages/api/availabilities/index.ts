@@ -168,6 +168,9 @@ export const POST: APIRoute = async (context) => {
 
   const result = await createAvailability(supabase, businessId, parsed.input);
   if (result.error !== null) {
+    if (result.error.code === "23000") {
+      return jsonResponse({ error: ERROR_AVAILABILITY_WEEK_FROZEN }, 409);
+    }
     if (result.error.code === "23P01") {
       return jsonResponse({ error: ERROR_OVERLAPPING_AVAILABILITY }, 409);
     }
@@ -244,6 +247,9 @@ export const PUT: APIRoute = async (context) => {
     if (result.error.code === "PGRST116") {
       return jsonResponse({ error: ERROR_AVAILABILITY_NOT_FOUND }, 404);
     }
+    if (result.error.code === "23000") {
+      return jsonResponse({ error: ERROR_AVAILABILITY_WEEK_FROZEN }, 409);
+    }
     if (result.error.code === "23P01") {
       return jsonResponse({ error: ERROR_OVERLAPPING_AVAILABILITY }, 409);
     }
@@ -293,6 +299,9 @@ export const DELETE: APIRoute = async (context) => {
   if (result.error !== null) {
     if (result.error.code === "PGRST116") {
       return jsonResponse({ error: ERROR_AVAILABILITY_NOT_FOUND }, 404);
+    }
+    if (result.error.code === "23000") {
+      return jsonResponse({ error: ERROR_AVAILABILITY_WEEK_FROZEN }, 409);
     }
     return jsonResponse({ error: ERROR_SERVER }, 500);
   }

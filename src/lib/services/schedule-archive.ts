@@ -27,5 +27,13 @@ export function resolveOpeningHours(current: OpenDay[], snapshot: unknown, useSn
   if (!useSnapshot) {
     return current;
   }
-  return parseOpeningHoursSnapshot(snapshot) ?? current;
+  const parsed = parseOpeningHoursSnapshot(snapshot);
+  if (parsed !== null) {
+    return parsed;
+  }
+  if (snapshot !== null && snapshot !== undefined) {
+    // eslint-disable-next-line no-console
+    console.warn("[schedule-archive] Nieprawidłowa kopia godzin otwarcia — używam bieżących godzin.");
+  }
+  return current;
 }

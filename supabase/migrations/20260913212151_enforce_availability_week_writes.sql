@@ -14,6 +14,15 @@ declare
   candidate date;
   candidate_week date;
 begin
+  -- Kaskadowe kasowanie pracownika/biznesu: rodzic już nie istnieje — przepuść
+  -- (wzorzec z enforce_draft_assignment_writes; bez tego trigger blokowałby
+  -- usuwanie pracowników mających wpisy z minionych tygodni).
+  if tg_op = 'DELETE'
+    and not exists (select 1 from public.employees e where e.id = old.employee_id)
+  then
+    return old;
+  end if;
+
   -- Przy INSERT/UPDATE/DELETE sprawdzamy każdą dostępną datę (przy UPDATE także
   -- poprzednią — nie wolno przenosić wpisów poza dozwolone tygodnie).
   for candidate in

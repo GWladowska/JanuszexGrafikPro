@@ -410,7 +410,7 @@ export default function ScheduleBoard({
       return;
     }
     editApi.setServerError(null);
-    const validationError = validateShiftTimes(editing.startTime, editing.endTime, row.work_date, openingHours);
+    const validationError = validateShiftTimes(editing.startTime, editing.endTime, row.work_date, weekOpeningHours);
     if (validationError !== null) {
       setEditingError(validationError);
       return;
@@ -450,7 +450,7 @@ export default function ScheduleBoard({
       return;
     }
     addApi.setServerError(null);
-    const validationError = validateShiftTimes(adding.startTime, adding.endTime, adding.workDate, openingHours);
+    const validationError = validateShiftTimes(adding.startTime, adding.endTime, adding.workDate, weekOpeningHours);
     if (validationError !== null) {
       setAddingError(validationError);
       return;
@@ -906,7 +906,7 @@ export default function ScheduleBoard({
                         })}
                       </ul>
                     ) : null}
-                    {dayHoles.map((hole) => (
+                    {(isDraft ? dayHoles : []).map((hole) => (
                       <div
                         key={`${hole.startTime}-${hole.endTime}`}
                         className={cn(holeClass, "mt-2 flex flex-wrap items-center justify-between gap-2")}
