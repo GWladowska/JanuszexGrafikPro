@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight, Sparkles, Trash2 } from "lucide-react";
 import { ServerError } from "@/components/auth/ServerError";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ERROR_NETWORK, useApiErrorState } from "@/components/hooks/useApiErrorState";
-import type { OpeningHoursDay } from "@/lib/services/business-validation";
+import type { OpenDay } from "@/lib/services/business-validation";
 import type { AssignmentRow, ScheduleRow } from "@/lib/services/schedule";
 import type { DraftInput, DraftPiece } from "@/lib/services/schedule-generation";
 import { computeHoles, isFullyCovered } from "@/lib/services/schedule-generation";
@@ -18,7 +18,7 @@ export interface ScheduleWeekData {
 
 interface ScheduleBoardProps {
   initialEmployees: { id: string; name: string }[];
-  openingHours: OpeningHoursDay[];
+  openingHours: OpenDay[];
   defaultWeekStart: string;
   initialWeekData: ScheduleWeekData;
 }
@@ -230,7 +230,7 @@ export default function ScheduleBoard({
   }
 
   const employeesById = new Map(employees.map((employee) => [employee.id, employee]));
-  const openingByWeekday = new Map<number, OpeningHoursDay>(openingHours.map((day) => [day.weekday, day]));
+  const openingByWeekday = new Map<number, OpenDay>(openingHours.map((day) => [day.weekday, day]));
   const weekHoles = computeHoles(openingHours, toDraftPieces(weekData.assignments), weekStart);
   const weekDays = Array.from({ length: 7 }, (_, index) => addDays(weekStart, index));
 

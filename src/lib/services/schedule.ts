@@ -182,6 +182,71 @@ export async function updateAssignmentEmployee(
   return { data: normalizeAssignmentRow(data), error: null };
 }
 
+export async function createAssignment(
+  supabase: Supabase,
+  businessId: string,
+  scheduleId: string,
+  piece: DraftPiece,
+): Promise<ServiceResult<AssignmentRow>> {
+  const { data, error } = await supabase
+    .from("assignments")
+    .insert({
+      business_id: businessId,
+      schedule_id: scheduleId,
+      employee_id: piece.employeeId,
+      work_date: piece.workDate,
+      start_time: piece.startTime,
+      end_time: piece.endTime,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    return { data: null, error };
+  }
+  return { data: normalizeAssignmentRow(data), error: null };
+}
+
+export async function updateAssignmentTimes(
+  supabase: Supabase,
+  businessId: string,
+  assignmentId: string,
+  startTime: string,
+  endTime: string,
+): Promise<ServiceResult<AssignmentRow>> {
+  const { data, error } = await supabase
+    .from("assignments")
+    .update({ start_time: startTime, end_time: endTime })
+    .eq("id", assignmentId)
+    .eq("business_id", businessId)
+    .select()
+    .single();
+
+  if (error) {
+    return { data: null, error };
+  }
+  return { data: normalizeAssignmentRow(data), error: null };
+}
+
+export async function deleteAssignment(
+  supabase: Supabase,
+  businessId: string,
+  assignmentId: string,
+): Promise<ServiceResult<AssignmentRow>> {
+  const { data, error } = await supabase
+    .from("assignments")
+    .delete()
+    .eq("id", assignmentId)
+    .eq("business_id", businessId)
+    .select()
+    .single();
+
+  if (error) {
+    return { data: null, error };
+  }
+  return { data: normalizeAssignmentRow(data), error: null };
+}
+
 export async function deleteSchedule(
   supabase: Supabase,
   businessId: string,

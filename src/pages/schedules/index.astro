@@ -38,7 +38,7 @@ const availabilitiesResult =
 let initialAssignments: AssignmentRow[] = [];
 let assignmentsFailed = false;
 if (scheduleResult !== null && scheduleResult.error === null && scheduleResult.data !== null) {
-  const assignmentsResult = await getAssignments(supabase, scheduleResult.data.id);
+  const assignmentsResult = await getAssignments(supabase, scheduleResult.data.business_id, scheduleResult.data.id);
   if (assignmentsResult.error !== null) {
     assignmentsFailed = true;
   } else {
@@ -52,6 +52,16 @@ const listsFailed =
   (openingHoursResult !== null && openingHoursResult.error !== null) ||
   (scheduleResult !== null && scheduleResult.error !== null) ||
   (availabilitiesResult !== null && availabilitiesResult.error !== null);
+
+if (listsFailed) {
+  console.error("[schedules] Nie udało się pobrać danych tygodnia", {
+    employees: employeesResult?.error ?? null,
+    openingHours: openingHoursResult?.error ?? null,
+    schedule: scheduleResult?.error ?? null,
+    availabilities: availabilitiesResult?.error ?? null,
+    assignmentsFailed,
+  });
+}
 
 const employees =
   employeesResult !== null && employeesResult.error === null

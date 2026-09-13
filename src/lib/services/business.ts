@@ -1,6 +1,6 @@
 import type { Database } from "@/lib/database.types";
 import type { createClient } from "@/lib/supabase";
-import type { OpeningHoursDay, Weekday } from "@/lib/services/business-validation";
+import type { OpenDay, OpeningHoursDay, Weekday } from "@/lib/services/business-validation";
 import { isClosedDay, isOpenDay, WEEKDAYS } from "@/lib/services/business-validation";
 import type { ServiceResult } from "@/lib/services/types";
 
@@ -20,7 +20,7 @@ export function normalizeTime(value: string): string {
   return value.length > 5 ? value.slice(0, 5) : value;
 }
 
-export function toOpeningHoursDays(rows: OpeningHourRow[]): OpeningHoursDay[] {
+export function toOpeningHoursDays(rows: OpeningHourRow[]): OpenDay[] {
   return rows.map((row) => ({
     weekday: row.weekday as Weekday,
     opensAt: normalizeTime(row.opens_at),
@@ -40,10 +40,7 @@ export async function getBusinessForOwner(
   return { data, error: null };
 }
 
-export async function getOpeningHours(
-  supabase: Supabase,
-  businessId: string,
-): Promise<ServiceResult<OpeningHoursDay[]>> {
+export async function getOpeningHours(supabase: Supabase, businessId: string): Promise<ServiceResult<OpenDay[]>> {
   const { data, error } = await supabase
     .from("opening_hours")
     .select("*")

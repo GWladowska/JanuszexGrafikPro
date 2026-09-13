@@ -253,3 +253,69 @@ export function isFullyCovered(
   }
   return cursor >= end;
 }
+
+export function findUncoveredRanges(
+  availabilities: DraftInput["availabilities"],
+  employeeId: string,
+  workDate: string,
+  startTime: string,
+  endTime: string,
+): { startTime: string; endTime: string }[] {
+  const covered = mergeIntervals(
+    availabilities
+      .filter((availability) => availability.employeeId === employeeId && availability.workDate === workDate)
+      .map((availability) => ({ start: availability.startTime, end: availability.endTime })),
+  );
+
+  const uncovered: { startTime: string; endTime: string }[] = [];
+  let cursor = startTime;
+  for (const interval of covered) {
+    if (interval.start > cursor) {
+      uncovered.push({ startTime: cursor, endTime: interval.start < endTime ? interval.start : endTime });
+    }
+    if (interval.end > cursor) {
+      cursor = interval.end;
+    }
+    if (cursor >= endTime) {
+      return uncovered;
+    }
+  }
+  if (cursor < endTime) {
+    uncovered.push({ startTime: cursor, endTime });
+  }
+  return uncovered;
+}
+
+export function findSelfOverlaps(
+  assignments: DraftPiece[],
+  target: DraftPiece,
+): { startTime: string; endTime: string }[] {
+  const overlaps: Interval[] = [];
+  for (const assignment of assignments) {
+    if (assignment.employeeId !== target.employeeId || assignment.workDate !== target.workDate) {
+      continue;
+    }
+    const start = assignment.startTime > target.startTime ? assignment.startTime : target.startTime;
+    const end = assignment.endTime < target.endTime ? assignment.endTime : target.endTime;
+    if (start < end) {
+      overlaps.push({ start, end });
+    }
+  }
+  return mergeIntervals(overlaps).map((interval) => ({ startTime: interval.start, endTime: interval.end }));
+}
+
+export function isWithinOpeningHours(
+  openingHours: DraftInput["openingHours"],
+  weekday: number,
+  startTime: string,
+  endTime: string,
+): boolean {
+  if (startTime >= endTime) {
+    return false;
+  }
+  const day = openingHours.find((entry) => entry.weekday === weekday);
+  if (day === undefined) {
+    return false;
+  }
+  return startTime >= day.opensAt && endTime <= day.closesAt;
+}
