@@ -242,7 +242,7 @@ Przegląd `/10x-impl-review` (raport: `reviews/impl-review.md`, APPROVED) zakoń
   - Migracja `supabase/migrations/20260913034936_no_duplicate_employees.sql` — unikalny indeks `uq_employees_business_identity (business_id, lower(regexp_replace(trim(name), '\s+', ' ', 'g')), lower(btrim(contact_email)))`.
   - Endpointy: naruszenie indeksu (`23505`) → `409 { error: ERROR_DUPLICATE_EMPLOYEE }`; `findDuplicateEmployee` i flaga `confirmDuplicate` usunięte.
   - Islanda: brak panelu potwierdzenia — 409 pokazuje komunikat błędu w formularzu.
-  - **Wymaga ręcznego `npx supabase db push`** (deploy-plan: zmiany schematu są human-gated) przed/konając deploy na produkcję.
+  - **Wymaga ręcznego `supabase db push` z WSL** (deploy-plan: zmiany schematu są human-gated) przed deployem na produkcję.
 - **F5** — odłożone: przy trzecim serwisie wynieść `ServiceResult` do `src/lib/services/types.ts`.
 
 ## Progress

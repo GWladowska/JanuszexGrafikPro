@@ -11,3 +11,13 @@
 **Rule**: Nowy endpoint API korzysta z helperów ze `src/lib/http.ts`; nie kopiuje `readJsonBody`/`jsonResponse` ani stałych komunikatów błędów.
 
 **Applies to**: implement, impl-review
+
+## Supabase CLI zawsze jako `supabase` z WSL, nigdy `npx supabase`
+
+**Context**: Środowisko: Windows 11 + WSL (Ubuntu — tam też Docker). CLI Supabase natywnie w `/home/gwladowska/bin/supabase` (PATH z `~/.bashrc`; w komendach zwykłe `supabase`). Repo i `node_modules` na `C:\` zainstalowane z Windows. Wystąpiło w `context/changes/employee-management` (dyktowanie `npx supabase db reset/link/db push` po naprawach z przeglądu) i wcześniej w `business-opening-hours`.
+
+**Problem**: `npx supabase` nie działa w WSL („No matching Supabase CLI binary package found for linux-x64" — node_modules ma binarki windowsowe) ani z PowerShell (nowe CLI wymaga Dockera, którego na Windows nie ma). Podyktowane komendy z `npx` zmuszają użytkownika do ręcznego tłumaczenia ich na własny setup; mieszanie CLI z dwóch środowisk wywołało już błąd wolumenów `supabase/snippets`.
+
+**Rule**: Komendy Supabase dyktuj i wykonuj jako `supabase <cmd>` z terminala WSL w katalogu projektu (`cd /mnt/c/Repositories/Own/JanuszexGrafikPro`); nigdy `npx supabase`. Odwrotnie dla dev-serwera: `npm run dev` zawsze z PowerShell (Windows). Nie mieszaj środowisk dla tego samego `node_modules` — przejście na drugą stronę wymaga reinstalu.
+
+**Applies to**: all
