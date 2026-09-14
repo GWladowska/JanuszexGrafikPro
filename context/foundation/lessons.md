@@ -77,3 +77,17 @@
 - **Problem**: `/10x-archive` przenosi folder do `context/archive/`, więc po archiwizacji orchestrator dla §3 wiersza tego etapu widzi „change folder missing" — zamiast `complete` zaproponuje ponowne `/10x-new` dla już wykonanej fazy, a dowody (plan.md z `[x]`) zniknęły z aktywnego drzewa, na którym stan jest liczony. Archiwizacja przed re-runem psuje sekwencję rollout, choć nic nie mówi o samej implementacji.
 - **Rule**: Po wdrożeniu etapu test-planu trzymaj kolejność: najpierw `/10x-test-plan` (zaznacza §3 `complete` i podaje next handoff), potem `/10x-new` dla następnej fazy (dowody dalej żyją w `context/changes/`), a dopiero na końcu `/10x-archive` zakończonej zmiany. Nigdy nie archiwizuj etapu test-planu przed re-runem orchestratora.
 - **Applies to**: all
+
+## Nazwa joba w `ci.yml` to publiczny kontrakt wymaganych checków rulesetu
+
+- **Context**: Zmiana `testing-quality-gates` (Etap 4 test-planu) — ruleset „Protect" na `master` wymaga kontekstów `ci` i `integration`; GitHub dopasowuje `required_status_checks.context` do **nazwy check runa** (dla zwykłego workflow = nazwa joba, nie nazwa pliku workflow ani jego `name:`).
+- **Problem**: Przemianowanie joba (albo dodanie `name:` w jobie) cicho rozbraja bramkę: żaden przebieg nie pada, a scalenie z czerwonym CI staje się możliwe, bo wymagany check „znika" z listy zgłaszanych. Dryfu nie wykrywa żaden sygnał — tylko świadomy odczyt rulesetu.
+- **Rule**: Zmieniając `.github/workflows/ci.yml`, traktuj identyfikatory jobów `ci` i `integration` jak publiczne API ochrony gałęzi: zachowaj nazwy 1:1 albo w tym samym commicie zaktualizuj `context/deployment/ruleset-protect.json` i zastosuj go PUT-em (pełna reprezentacja — komendy w `deploy-plan.md`). Po każdej zmianie rulesetu weryfikuj odczytem API, że wymagane konteksty zgadzają się z rzeczywistymi check runami na PR-ze.
+- **Applies to**: plan, implement, impl-review
+
+## Pliki hooków w `.husky/` muszą mieć LF — inaczej commit z WSL pada na `\r`
+
+- **Context**: Zmiana `testing-quality-gates` (Etap 4) — wpięcie husky v9 (`"prepare": "husky"`) i rozszerzenie `.husky/pre-commit` o `npm run check`. Repo ma globalnie `core.autocrlf=true`, a commit z WSL wykonuje hook przez `sh -e` (dash).
+- **Problem**: Hook z CRLF (indeks LF, roboczy CRLF) działa z PowerShella (sh.exe Git-for-Windows toleruje `\r`), ale z WSL-owego `dash` kończy się `npx lint-staged\r: not found` i `exit 127` — commit pada w sposób niewidoczny w głównej pętli (PowerShell). Osobno: commit z WSL może paść `EXIT=1` na braku linuxowych binariów w `node_modules` zainstalowanym z Windows (`@rollup/rollup-linux-x64-gnu`, npm/cli#4828) — to ograniczenie środowiska, nie hooka.
+- **Rule**: Pliki w `.husky/` pinuj do LF przez `.gitattributes` (`.husky/* text eol=lf`) i zrenormalizuj jednorazowo (`git add --renormalize .husky`); nie ruszaj globalnego `core.autocrlf` — naprawa ma być repo-scoped. Komendy, które nie przyjmują argumentów plikowych (np. `astro check`), trzymaj poza `lint-staged` (dokleja nazwy plików) — pełny typecheck idzie osobną linią hooka. Commituj z PowerShella; `HUSKY=0 git commit` z WSL stosuj tylko świadomie.
+- **Applies to**: plan, implement
