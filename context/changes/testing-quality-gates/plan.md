@@ -345,25 +345,25 @@ Nieistotne dla aplikacji: zmiany nie dotykają kodu serwowanego. Jedyne koszty o
 
 #### Automated
 
-- [x] 2.1 Dodaj `permissions: contents: read` na poziomie workflow
-- [x] 2.2 Przypnij Supabase CLI (`SUPABASE_CLI_VERSION: "2.117.0"`) i dodaj guard zgodności z lockfilem
-- [x] 2.3 Usuń `env: secrets.SUPABASE_URL/KEY` z kroku `build`
-- [x] 2.4 Lokalne bramki nadal zielone: `npm run lint`, `npm run check`, `npm test`, `npm run build`
-- [x] 2.5 Usuń `version: latest` i martwą referencję sekretów z `ci.yml` (weryfikacja tekstowa)
+- [x] 2.1 Dodaj `permissions: contents: read` na poziomie workflow — a36017e
+- [x] 2.2 Przypnij Supabase CLI (`SUPABASE_CLI_VERSION: "2.117.0"`) i dodaj guard zgodności z lockfilem — a36017e
+- [x] 2.3 Usuń `env: secrets.SUPABASE_URL/KEY` z kroku `build` — a36017e
+- [x] 2.4 Lokalne bramki nadal zielone: `npm run lint`, `npm run check`, `npm test`, `npm run build` — a36017e
+- [x] 2.5 Usuń `version: latest` i martwą referencję sekretów z `ci.yml` (weryfikacja tekstowa) — a36017e
 
 #### Manual
 
-- [ ] 2.6 Log joba `integration` pokazuje CLI `2.117.0` i zielone `supabase test db` + `npm run test:integration`
+- [x] 2.6 Log joba `integration` pokazuje CLI `2.117.0` i zielone `supabase test db` + `npm run test:integration` — a36017e
 
 ### Phase 3: Lokalny hook commitów
 
 #### Automated
 
-- [ ] 3.1 Dodaj `.gitattributes` z `.husky/* text eol=lf` i zrenormalizuj (`git ls-files --eol` → `w/lf`)
-- [ ] 3.2 Dodaj `"prepare": "husky"` do `package.json`
-- [ ] 3.3 Dodaj `npm run check` jako drugą linię `.husky/pre-commit`
-- [ ] 3.4 Zainstaluj hooki w tym klonie (`npm run prepare`) i potwierdź lokalny `core.hooksPath=.husky/_`
-- [ ] 3.5 Potwierdź brak zmian globalnej konfiguracji gita (`core.hooksPath` globalnie pusty, `core.autocrlf=true` nadal)
+- [x] 3.1 Dodaj `.gitattributes` z `.husky/* text eol=lf` i zrenormalizuj (`git ls-files --eol` → `w/lf`)
+- [x] 3.2 Dodaj `"prepare": "husky"` do `package.json`
+- [x] 3.3 Dodaj `npm run check` jako drugą linię `.husky/pre-commit`
+- [x] 3.4 Zainstaluj hooki w tym klonie (`npm run prepare`) i potwierdź lokalny `core.hooksPath=.husky/_`
+- [x] 3.5 Potwierdź brak zmian globalnej konfiguracji gita (`core.hooksPath` globalnie pusty, `core.autocrlf=true` nadal)
 
 #### Manual
 
