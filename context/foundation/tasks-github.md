@@ -1,7 +1,7 @@
 ---
 project: JanuszexGrafikPro
 created: 2026-09-12
-updated: 2026-09-12
+updated: 2026-09-14
 source: context/foundation/roadmap.md (v1)
 system: GitHub Issues
 repo: GWladowska/JanuszexGrafikPro
@@ -12,35 +12,53 @@ cli: gh 2.100.0+ (auth: GWladowska, scope: repo)
 
 Podsumowanie przeniesienia roadmapy (`context/foundation/roadmap.md`) do GitHub Issues oraz konwencji pracy na zgłoszeniach. Dokument żywy — edit-in-place (patrz `README.md` w tym katalogu).
 
+## Stan: komplet zrealizowany (2026-09-14)
+
+Wszystkie 8 zgłoszeń (#4–#11) jest `closed`. Uwaga: GitHub ustawia `closedAt` w momencie zamknięcia i nie pozwala cofnąć go w czasie — pole pokazuje więc 2026-09-14, choć prace zakończyły się 2026-09-13. Faktyczne czasy wykonania (momenty archiwizacji zmian) są w komentarzach zamykających oraz w tabeli poniżej.
+
+| Roadmap ID | Change ID                   | Issue                                                            | Zarchiwizowano (commit) | Czas wykonania (CEST) |
+| ---------- | --------------------------- | ---------------------------------------------------------------- | ----------------------- | --------------------- |
+| F-01       | domain-schema-rls           | [#4](https://github.com/GWladowska/JanuszexGrafikPro/issues/4)   | `7d7e622`               | 2026-09-13 04:23      |
+| S-01       | business-opening-hours      | [#5](https://github.com/GWladowska/JanuszexGrafikPro/issues/5)   | `c1a6da9`               | 2026-09-13 04:25      |
+| S-02       | employee-management         | [#6](https://github.com/GWladowska/JanuszexGrafikPro/issues/6)   | `b57212d`               | 2026-09-13 04:28      |
+| S-03       | availability-management     | [#7](https://github.com/GWladowska/JanuszexGrafikPro/issues/7)   | `3b35e7e`               | 2026-09-13 06:33      |
+| S-04       | schedule-draft-generation   | [#8](https://github.com/GWladowska/JanuszexGrafikPro/issues/8)   | `035903f`               | 2026-09-13 14:49      |
+| S-05       | schedule-editing-collisions | [#9](https://github.com/GWladowska/JanuszexGrafikPro/issues/9)   | `452e8d6`               | 2026-09-13 17:52      |
+| S-06       | save-complete-schedule      | [#10](https://github.com/GWladowska/JanuszexGrafikPro/issues/10) | `f7d1240`               | 2026-09-13 20:55      |
+| S-07       | schedule-text-export        | [#11](https://github.com/GWladowska/JanuszexGrafikPro/issues/11) | `44ceaf4`               | 2026-09-13 22:21      |
+| S-08       | schedule-archive            | — (bez zgłoszenia)                                               | `8ecc8d9`               | 2026-09-14 00:03      |
+
+> S-08 nie dostał zgłoszenia (roadmapa zaktualizowana 2026-09-13, „issue do utworzenia" nigdy nie powstało) — dodany wprost do roadmapy, zrealizowany i zarchiwizowany. Stan `done` wszystkich itemów potwierdza `roadmap.md`.
+
 ## System
 
 - **Narzędzie:** GitHub Issues w repo `GWladowska/JanuszexGrafikPro`. Bez GitHub Projects i milestone'ów — dla liniowego MVP (`main_goal=speed`) wystarczą etykiety + task listy w treści zgłoszenia.
 - **Dostęp:** `gh` CLI, konto `GWladowska`, scope `repo`.
 - **Etykiety:**
 
-  | Etykieta | Kolor | Znaczenie |
-  |---|---|---|
-  | `roadmap` | `#5319e7` | każdy element roadmapy (wszystkie 8 zgłoszeń) |
-  | `foundation` | `#1d76db` | fundament (F-NN) |
-  | `slice` | `#0e8a16` | pionowy przekrój (S-NN) |
+  | Etykieta     | Kolor     | Znaczenie                                     |
+  | ------------ | --------- | --------------------------------------------- |
+  | `roadmap`    | `#5319e7` | każdy element roadmapy (wszystkie 8 zgłoszeń) |
+  | `foundation` | `#1d76db` | fundament (F-NN)                              |
+  | `slice`      | `#0e8a16` | pionowy przekrój (S-NN)                       |
 
 - **Statusy:** GitHub zna tylko `open` / `closed`. Źródłem prawdy o dojrzałości elementu jest pole `Status` w `roadmap.md` (`ready` / `proposed` / `done`) — aktualizowane ręcznie (albo przez `/10x-archive` dla `done`).
 - **Zależności:** wyrażone jako task listy `- [ ] Blocked by #N — <tytuł>` w treści zgłoszenia. To konwencja czytelna dla człowieka; GitHub nie liczy z niej automatycznie „gotowe do startu" (pomocniczo można użyć natywnych linked dependencies, patrz recipe 11).
 
 ## Mapa issue ↔ roadmap
 
-| Roadmap ID | Change ID | Issue | Tytuł | Etykiety | Blocked by |
-|---|---|---|---|---|---|
-| F-01 | `domain-schema-rls` | [#4](https://github.com/GWladowska/JanuszexGrafikPro/issues/4) | Schemat domeny + RLS | `roadmap`, `foundation` | — |
-| S-01 | `business-opening-hours` | [#5](https://github.com/GWladowska/JanuszexGrafikPro/issues/5) | Ustawienie biznesu i godzin otwarcia | `roadmap`, `slice` | #4 |
-| S-02 | `employee-management` | [#6](https://github.com/GWladowska/JanuszexGrafikPro/issues/6) | Zarządzanie pracownikami biznesu | `roadmap`, `slice` | #5 |
-| S-03 | `availability-management` | [#7](https://github.com/GWladowska/JanuszexGrafikPro/issues/7) | Dostępności pracowników (CRUD ręczne) | `roadmap`, `slice` | #6 |
-| S-04 | `schedule-draft-generation` | [#8](https://github.com/GWladowska/JanuszexGrafikPro/issues/8) | Generowanie draftu grafiku i widok dziur | `roadmap`, `slice` | #7 |
-| S-05 | `schedule-editing-collisions` | [#9](https://github.com/GWladowska/JanuszexGrafikPro/issues/9) | Edycja draftu z ostrzeżeniami o kolizjach | `roadmap`, `slice` | #8 |
-| S-06 | `save-complete-schedule` | [#10](https://github.com/GWladowska/JanuszexGrafikPro/issues/10) | Zapis kompletnego grafiku (walidacja dziur) | `roadmap`, `slice` | #9 |
-| S-07 | `schedule-text-export` | [#11](https://github.com/GWladowska/JanuszexGrafikPro/issues/11) | Kopiowanie tekstowego widoku grafiku | `roadmap`, `slice` | #10 |
+| Roadmap ID | Change ID                     | Issue                                                            | Tytuł                                       | Etykiety                | Blocked by |
+| ---------- | ----------------------------- | ---------------------------------------------------------------- | ------------------------------------------- | ----------------------- | ---------- |
+| F-01       | `domain-schema-rls`           | [#4](https://github.com/GWladowska/JanuszexGrafikPro/issues/4)   | Schemat domeny + RLS                        | `roadmap`, `foundation` | —          |
+| S-01       | `business-opening-hours`      | [#5](https://github.com/GWladowska/JanuszexGrafikPro/issues/5)   | Ustawienie biznesu i godzin otwarcia        | `roadmap`, `slice`      | #4         |
+| S-02       | `employee-management`         | [#6](https://github.com/GWladowska/JanuszexGrafikPro/issues/6)   | Zarządzanie pracownikami biznesu            | `roadmap`, `slice`      | #5         |
+| S-03       | `availability-management`     | [#7](https://github.com/GWladowska/JanuszexGrafikPro/issues/7)   | Dostępności pracowników (CRUD ręczne)       | `roadmap`, `slice`      | #6         |
+| S-04       | `schedule-draft-generation`   | [#8](https://github.com/GWladowska/JanuszexGrafikPro/issues/8)   | Generowanie draftu grafiku i widok dziur    | `roadmap`, `slice`      | #7         |
+| S-05       | `schedule-editing-collisions` | [#9](https://github.com/GWladowska/JanuszexGrafikPro/issues/9)   | Edycja draftu z ostrzeżeniami o kolizjach   | `roadmap`, `slice`      | #8         |
+| S-06       | `save-complete-schedule`      | [#10](https://github.com/GWladowska/JanuszexGrafikPro/issues/10) | Zapis kompletnego grafiku (walidacja dziur) | `roadmap`, `slice`      | #9         |
+| S-07       | `schedule-text-export`        | [#11](https://github.com/GWladowska/JanuszexGrafikPro/issues/11) | Kopiowanie tekstowego widoku grafiku        | `roadmap`, `slice`      | #10        |
 
-> Zgłoszenia powstały w kolejności zależności, więc numeracja #4–#11 pokrywa się z kolejnością dostarczania. F-01 nie ma poprzednika i odblokowuje całą resztę (`Unlocks: S-01…S-07`).
+> Zgłoszenia powstały w kolejności zależności, więc numeracja #4–#11 pokrywa się z kolejnością dostarczania. F-01 nie ma poprzednika i odblokowuje całą resztę (`Unlocks: S-01…S-07`). Wszystkie zostały zrealizowane i zamknięte — czasy wykonania w sekcji „Stan: komplet zrealizowany".
 
 ## Łańcuch zależności
 
@@ -59,12 +77,12 @@ Zasady:
 
 ## Konwencja statusów
 
-| Etap | GitHub | `roadmap.md` — `Status` |
-|---|---|---|
-| Zaplanowany, niegotowy | `open`, bez assignee | `proposed` |
-| Gotowy do `/10x-plan` | `open`, bez assignee | `ready` |
-| W realizacji | `open`, assignee = autor zmiany (opcjonalnie etykieta `in-progress`) | `proposed`/`ready` |
-| Ukończony | `closed` | `done` (dopisuje `/10x-archive`) |
+| Etap                   | GitHub                                                               | `roadmap.md` — `Status`          |
+| ---------------------- | -------------------------------------------------------------------- | -------------------------------- |
+| Zaplanowany, niegotowy | `open`, bez assignee                                                 | `proposed`                       |
+| Gotowy do `/10x-plan`  | `open`, bez assignee                                                 | `ready`                          |
+| W realizacji           | `open`, assignee = autor zmiany (opcjonalnie etykieta `in-progress`) | `proposed`/`ready`               |
+| Ukończony              | `closed`                                                             | `done` (dopisuje `/10x-archive`) |
 
 ## Przepisy `gh`
 
