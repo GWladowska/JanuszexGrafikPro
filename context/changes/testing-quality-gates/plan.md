@@ -376,11 +376,11 @@ Nieistotne dla aplikacji: zmiany nie dotykają kodu serwowanego. Jedyne koszty o
 
 #### Automated
 
-- [x] 4.1 Dopisz kontrakt bramek do `AGENTS.md` (wymagane `ci` + `integration`, nazwy jobów jako kontrakt, obejście admina, hook i LF)
-- [x] 4.2 Zaktualizuj `test-plan.md` §5 i dopisz wpis Etapu 4 do §8 (bez ruszania statusu w §3)
-- [x] 4.3 Dopisz dwie lekcje do `context/foundation/lessons.md` (nazwa joba = kontrakt; LF w hookach)
+- [x] 4.1 Dopisz kontrakt bramek do `AGENTS.md` (wymagane `ci` + `integration`, nazwy jobów jako kontrakt, obejście admina, hook i LF) — a0fefff
+- [x] 4.2 Zaktualizuj `test-plan.md` §5 i dopisz wpis Etapu 4 do §8 (bez ruszania statusu w §3) — a0fefff
+- [x] 4.3 Dopisz dwie lekcje do `context/foundation/lessons.md` (nazwa joba = kontrakt; LF w hookach) — a0fefff
 
 #### Manual
 
-- [ ] 4.4 Re-run `/10x-test-plan` zaznacza Etap 4 jako `complete` i podaje następny handoff
-- [ ] 4.5 Świeżym okiem: dokumentacja jasno mówi, kto jest blokowany, kto może ominąć bramkę i że Workers Builds publikuje niezależnie od CI
+- [x] 4.4 Re-run `/10x-test-plan` zaznacza Etap 4 jako `complete` i podaje następny handoff
+- [x] 4.5 Świeżym okiem: dokumentacja jasno mówi, kto jest blokowany, kto może ominąć bramkę i że Workers Builds publikuje niezależnie od CI
