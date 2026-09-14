@@ -8,8 +8,8 @@ setup("authenticate as the seeded owner", async ({ page }) => {
   await waitForHydration(page);
 
   await page.getByLabel("Email").fill("owner@example.com");
-  await page.getByLabel("Password", { exact: true }).fill("haslo12345");
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByLabel("Hasło", { exact: true }).fill("haslo12345");
+  await page.getByRole("button", { name: "Zaloguj się" }).click();
 
   await page.waitForURL("**/dashboard");
   await expect(page.getByRole("heading", { name: "Godziny otwarcia" })).toBeVisible();
