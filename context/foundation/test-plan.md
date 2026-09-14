@@ -53,8 +53,8 @@ Każdy wiersz to osobny etap, który otworzy własny folder zmian przez `/10x-ne
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|------------|-----------------|---------------|------------|--------|---------------|
 | 1 | Uruchomienie testów + czysta logika grafiku i czasu | Uruchomić narzędzie do testów i pokryć najtańszą warstwę: obsadę, dziury, reguły czasu i składanie tekstu | #2, #3, #7, część #1 | unit | complete | context/changes/testing-core-logic/ |
-| 2 | Reguły po stronie serwera: zapis, zamrożenie, uprawnienia | Udowodnić, że serwer odrzuca niekompletny/cudzy zapis niezależnie od interfejsu | #1 (serwer), #3, #5, #6 | integration | change opened | context/changes/testing-server-side-rules/ |
-| 3 | Izolacja danych jako powtarzalny test | Zamienić ręczny test izolacji w komendę uruchamianą w automacie | #4 | database (pgTAP) | not started | — |
+| 2 | Reguły po stronie serwera: zapis, zamrożenie, uprawnienia | Udowodnić, że serwer odrzuca niekompletny/cudzy zapis niezależnie od interfejsu | #1 (serwer), #3, #5, #6 | integration | complete | context/changes/testing-server-side-rules/ |
+| 3 | Izolacja danych jako powtarzalny test | Zamienić ręczny test izolacji w komendę uruchamianą w automacie | #4 | database (pgTAP) | change opened | testing-database-isolation |
 | 4 | Bramki jakości w automacie | Wpiąć testy i `npx astro check` w CI, by czerwona zmiana nie trafiła na produkcję | wszystkie | gates | not started | — |
 
 **Status vocabulary** (fixed — parser literals): `not started` → `change opened` → `researched` → `planned` → `implementing` → `complete`.

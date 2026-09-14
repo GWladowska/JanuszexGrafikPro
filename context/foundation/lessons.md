@@ -70,3 +70,10 @@
 - **Problem**: Wstrzyknięty atrybut nie istnieje w kodzie komponentu, więc szukanie przyczyny w aplikacji prowadzi donikąd — a objaw utrzymuje się miesiącami i wygląda jak regresja, co grozi niepotrzebnym refaktorem komponentu.
 - **Rule**: Zanim zaczniesz diagnozować mismatch hydratacji w kodzie, sprawdź, czy różniący się atrybut w ogóle występuje w komponencie; jeśli nie, potwierdź rozszerzenie w trybie incognito bez dodatków i zamknij temat jako artefakt przeglądarki.
 - **Applies to**: research, impl-review
+
+## Archiwizuj zmianę test-planu dopiero po /10x-test-plan i /10x-new następnej fazy
+
+- **Context**: Cykl życia zmian /10x-implement w trybie rollout test-planu (tu: zakończony Etap 2, `testing-server-side-rules`). Orchestrator `/10x-test-plan` (m3l1, „Rollout chain") wyprowadza stan §3 Phased Rollout **wyłącznie z plików na dysku** w `context/changes/<change-id>/` — wiersz przechodzi na `complete`, gdy istnieje tam `plan.md` w pełni `[x]`, a następny handoff dobierany jest według tej samej tabeli stanów.
+- **Problem**: `/10x-archive` przenosi folder do `context/archive/`, więc po archiwizacji orchestrator dla §3 wiersza tego etapu widzi „change folder missing" — zamiast `complete` zaproponuje ponowne `/10x-new` dla już wykonanej fazy, a dowody (plan.md z `[x]`) zniknęły z aktywnego drzewa, na którym stan jest liczony. Archiwizacja przed re-runem psuje sekwencję rollout, choć nic nie mówi o samej implementacji.
+- **Rule**: Po wdrożeniu etapu test-planu trzymaj kolejność: najpierw `/10x-test-plan` (zaznacza §3 `complete` i podaje next handoff), potem `/10x-new` dla następnej fazy (dowody dalej żyją w `context/changes/`), a dopiero na końcu `/10x-archive` zakończonej zmiany. Nigdy nie archiwizuj etapu test-planu przed re-runem orchestratora.
+- **Applies to**: all
