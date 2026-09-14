@@ -297,37 +297,37 @@ Uwiecznić kontrakt nowej warstwy w plikach, które czyta agent i człowiek — 
 
 #### Automated
 
-- [x] 1.1 `.gitignore` odsłania wyłącznie `.kilo/plugin/` — `git check-ignore`/`git status` potwierdzają
-- [x] 1.2 `git ls-files .kilo/plugin` zwraca `lint-on-edit.ts`
-- [x] 1.3 Kształt modułu pluginu: `id === "lint-on-edit"`, `default.server` to funkcja
-- [x] 1.4 Komenda ESLint z hooka przechodzi na dwóch realnych plikach (exit 0, ~6 s)
-- [x] 1.5 Higiena statyczna: brak `import `, brak `--fix`/`npx`, obecność `.nothrow()`, `.quiet()`, `try`
+- [x] 1.1 `.gitignore` odsłania wyłącznie `.kilo/plugin/` — `git check-ignore`/`git status` potwierdzają — ff29866
+- [x] 1.2 `git ls-files .kilo/plugin` zwraca `lint-on-edit.ts` — ff29866
+- [x] 1.3 Kształt modułu pluginu: `id === "lint-on-edit"`, `default.server` to funkcja — ff29866
+- [x] 1.4 Komenda ESLint z hooka przechodzi na dwóch realnych plikach (exit 0, ~6 s) — ff29866
+- [x] 1.5 Higiena statyczna: brak `import `, brak `--fix`/`npx`, obecność `.nothrow()`, `.quiet()`, `try` — ff29866
 
 #### Manual
 
-- [x] 1.6 Świeża sesja: edycja pliku z błędem lintu → `[eslint exit 1]` w wyniku narzędzia, plik nietknięty
-- [x] 1.7 Świeża sesja: edycja czystego pliku → brak bloku ESLint
-- [x] 1.8 `apply_patch` na ≥2 plikach z usunięciem → jeden raport, bez exit 2 na usuniętym pliku
-- [x] 1.9 Edycja pliku poza `worktree` → hook milczy
-- [x] 1.10 Wyjście ESLint nie pojawia się w terminalu (dowód `.quiet()`)
+- [x] 1.6 Świeża sesja: edycja pliku z błędem lintu → `[eslint exit 1]` w wyniku narzędzia, plik nietknięty — ff29866
+- [x] 1.7 Świeża sesja: edycja czystego pliku → brak bloku ESLint — ff29866
+- [x] 1.8 `apply_patch` na ≥2 plikach z usunięciem → jeden raport, bez exit 2 na usuniętym pliku — ff29866
+- [x] 1.9 Edycja pliku poza `worktree` → hook milczy — ff29866
+- [x] 1.10 Wyjście ESLint nie pojawia się w terminalu (dowód `.quiet()`) — ff29866
 
 ### Phase 2: Drugi hook — typecheck za flagą
 
 #### Automated
 
-- [ ] 2.1 `git ls-files .kilo/plugin` zwraca oba pluginy
-- [ ] 2.2 Kształt modułu typechecku: `id === "typecheck-on-edit"`, `default.server` to funkcja
-- [ ] 2.3 Statyczny dowód: gałąź `return` poprzedza każde wywołanie `$` (bez flagi nic się nie uruchamia)
-- [ ] 2.4 Tryb `tsc`: `node node_modules\typescript\bin\tsc --noEmit -p tsconfig.json` → exit 0, ~8 s
-- [ ] 2.5 Tryb `check`: `node node_modules\astro\astro.js check` → exit 0, ~23 s
-- [ ] 2.6 Higiena statyczna: brak `import `, brak `--fix`, obecność `.nothrow()`, `.quiet()`, `KILO_QUALITY_TYPECHECK`, `try`
+- [x] 2.1 `git ls-files .kilo/plugin` zwraca oba pluginy
+- [x] 2.2 Kształt modułu typechecku: `id === "typecheck-on-edit"`, `default.server` to funkcja
+- [x] 2.3 Statyczny dowód: gałąź `return` poprzedza każde wywołanie `$` (bez flagi nic się nie uruchamia)
+- [x] 2.4 Tryb `tsc`: `node node_modules\typescript\bin\tsc --noEmit -p tsconfig.json` → exit 0, ~8 s
+- [x] 2.5 Tryb `check`: `node node_modules\astro\astro.js check` → exit 0, ~23 s
+- [x] 2.6 Higiena statyczna: brak `import `, brak `--fix`, obecność `.nothrow()`, `.quiet()`, `KILO_QUALITY_TYPECHECK`, `try`
 
 #### Manual
 
-- [ ] 2.7 Sesja bez flagi: brak bloku `[typecheck …]` i brak odczuwalnego spowolnienia
-- [ ] 2.8 Sesja z `=tsc`: błąd typu w pliku `.ts` → `[typecheck:tsc exit 1]`; czas edycji zmierzony
-- [ ] 2.9 Sesja z `=check`: błąd typu w pliku `.astro` → `[typecheck:check exit 1]`; czas edycji zmierzony
-- [ ] 2.10 Oba zmierzone czasy przekazane do Fazy 3 jako dane dokumentacyjne
+- [x] 2.7 Sesja bez flagi: brak bloku `[typecheck …]` i brak odczuwalnego spowolnienia
+- [x] 2.8 Sesja z `=tsc`: błąd typu w pliku `.ts` → `[typecheck:tsc exit 1]`; czas edycji zmierzony
+- [x] 2.9 Sesja z `=check`: błąd typu w pliku `.astro` → `[typecheck:check exit 1]`; czas edycji zmierzony
+- [x] 2.10 Oba zmierzone czasy przekazane do Fazy 3 jako dane dokumentacyjne
 
 ### Phase 3: Dokumentacja i domknięcie
 
