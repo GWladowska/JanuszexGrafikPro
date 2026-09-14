@@ -164,7 +164,7 @@ Dlaczego: publikacja następuje automatycznie po pushu. Jeśli ktoś wypchnie b�
 
 - [ ] `https://januszex-grafik-pro.<sub>.workers.dev` odpowiada poprawnie (200).
 - [ ] Pełny przepływ działa na produkcji: rejestracja → potwierdzenie z maila → logowanie → `/dashboard`.
-- [ ] Push na `master` sam buduje i publikuje; scalenie z czerwonym CI jest niemożliwe.
+- [x] Push na `master` sam buduje i publikuje; scalenie z czerwonym CI jest niemożliwe — z zastrzeżeniem: ruleset `Protect` wymaga zielonych `ci` **i** `integration`, ale rola admin ma obejście `always`, więc dla właściciela repo bramka jest dobrowolna (szczegóły niżej).
 - [ ] Rotacja klucza przetestowana raz (Build variable + rebuild).
 - [ ] Rollback przetestowany raz.
 - [ ] `AGENTS.md` i `tech-stack.md` zaktualizowane — dokumentacja nie sugeruje nigdzie Cloudflare Pages.
@@ -189,6 +189,29 @@ Dlaczego: publikacja następuje automatycznie po pushu. Jeśli ktoś wypchnie b�
 - **Binding KV:** namespace `januszex-grafik-pro-session` (`c298b4f9345a447ab6e03dba13595b8f`) — wpisany jawnie do `wrangler.jsonc` jako `SESSION`.
 - **Supabase:** Site URL + Redirect URL ustawione na adres produkcyjny i `http://localhost:4321`.
 - **Auto-deploy:** Workers Builds podpięty do `GWladowska/JanuszexGrafikPro` (gałąź produkcyjna `master`, build `npm run build`, deploy `npx wrangler deploy`). Zweryfikowano: merg PR #1 sam opublikował nową wersję (`sitemap-index.xml` → 200 bez ręcznego deployu).
-- **Ochrona gałęzi:** ruleset „Protect" na `master` (wymagany PR + status `ci`).
+- **Ochrona gałęzi:** ruleset „Protect" na `master` (wymagany PR + statusy `ci` i `integration`). Konfiguracja jest wersjonowana jako `context/deployment/ruleset-protect.json` — patrz „Sterowanie rulesetem" niżej. **Ryzyko rezydualne:** rola admin ma obejście `always`, więc właściciel repo może scalić zmiany bez zielonych checków; dla pozostałych aktorów bramka jest twarda.
 - **Rollback:** przećwiczony (`npx wrangler rollback` cofnął kod; przywrócono deployem). Rollback nie cofa sekretów/bindinguów.
 - **Pozostało:** (1) e2e rejestracja → mail → logowanie → `/dashboard` na produkcji (krok ręczny), (2) opcjonalnie preview builds dla PR-ów, (3) opcjonalnie repo secrets `SUPABASE_URL`/`SUPABASE_KEY` dla wierniejszego builda CI.
+
+### Sterowanie rulesetem (plik referencyjny)
+
+Reguły ochrony `master` żyją w ustawieniach GitHuba, ale ich pełna, docelowa postać jest wersjonowana w repo jako `context/deployment/ruleset-protect.json`. Plik niczego nie egzekwuje — służy do zastosowania i cofnięcia konfiguracji jedną komendą; prawdą jest to, co zwraca API.
+
+Zastosowanie (repo-scoped — dotyczy **tylko** tego repozytorium, nie zmienia ustawień innych projektów ani konfiguracji globalnej gita):
+
+```powershell
+gh api repos/GWladowska/JanuszexGrafikPro/rulesets/22480162 --method PUT --input context/deployment/ruleset-protect.json
+```
+
+Weryfikacja (dwa wymagane konteksty + nietknięte obejście i warunek gałęzi):
+
+```powershell
+$rs = gh api repos/GWladowska/JanuszexGrafikPro/rulesets/22480162 | ConvertFrom-Json
+($rs.rules | Where-Object type -eq 'required_status_checks').parameters.required_status_checks.context
+$rs.bypass_actors
+$rs.conditions.ref_name.include
+```
+
+Cofnięcie: przywróć poprzednią wersję pliku (`git checkout <commit>~1 -- context/deployment/ruleset-protect.json`) i wykonaj tę samą komendę `PUT`. API nie ma wariantu `PATCH`, a aktualizacja jest częściowo-zastępująca — dlatego zawsze wysyłamy **pełną** reprezentację, żeby `bypass_actors` i `conditions` nie zniknęły przypadkiem.
+
+Uwaga na nazwy jobów: `required_status_checks.context` dopasowuje **nazwę check runa**, czyli dla tego workflow nazwę joba (`ci`, `integration`). Zmiana nazwy joba w `.github/workflows/ci.yml` bez zmiany tego pliku cicho rozbraja bramkę.
