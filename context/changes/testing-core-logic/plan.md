@@ -571,27 +571,27 @@ snake_case → camelCase. Diagnostykę zaczyna się od `getAvailabilitiesForWeek
 
 #### Automated
 
-- [x] 3.1 Testy `week.test.ts` przechodzą (`npm test`)
-- [x] 3.2 Testy `schedule-export.test.ts` przechodzą (`npm test`)
-- [x] 3.3 Typecheck przechodzi (`npm run check`)
-- [x] 3.4 Lint przechodzi (`npm run lint`)
+- [x] 3.1 Testy `week.test.ts` przechodzą (`npm test`) — f02d666
+- [x] 3.2 Testy `schedule-export.test.ts` przechodzą (`npm test`) — f02d666
+- [x] 3.3 Typecheck przechodzi (`npm run check`) — f02d666
+- [x] 3.4 Lint przechodzi (`npm run lint`) — f02d666
 
 #### Manual
 
-- [x] 3.5 Nazwy testów czytają się jak katalog ryzyk #3 i #7
-- [x] 3.6 Asercje na dokładne literały są zgodne z tym, co widać w interfejsie
+- [x] 3.5 Nazwy testów czytają się jak katalog ryzyk #3 i #7 — f02d666
+- [x] 3.6 Asercje na dokładne literały są zgodne z tym, co widać w interfejsie — f02d666
 
 ### Phase 4: Czysta logika grafiku
 
 #### Automated
 
-- [ ] 4.1 Testy `schedule-generation.test.ts` przechodzą (`npm test`)
-- [ ] 4.2 Pełny zestaw testów przechodzi (`npm test`)
-- [ ] 4.3 Typecheck przechodzi (`npm run check`)
-- [ ] 4.4 Lint przechodzi (`npm run lint`)
-- [ ] 4.5 Build przechodzi (`npm run build`)
+- [x] 4.1 Testy `schedule-generation.test.ts` przechodzą (`npm test`)
+- [x] 4.2 Pełny zestaw testów przechodzi (`npm test`)
+- [x] 4.3 Typecheck przechodzi (`npm run check`)
+- [x] 4.4 Lint przechodzi (`npm run lint`)
+- [x] 4.5 Build przechodzi (`npm run build`)
 
 #### Manual
 
-- [ ] 4.6 Raport `npm test` pozwala wskazać test dla każdego z ryzyk #1 (serwer), #2, #3, #7
-- [ ] 4.7 Pełny zestaw na świeżym klonie nie wymaga konfiguracji środowiska ani bazy
+- [x] 4.6 Raport `npm test` pozwala wskazać test dla każdego z ryzyk #1 (serwer), #2, #3, #7
+- [x] 4.7 Pełny zestaw na świeżym klonie nie wymaga konfiguracji środowiska ani bazy

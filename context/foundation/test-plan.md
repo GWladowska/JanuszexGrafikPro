@@ -148,6 +148,7 @@ Wyłączenia ustalone podczas wywiadu (pytanie Q5). Przyszli autorzy powinni je 
 - Strategy (§1–§5) last reviewed: 2026-09-14
 - Stack versions last verified: 2026-09-14
 - AI-native tool references last verified: 2026-09-14
+- §3 Etap 1 (uruchomienie testów + czysta logika grafiku i czasu) wdrożony: 2026-09-14, zmiana `testing-core-logic`. Vitest 4 w środowisku Node (`vitest.config.ts`), 99 testów w `src/**/*.test.ts`, bramki `npm test` i `npm run check` dopisane do CI. Ryzyka #2, #3, #7 i serwerowa część #1 mają pokrycie jednostkowe. Etap 2 z §3 (testy integracyjne na Workers) pozostaje otwarty — walidacja granicy z tej zmiany jest pokryta testami jednostkowymi, nie integracyjnymi.
 
 Refresh (`/10x-test-plan --refresh`) gdy:
 
