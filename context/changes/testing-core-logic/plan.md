@@ -557,15 +557,15 @@ snake_case → camelCase. Diagnostykę zaczyna się od `getAvailabilitiesForWeek
 
 #### Automated
 
-- [ ] 2.1 Testy walidatorów przechodzą, w tym test-regresja incydentu S-04 (`npm test`)
-- [ ] 2.2 Typecheck przechodzi (`npm run check`)
-- [ ] 2.3 Lint przechodzi (`npm run lint`)
-- [ ] 2.4 Build przechodzi (`npm run build`)
+- [x] 2.1 Testy walidatorów przechodzą, w tym test-regresja incydentu S-04 (`npm test`)
+- [x] 2.2 Typecheck przechodzi (`npm run check`)
+- [x] 2.3 Lint przechodzi (`npm run lint`)
+- [x] 2.4 Build przechodzi (`npm run build`)
 
 #### Manual
 
-- [ ] 2.5 Ścieżka szczęśliwa bez regresji — generowanie i zapis grafiku kończą się sukcesem
-- [ ] 2.6 Zły kształt daje `500` i nie zapisuje grafiku (status pozostaje `draft`)
+- [x] 2.5 Ścieżka szczęśliwa bez regresji — generowanie i zapis grafiku kończą się sukcesem
+- [x] 2.6 Zły kształt daje `500` i nie zapisuje grafiku (status pozostaje `draft`)
 
 ### Phase 3: Czysta logika czasu i tekstu
 

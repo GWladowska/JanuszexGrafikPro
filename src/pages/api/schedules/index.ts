@@ -24,7 +24,14 @@ import {
   unlockSchedule,
 } from "@/lib/services/schedule";
 import { findScheduleBlockers, generateDraft } from "@/lib/services/schedule-generation";
-import { parseWeekStart } from "@/lib/services/schedule-validation";
+import {
+  parseScheduleAssignmentRows,
+  parseScheduleAvailabilities,
+  parseScheduleDraftPieces,
+  parseScheduleEmployees,
+  parseScheduleOpeningHours,
+  parseWeekStart,
+} from "@/lib/services/schedule-validation";
 import { isFrozenWeek } from "@/lib/week";
 
 function parseWeekStartField(body: Record<string, unknown>): { weekStart: string } | Response {
@@ -62,8 +69,13 @@ export const GET: APIRoute = async (context) => {
     return jsonResponse({ error: ERROR_SERVER }, 500);
   }
 
+  const availabilities = parseScheduleAvailabilities(availabilitiesResult.data);
+  if (availabilities.error !== null) {
+    return jsonResponse({ error: ERROR_SERVER }, 500);
+  }
+
   if (scheduleResult.data === null) {
-    return jsonResponse({ schedule: null, assignments: [], availabilities: availabilitiesResult.data }, 200);
+    return jsonResponse({ schedule: null, assignments: [], availabilities: availabilities.data }, 200);
   }
 
   const assignmentsResult = await getAssignments(supabase, businessId, scheduleResult.data.id);
@@ -71,11 +83,16 @@ export const GET: APIRoute = async (context) => {
     return jsonResponse({ error: ERROR_SERVER }, 500);
   }
 
+  const assignments = parseScheduleAssignmentRows(assignmentsResult.data);
+  if (assignments.error !== null) {
+    return jsonResponse({ error: ERROR_SERVER }, 500);
+  }
+
   return jsonResponse(
     {
       schedule: scheduleResult.data,
-      assignments: assignmentsResult.data,
-      availabilities: availabilitiesResult.data,
+      assignments: assignments.data,
+      availabilities: availabilities.data,
     },
     200,
   );
@@ -131,10 +148,25 @@ export const POST: APIRoute = async (context) => {
     return jsonResponse({ error: ERROR_SERVER }, 500);
   }
 
+  const employees = parseScheduleEmployees(employeesResult.data);
+  if (employees.error !== null) {
+    return jsonResponse({ error: ERROR_SERVER }, 500);
+  }
+
+  const openingHours = parseScheduleOpeningHours(openingHoursResult.data);
+  if (openingHours.error !== null) {
+    return jsonResponse({ error: ERROR_SERVER }, 500);
+  }
+
+  const availabilities = parseScheduleAvailabilities(availabilitiesResult.data);
+  if (availabilities.error !== null) {
+    return jsonResponse({ error: ERROR_SERVER }, 500);
+  }
+
   const draft = generateDraft({
-    employees: employeesResult.data,
-    openingHours: openingHoursResult.data,
-    availabilities: availabilitiesResult.data,
+    employees: employees.data,
+    openingHours: openingHours.data,
+    availabilities: availabilities.data,
   });
 
   const created = await createScheduleWithAssignments(supabase, businessId, weekField.weekStart, draft.assignments);
@@ -248,17 +280,29 @@ export const PATCH: APIRoute = async (context) => {
       return jsonResponse({ error: ERROR_SERVER }, 500);
     }
 
-    const blockers = findScheduleBlockers(
-      openingHoursResult.data,
-      availabilitiesResult.data,
+    const openingHours = parseScheduleOpeningHours(openingHoursResult.data);
+    if (openingHours.error !== null) {
+      return jsonResponse({ error: ERROR_SERVER }, 500);
+    }
+
+    const availabilities = parseScheduleAvailabilities(availabilitiesResult.data);
+    if (availabilities.error !== null) {
+      return jsonResponse({ error: ERROR_SERVER }, 500);
+    }
+
+    const pieces = parseScheduleDraftPieces(
       assignmentsResult.data.map((row) => ({
         employeeId: row.employee_id,
         workDate: row.work_date,
         startTime: row.start_time,
         endTime: row.end_time,
       })),
-      weekField.weekStart,
     );
+    if (pieces.error !== null) {
+      return jsonResponse({ error: ERROR_SERVER }, 500);
+    }
+
+    const blockers = findScheduleBlockers(openingHours.data, availabilities.data, pieces.data, weekField.weekStart);
     if (blockers.holes.length > 0 || blockers.collisions.length > 0) {
       return jsonResponse({ error: ERROR_SCHEDULE_INCOMPLETE, blockers }, 400);
     }

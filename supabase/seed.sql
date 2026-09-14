@@ -17,6 +17,12 @@
 -- oraz jeden zapisany grafik archiwalny (tydzień poprzedni) z przypisaniami zmian.
 -- =============================================================================
 
+-- Strefa sesji = strefa reguł domenowych. Trigger dostępności liczy tydzień
+-- w Europe/Warsaw (20260913212151), więc `date_trunc('week', now())` w seedzie musi
+-- używać tej samej strefy — w domyślnej strefie UTC seed wywala się na `23000`
+-- w niedzielę 22:00–24:00 UTC, gdy Warszawa jest już w następnym tygodniu ISO.
+set timezone = 'Europe/Warsaw';
+
 -- Konto właściciela (stały UUID, hasło przez bcrypt, potwierdzony e-mail,
 -- puste łańcuchy — nie NULL — w kolumnach tokenów, jak oczekuje GoTrue).
 insert into auth.users (
