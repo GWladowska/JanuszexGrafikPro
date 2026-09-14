@@ -330,26 +330,26 @@ Nieistotne dla aplikacji: zmiany nie dotykają kodu serwowanego. Jedyne koszty o
 
 #### Automated
 
-- [x] 1.1 Zapisz stan „przed" rulesetu do `context/changes/testing-quality-gates/ruleset-before.json`
-- [x] 1.2 Utwórz `context/deployment/ruleset-protect.json` (pełna reprezentacja z `integration`)
-- [x] 1.3 Zastosuj payload przez `gh api --method PUT --input`
-- [x] 1.4 Potwierdź odczytem: konteksty `ci,integration`, `strict=false`, obejście `RepositoryRole:5:always`, ref `refs/heads/master`
-- [x] 1.5 Dopisz instrukcję zastosowania/weryfikacji/cofnięcia oraz korektę kryterium `:167` w `deploy-plan.md`
+- [x] 1.1 Zapisz stan „przed" rulesetu do `context/changes/testing-quality-gates/ruleset-before.json` — 882a599
+- [x] 1.2 Utwórz `context/deployment/ruleset-protect.json` (pełna reprezentacja z `integration`) — 882a599
+- [x] 1.3 Zastosuj payload przez `gh api --method PUT --input` — 882a599
+- [x] 1.4 Potwierdź odczytem: konteksty `ci,integration`, `strict=false`, obejście `RepositoryRole:5:always`, ref `refs/heads/master` — 882a599
+- [x] 1.5 Dopisz instrukcję zastosowania/weryfikacji/cofnięcia oraz korektę kryterium `:167` w `deploy-plan.md` — 882a599
 
 #### Manual
 
-- [ ] 1.6 PR pokazuje oba check runy (`ci`, `integration`) i scalenie po zielonym działa
-- [ ] 1.7 Świadomie potwierdzone i opisane ryzyko rezydualne obejścia admina
+- [x] 1.6 PR pokazuje oba check runy (`ci`, `integration`) i scalenie po zielonym działa — 882a599
+- [x] 1.7 Świadomie potwierdzone i opisane ryzyko rezydualne obejścia admina — 882a599
 
 ### Phase 2: Twardnienie `ci.yml`
 
 #### Automated
 
-- [ ] 2.1 Dodaj `permissions: contents: read` na poziomie workflow
-- [ ] 2.2 Przypnij Supabase CLI (`SUPABASE_CLI_VERSION: "2.117.0"`) i dodaj guard zgodności z lockfilem
-- [ ] 2.3 Usuń `env: secrets.SUPABASE_URL/KEY` z kroku `build`
-- [ ] 2.4 Lokalne bramki nadal zielone: `npm run lint`, `npm run check`, `npm test`, `npm run build`
-- [ ] 2.5 Usuń `version: latest` i martwą referencję sekretów z `ci.yml` (weryfikacja tekstowa)
+- [x] 2.1 Dodaj `permissions: contents: read` na poziomie workflow
+- [x] 2.2 Przypnij Supabase CLI (`SUPABASE_CLI_VERSION: "2.117.0"`) i dodaj guard zgodności z lockfilem
+- [x] 2.3 Usuń `env: secrets.SUPABASE_URL/KEY` z kroku `build`
+- [x] 2.4 Lokalne bramki nadal zielone: `npm run lint`, `npm run check`, `npm test`, `npm run build`
+- [x] 2.5 Usuń `version: latest` i martwą referencję sekretów z `ci.yml` (weryfikacja tekstowa)
 
 #### Manual
 
