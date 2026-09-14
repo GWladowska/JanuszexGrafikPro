@@ -1,10 +1,10 @@
 ---
 change_id: testing-server-side-rules
 title: Testy reguł serwerowych Etapu 2: zapis, zamrożenie, uprawnienia
-status: implemented
+status: archived
 created: 2026-09-14
 updated: 2026-09-14
-archived_at: null
+archived_at: 2026-09-14T02:19:59Z
 ---
 
 ## Notes
