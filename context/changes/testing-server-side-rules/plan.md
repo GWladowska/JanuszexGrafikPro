@@ -636,9 +636,9 @@ lokalny i nigdy nie trafia na zdalny projekt (AGENTS.md). W CI baza powstaje od 
 
 #### Automated
 
-- [x] 4.1 Suita `ownership` przechodzi: `npm run test:integration`
-- [x] 4.2 `npm run lint` przechodzi
-- [x] 4.3 `npm run check` przechodzi
+- [x] 4.1 Suita `ownership` przechodzi: `npm run test:integration` — 381111b
+- [x] 4.2 `npm run lint` przechodzi — 381111b
+- [x] 4.3 `npm run check` przechodzi — 381111b
 
 #### Manual
 
@@ -648,9 +648,9 @@ lokalny i nigdy nie trafia na zdalny projekt (AGENTS.md). W CI baza powstaje od 
 
 #### Automated
 
-- [ ] 5.1 Suita `response-shapes` przechodzi: `npm run test:integration`
-- [ ] 5.2 `npm run lint` przechodzi
-- [ ] 5.3 `npm run check` przechodzi
+- [x] 5.1 Suita `response-shapes` przechodzi: `npm run test:integration`
+- [x] 5.2 `npm run lint` przechodzi
+- [x] 5.3 `npm run check` przechodzi
 
 #### Manual
 
