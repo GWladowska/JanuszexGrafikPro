@@ -315,32 +315,32 @@ Uwiecznić kontrakt nowej warstwy w plikach, które czyta agent i człowiek — 
 
 #### Automated
 
-- [x] 2.1 `git ls-files .kilo/plugin` zwraca oba pluginy
-- [x] 2.2 Kształt modułu typechecku: `id === "typecheck-on-edit"`, `default.server` to funkcja
-- [x] 2.3 Statyczny dowód: gałąź `return` poprzedza każde wywołanie `$` (bez flagi nic się nie uruchamia)
-- [x] 2.4 Tryb `tsc`: `node node_modules\typescript\bin\tsc --noEmit -p tsconfig.json` → exit 0, ~8 s
-- [x] 2.5 Tryb `check`: `node node_modules\astro\astro.js check` → exit 0, ~23 s
-- [x] 2.6 Higiena statyczna: brak `import `, brak `--fix`, obecność `.nothrow()`, `.quiet()`, `KILO_QUALITY_TYPECHECK`, `try`
+- [x] 2.1 `git ls-files .kilo/plugin` zwraca oba pluginy — 9aaf222
+- [x] 2.2 Kształt modułu typechecku: `id === "typecheck-on-edit"`, `default.server` to funkcja — 9aaf222
+- [x] 2.3 Statyczny dowód: gałąź `return` poprzedza każde wywołanie `$` (bez flagi nic się nie uruchamia) — 9aaf222
+- [x] 2.4 Tryb `tsc`: `node node_modules\typescript\bin\tsc --noEmit -p tsconfig.json` → exit 0, ~8 s — 9aaf222
+- [x] 2.5 Tryb `check`: `node node_modules\astro\astro.js check` → exit 0, ~23 s — 9aaf222
+- [x] 2.6 Higiena statyczna: brak `import `, brak `--fix`, obecność `.nothrow()`, `.quiet()`, `KILO_QUALITY_TYPECHECK`, `try` — 9aaf222
 
 #### Manual
 
-- [x] 2.7 Sesja bez flagi: brak bloku `[typecheck …]` i brak odczuwalnego spowolnienia
-- [x] 2.8 Sesja z `=tsc`: błąd typu w pliku `.ts` → `[typecheck:tsc exit 1]`; czas edycji zmierzony
-- [x] 2.9 Sesja z `=check`: błąd typu w pliku `.astro` → `[typecheck:check exit 1]`; czas edycji zmierzony
-- [x] 2.10 Oba zmierzone czasy przekazane do Fazy 3 jako dane dokumentacyjne
+- [x] 2.7 Sesja bez flagi: brak bloku `[typecheck …]` i brak odczuwalnego spowolnienia — 9aaf222
+- [x] 2.8 Sesja z `=tsc`: błąd typu w pliku `.ts` → `[typecheck:tsc exit 1]`; czas edycji zmierzony — 9aaf222
+- [x] 2.9 Sesja z `=check`: błąd typu w pliku `.astro` → `[typecheck:check exit 1]`; czas edycji zmierzony — 9aaf222
+- [x] 2.10 Oba zmierzone czasy przekazane do Fazy 3 jako dane dokumentacyjne — 9aaf222
 
 ### Phase 3: Dokumentacja i domknięcie
 
 #### Automated
 
-- [ ] 3.1 `AGENTS.md` zawiera `KILO_QUALITY_TYPECHECK` i ścieżki obu pluginów
-- [ ] 3.2 `test-plan.md` §5 rozróżnia wiersz per-edit i commit-time
-- [ ] 3.3 `test-plan.md` zawiera nagłówek `### 6.7`
-- [ ] 3.4 `test-plan.md` §8 ma wpis datowany 2026-09-14 dla tej zmiany
-- [ ] 3.5 Sekcja §3 `test-plan.md` nietknięta (`git diff`)
-- [ ] 3.6 `lessons.md` zawiera nowy wpis o `*.kilo` / odsłanianiu `.kilo/plugin/`
+- [x] 3.1 `AGENTS.md` zawiera `KILO_QUALITY_TYPECHECK` i ścieżki obu pluginów
+- [x] 3.2 `test-plan.md` §5 rozróżnia wiersz per-edit i commit-time
+- [x] 3.3 `test-plan.md` zawiera nagłówek `### 6.7`
+- [x] 3.4 `test-plan.md` §8 ma wpis datowany 2026-09-14 dla tej zmiany
+- [x] 3.5 Sekcja §3 `test-plan.md` nietknięta (`git diff`)
+- [x] 3.6 `lessons.md` zawiera nowy wpis o `*.kilo` / odsłanianiu `.kilo/plugin/`
 
 #### Manual
 
-- [ ] 3.7 Świeży odczyt `AGENTS.md`: agent wie o hookach, fladze, braku blokady i o tym, że bramką jest pre-commit
-- [ ] 3.8 Świeży odczyt `test-plan.md` §5: jednoznaczne rozgraniczenie per-edit vs commit-time
+- [x] 3.7 Świeży odczyt `AGENTS.md`: agent wie o hookach, fladze, braku blokady i o tym, że bramką jest pre-commit
+- [x] 3.8 Świeży odczyt `test-plan.md` §5: jednoznaczne rozgraniczenie per-edit vs commit-time
