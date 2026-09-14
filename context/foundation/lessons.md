@@ -56,3 +56,17 @@
 - **Problem**: `astro sync` tylko generuje typy, eslint nie robi pełnego typechecku między modułami, a `astro build` (Vite/esbuild) wycina typy bez ich sprawdzania — rozjazd kontraktu typów między serwisem, czystą logiką i islandą nie daje żadnego czerwonego sygnału aż do ręcznych testów, gdzie koszt diagnozy jest największy.
 - **Rule**: Przy weryfikacji fazy/znaczącej zmiany uruchamiaj `npx astro check` obok sync/lint/build (i dodaj go do bramki CI). Dane z bazy (snake_case) na granicy serwisu mapuj jawnie do kształtu kontraktu (camelCase) — nigdy nie przepuszczaj surowych wierszy bazy do czystej logiki ani do islandy.
 - **Applies to**: implement, impl-review
+
+## Strefę reguły domenowej ustaw jawnie w sesji seeda, nie dziedzicz strefy kontenera
+
+- **Context**: `supabase/seed.sql` i każde miejsce, gdzie SQL liczy tydzień/dobę (`date_trunc('week', now())`) w projekcie, którego reguła domenowa jest wyrażona w konkretnej strefie (`Europe/Warsaw` — trigger `trg_availabilities_enforce_week`). Incident: testing-core-logic (Faza 2) — seed liczył tydzień w strefie sesji kontenera (UTC), trigger w `Europe/Warsaw`.
+- **Problem**: Rozjazd stref istnieje tylko w niedzielę 22:00–24:00 UTC, gdy Warszawa jest już w następnym tygodniu ISO. Wtedy `supabase db reset` pada na `23000` („Nie można zmieniać dostępności w minionych tygodniach") i blokuje całe środowisko lokalne — mimo że poza tym dwugodzinnym oknem wszystko działa, więc błąd jest trudny do odtworzenia i łatwy do zignorowania.
+- **Rule**: Jeśli reguła domenowa jest wyrażona w konkretnej strefie, ustaw tę strefę jawnie na początku sesji seeda (`set timezone = 'Europe/Warsaw';`) — nigdy nie polegaj na domyślnej strefie kontenera ani nie mieszaj `now()` bez strefy ze strefowym odpowiednikiem w triggerze.
+- **Applies to**: plan, implement, impl-review
+
+## Mismatch hydratacji najpierw wyklucz jako rozszerzenie przeglądarki, potem szukaj w kodzie
+
+- **Context**: Komunikaty React o rozjeździe SSR/klient („A tree hydrated but some attributes of the server rendered HTML didn't match") na polach formularzy, zwłaszcza `type="email"` i `type="password"`. Incident: `/auth/signin` w tym repo — różnica atrybutu `style` na `<input>`, którego `FormField.tsx` w ogóle nie ustawia; treść to `background-image: url("data:…")` (ikona menedżera haseł wstrzyknięta po SSR).
+- **Problem**: Wstrzyknięty atrybut nie istnieje w kodzie komponentu, więc szukanie przyczyny w aplikacji prowadzi donikąd — a objaw utrzymuje się miesiącami i wygląda jak regresja, co grozi niepotrzebnym refaktorem komponentu.
+- **Rule**: Zanim zaczniesz diagnozować mismatch hydratacji w kodzie, sprawdź, czy różniący się atrybut w ogóle występuje w komponencie; jeśli nie, potwierdź rozszerzenie w trybie incognito bez dodatków i zamknij temat jako artefakt przeglądarki.
+- **Applies to**: research, impl-review

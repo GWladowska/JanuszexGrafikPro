@@ -542,44 +542,44 @@ snake_case → camelCase. Diagnostykę zaczyna się od `getAvailabilitiesForWeek
 
 #### Automated
 
-- [x] 1.1 Instalacja rozwiązuje jedną wersję Vite 7.x (`npm ls vite`) — 16e7aad
-- [x] 1.2 Testy jednostkowe przechodzą (`npm test`) — 16e7aad
-- [x] 1.3 Typecheck przechodzi (`npm run check`) — 16e7aad
-- [x] 1.4 Lint przechodzi (`npm run lint`) — 16e7aad
-- [x] 1.5 Build przechodzi (`npm run build`) — 16e7aad
+- [x] 1.1 Instalacja rozwiązuje jedną wersję Vite 7.x (`npm ls vite`) — 2e05eee
+- [x] 1.2 Testy jednostkowe przechodzą (`npm test`) — 2e05eee
+- [x] 1.3 Typecheck przechodzi (`npm run check`) — 2e05eee
+- [x] 1.4 Lint przechodzi (`npm run lint`) — 2e05eee
+- [x] 1.5 Build przechodzi (`npm run build`) — 2e05eee
 
 #### Manual
 
-- [x] 1.6 `npm run test:watch` przeładowuje wynik po zapisie pliku testowego — 16e7aad
-- [x] 1.7 CI na PR pokazuje nowe kroki `astro check` i `npm test` — 16e7aad
+- [x] 1.6 `npm run test:watch` przeładowuje wynik po zapisie pliku testowego — 2e05eee
+- [x] 1.7 CI na PR pokazuje nowe kroki `astro check` i `npm test` — 2e05eee
 
 ### Phase 2: Walidacja kształtu na granicy API
 
 #### Automated
 
-- [x] 2.1 Testy walidatorów przechodzą, w tym test-regresja incydentu S-04 (`npm test`)
-- [x] 2.2 Typecheck przechodzi (`npm run check`)
-- [x] 2.3 Lint przechodzi (`npm run lint`)
-- [x] 2.4 Build przechodzi (`npm run build`)
+- [x] 2.1 Testy walidatorów przechodzą, w tym test-regresja incydentu S-04 (`npm test`) — 855dc84
+- [x] 2.2 Typecheck przechodzi (`npm run check`) — 855dc84
+- [x] 2.3 Lint przechodzi (`npm run lint`) — 855dc84
+- [x] 2.4 Build przechodzi (`npm run build`) — 855dc84
 
 #### Manual
 
-- [x] 2.5 Ścieżka szczęśliwa bez regresji — generowanie i zapis grafiku kończą się sukcesem
-- [x] 2.6 Zły kształt daje `500` i nie zapisuje grafiku (status pozostaje `draft`)
+- [x] 2.5 Ścieżka szczęśliwa bez regresji — generowanie i zapis grafiku kończą się sukcesem — 855dc84
+- [x] 2.6 Zły kształt daje `500` i nie zapisuje grafiku (status pozostaje `draft`) — 855dc84
 
 ### Phase 3: Czysta logika czasu i tekstu
 
 #### Automated
 
-- [ ] 3.1 Testy `week.test.ts` przechodzą (`npm test`)
-- [ ] 3.2 Testy `schedule-export.test.ts` przechodzą (`npm test`)
-- [ ] 3.3 Typecheck przechodzi (`npm run check`)
-- [ ] 3.4 Lint przechodzi (`npm run lint`)
+- [x] 3.1 Testy `week.test.ts` przechodzą (`npm test`)
+- [x] 3.2 Testy `schedule-export.test.ts` przechodzą (`npm test`)
+- [x] 3.3 Typecheck przechodzi (`npm run check`)
+- [x] 3.4 Lint przechodzi (`npm run lint`)
 
 #### Manual
 
-- [ ] 3.5 Nazwy testów czytają się jak katalog ryzyk #3 i #7
-- [ ] 3.6 Asercje na dokładne literały są zgodne z tym, co widać w interfejsie
+- [x] 3.5 Nazwy testów czytają się jak katalog ryzyk #3 i #7
+- [x] 3.6 Asercje na dokładne literały są zgodne z tym, co widać w interfejsie
 
 ### Phase 4: Czysta logika grafiku
 

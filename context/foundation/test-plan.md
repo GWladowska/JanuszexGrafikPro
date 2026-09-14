@@ -110,11 +110,17 @@ Jak dodawać nowe testy w tym projekcie. Każda podsekcja wypełnia się po wdro
 
 ### 6.2 Adding a test for schedule/time logic
 
-- TBD — patrz §3 Phase 1 (wzorzec dla reguł tygodnia, zamrożenia i strefy Europe/Warsaw).
+- **Gdzie:** `src/lib/week.test.ts` (logika tygodnia, zamrożenia, strefy) oraz `src/lib/services/schedule-generation.test.ts` (obsada, dziury, kolizje).
+- **Jak:** nie mockuj zegara — `todayInWarsaw`/`currentWeekStart`/`isFrozenWeek` przyjmują `now`/`reference`, więc podawaj konkretną chwilę (`new Date("2026-03-29T23:30:00Z")`). Daty trzymaj jako stringi `YYYY-MM-DD` i asertuj dokładne literały.
+- **Uruchomienie:** `npm test`. Wzorzec referencyjny: `src/lib/week.test.ts` (tabela dni tygodnia + przypadki brzegowe: przełom roku, dzień przestępny, zmiana czasu 2026-03-29 i 2026-10-25, nieistniejący dzień miesiąca).
+- **Pamiętaj:** `week.ts` nie waliduje kalendarza — `2026-02-30` przestawia się na `2026-03-02`. Walidację dat trzymamy na granicy API (§6.4).
 
 ### 6.3 Adding a test for the staff text export
 
-- TBD — patrz §3 Phase 1 (wzorzec dla składania tekstu: kolejność dni, dni nieczynne, wariant bez znaczników).
+- **Gdzie:** `src/lib/services/schedule-export.test.ts`.
+- **Jak:** buduj `ScheduleExportInput` jako literały camelCase (nigdy wiersze bazy — kształt snake_case jest odrzucany na granicy, patrz §6.4). Asertuj dokładny tekst: kolejność dni Pn–Nd, dni nieczynne w miejscu chronologicznym, sortowanie zmian po `startTime`, `—` dla nieznanego nazwiska, brak końcowego newline.
+- **Warianty:** `plain` i `formatted` pochodzą z jednego źródła struktury — test sprawdza to przez `formatted.replaceAll("*","").replaceAll("`","") === plain`, a nie przez odcinanie znaczników regexem.
+- **Uruchomienie:** `npm test`. Wzorzec referencyjny: `src/lib/services/schedule-export.test.ts`.
 
 ### 6.4 Adding an integration test for an API endpoint
 
