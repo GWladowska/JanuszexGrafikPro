@@ -6,7 +6,8 @@ import { addDays, currentWeekStart } from "@/lib/week";
 import { POST as businessPOST } from "@/pages/api/business/index";
 import { POST as employeePOST } from "@/pages/api/employees/index";
 import { POST as availabilityPOST } from "@/pages/api/availabilities/index";
-import { POST as schedulePOST } from "@/pages/api/schedules/index";
+import { GET as scheduleGET, PATCH as schedulePATCH, POST as schedulePOST } from "@/pages/api/schedules/index";
+import { POST as assignmentPOST } from "@/pages/api/schedules/assignments";
 
 export const DEFAULT_OPENING_HOURS = [
   { weekday: 1, opensAt: "08:00", closesAt: "18:00" },
@@ -15,6 +16,8 @@ export const DEFAULT_OPENING_HOURS = [
   { weekday: 4, opensAt: "08:00", closesAt: "18:00" },
   { weekday: 5, opensAt: "08:00", closesAt: "18:00" },
 ] as const;
+
+type Supabase = NonNullable<ReturnType<typeof createClient>>;
 
 export class CookieJar {
   private readonly cookies = new Map<string, string>();
@@ -65,6 +68,15 @@ export async function signUpOwner(prefix: string): Promise<SessionContext> {
   return { userId: data.user.id, jar };
 }
 
+export function ownerClient(jar: CookieJar): Supabase {
+  const request = new Request("http://test.local", { headers: { cookie: jar.toHeader() } });
+  const client = createClient(request.headers, jar as unknown as AstroCookies);
+  if (!client) {
+    throw new Error("Klient Supabase nie powstał — sprawdź SUPABASE_URL/SUPABASE_KEY.");
+  }
+  return client;
+}
+
 export interface CallHandlerOptions {
   method: string;
   path: string;
@@ -112,6 +124,143 @@ export function weekStartOffset(days: number): string {
   return addDays(currentWeekStart(), days);
 }
 
+export async function createBusiness(
+  jar: CookieJar,
+  userId: string,
+  name = "Kawiarnia Testowa",
+  openingHours: readonly { weekday: number; opensAt: string; closesAt: string }[] = DEFAULT_OPENING_HOURS,
+): Promise<string> {
+  const res = await callHandler(businessPOST, {
+    method: "POST",
+    path: "/api/business",
+    body: { name, openingHours },
+    user: { id: userId },
+    jar,
+  });
+  await expectStatus(res, 201, "utworzenie biznesu");
+  const body = (await res.json()) as { business?: { id?: string } };
+  if (!body.business?.id) {
+    throw new Error("Brak business.id w odpowiedzi.");
+  }
+  return body.business.id;
+}
+
+export interface EmployeeInfo {
+  id: string;
+  name: string;
+}
+
+export async function createEmployee(
+  jar: CookieJar,
+  userId: string,
+  name: string,
+  contactEmail: string,
+): Promise<EmployeeInfo> {
+  const res = await callHandler(employeePOST, {
+    method: "POST",
+    path: "/api/employees",
+    body: { name, contactEmail },
+    user: { id: userId },
+    jar,
+  });
+  await expectStatus(res, 201, "utworzenie pracownika");
+  const body = (await res.json()) as { employee?: { id?: string; name?: string } };
+  if (!body.employee?.id) {
+    throw new Error("Brak employee.id w odpowiedzi.");
+  }
+  return { id: body.employee.id, name: body.employee.name ?? name };
+}
+
+export async function createAvailability(
+  jar: CookieJar,
+  userId: string,
+  employeeId: string,
+  workDate: string,
+  startTime: string,
+  endTime: string,
+): Promise<string> {
+  const res = await callHandler(availabilityPOST, {
+    method: "POST",
+    path: "/api/availabilities",
+    body: { employeeId, workDate, startTime, endTime },
+    user: { id: userId },
+    jar,
+  });
+  await expectStatus(res, 201, `utworzenie dostępności dla ${workDate}`);
+  const body = (await res.json()) as { availability?: { id?: string } };
+  if (!body.availability?.id) {
+    throw new Error("Brak availability.id w odpowiedzi.");
+  }
+  return body.availability.id;
+}
+
+export async function createDraft(jar: CookieJar, userId: string, weekStart: string): Promise<string> {
+  const res = await callHandler(schedulePOST, {
+    method: "POST",
+    path: "/api/schedules",
+    body: { weekStart },
+    user: { id: userId },
+    jar,
+  });
+  await expectStatus(res, 201, "utworzenie draftu grafiku");
+  const body = (await res.json()) as { schedule?: { id?: string } };
+  if (!body.schedule?.id) {
+    throw new Error("Brak schedule.id w odpowiedzi.");
+  }
+  return body.schedule.id;
+}
+
+export interface AssignmentInput {
+  weekStart: string;
+  employeeId: string;
+  workDate: string;
+  startTime: string;
+  endTime: string;
+}
+
+export async function createAssignment(jar: CookieJar, userId: string, input: AssignmentInput): Promise<string> {
+  const res = await callHandler(assignmentPOST, {
+    method: "POST",
+    path: "/api/schedules/assignments",
+    body: input,
+    user: { id: userId },
+    jar,
+  });
+  await expectStatus(res, 201, `utworzenie przypisania dla ${input.workDate}`);
+  const body = (await res.json()) as { assignment?: { id?: string } };
+  if (!body.assignment?.id) {
+    throw new Error("Brak assignment.id w odpowiedzi.");
+  }
+  return body.assignment.id;
+}
+
+export async function saveSchedule(jar: CookieJar, userId: string, weekStart: string): Promise<Response> {
+  return callHandler(schedulePATCH, {
+    method: "PATCH",
+    path: "/api/schedules",
+    body: { weekStart, status: "saved" },
+    user: { id: userId },
+    jar,
+  });
+}
+
+export interface ScheduleSnapshot {
+  schedule: { id: string; status: string; week_start: string } | null;
+  assignments: unknown[];
+  availabilities: unknown[];
+}
+
+export async function getSchedule(jar: CookieJar, userId: string, weekStart: string): Promise<ScheduleSnapshot> {
+  const res = await callHandler(scheduleGET, {
+    method: "GET",
+    path: `/api/schedules?week=${weekStart}`,
+    user: { id: userId },
+    jar,
+  });
+  await expectStatus(res, 200, "odczyt grafiku");
+  return (await res.json()) as ScheduleSnapshot;
+}
+
 export interface OwnerWorld {
   userId: string;
   jar: CookieJar;
@@ -125,78 +274,26 @@ export interface OwnerWorld {
 
 export async function setupOwnerWorld(prefix: string, weekStart: string = weekStartOffset(7)): Promise<OwnerWorld> {
   const { userId, jar } = await signUpOwner(prefix);
-  const user = { id: userId };
 
-  const businessRes = await callHandler(businessPOST, {
-    method: "POST",
-    path: "/api/business",
-    body: { name: `${prefix} Kawiarnia`, openingHours: DEFAULT_OPENING_HOURS },
-    user,
-    jar,
-  });
-  await expectStatus(businessRes, 201, "utworzenie biznesu");
-  const businessBody = (await businessRes.json()) as { business?: { id?: string } };
-  if (!businessBody.business?.id) {
-    throw new Error("Brak business.id w odpowiedzi.");
-  }
-
-  const employeeRes = await callHandler(employeePOST, {
-    method: "POST",
-    path: "/api/employees",
-    body: { name: "Testowy Pracownik", contactEmail: `${prefix}-pracownik@example.com` },
-    user,
-    jar,
-  });
-  await expectStatus(employeeRes, 201, "utworzenie pracownika");
-  const employeeBody = (await employeeRes.json()) as { employee?: { id?: string; name?: string } };
-  if (!employeeBody.employee?.id) {
-    throw new Error("Brak employee.id w odpowiedzi.");
-  }
+  const businessId = await createBusiness(jar, userId, `${prefix} Kawiarnia`);
+  const employee = await createEmployee(jar, userId, "Testowy Pracownik", `${prefix}-pracownik@example.com`);
 
   const availabilityIds: string[] = [];
   for (let offset = 0; offset < 5; offset++) {
-    const workDate = addDays(weekStart, offset);
-    const res = await callHandler(availabilityPOST, {
-      method: "POST",
-      path: "/api/availabilities",
-      body: {
-        employeeId: employeeBody.employee.id,
-        workDate,
-        startTime: "08:00",
-        endTime: "18:00",
-      },
-      user,
-      jar,
-    });
-    await expectStatus(res, 201, `utworzenie dostępności dla ${workDate}`);
-    const body = (await res.json()) as { availability?: { id?: string } };
-    if (!body.availability?.id) {
-      throw new Error("Brak availability.id w odpowiedzi.");
-    }
-    availabilityIds.push(body.availability.id);
+    const id = await createAvailability(jar, userId, employee.id, addDays(weekStart, offset), "08:00", "18:00");
+    availabilityIds.push(id);
   }
 
-  const scheduleRes = await callHandler(schedulePOST, {
-    method: "POST",
-    path: "/api/schedules",
-    body: { weekStart },
-    user,
-    jar,
-  });
-  await expectStatus(scheduleRes, 201, "utworzenie draftu grafiku");
-  const scheduleBody = (await scheduleRes.json()) as { schedule?: { id?: string } };
-  if (!scheduleBody.schedule?.id) {
-    throw new Error("Brak schedule.id w odpowiedzi.");
-  }
+  const scheduleId = await createDraft(jar, userId, weekStart);
 
   return {
     userId,
     jar,
-    businessId: businessBody.business.id,
-    employeeId: employeeBody.employee.id,
-    employeeName: employeeBody.employee.name ?? "",
+    businessId,
+    employeeId: employee.id,
+    employeeName: employee.name,
     weekStart,
     availabilityIds,
-    scheduleId: scheduleBody.schedule.id,
+    scheduleId,
   };
 }

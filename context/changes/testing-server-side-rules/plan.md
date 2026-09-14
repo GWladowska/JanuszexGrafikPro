@@ -597,10 +597,10 @@ lokalny i nigdy nie trafia na zdalny projekt (AGENTS.md). W CI baza powstaje od 
 
 #### Automated
 
-- [x] 1.1 `npm run test:integration` przechodzi lokalnie przy uruchomionym `supabase start`
-- [x] 1.2 `npm run lint` przechodzi
-- [x] 1.3 `npm run check` przechodzi
-- [x] 1.4 `npm test` (jednostki) nadal przechodzi bez bazy
+- [x] 1.1 `npm run test:integration` przechodzi lokalnie przy uruchomionym `supabase start` — 1c1b8c4
+- [x] 1.2 `npm run lint` przechodzi — 1c1b8c4
+- [x] 1.3 `npm run check` przechodzi — 1c1b8c4
+- [x] 1.4 `npm test` (jednostki) nadal przechodzi bez bazy — 1c1b8c4
 
 #### Manual
 
@@ -611,9 +611,9 @@ lokalny i nigdy nie trafia na zdalny projekt (AGENTS.md). W CI baza powstaje od 
 
 #### Automated
 
-- [ ] 2.1 Suita `schedule-save` przechodzi: `npm run test:integration`
-- [ ] 2.2 `npm run lint` przechodzi
-- [ ] 2.3 `npm run check` przechodzi
+- [x] 2.1 Suita `schedule-save` przechodzi: `npm run test:integration`
+- [x] 2.2 `npm run lint` przechodzi
+- [x] 2.3 `npm run check` przechodzi
 
 #### Manual
 
