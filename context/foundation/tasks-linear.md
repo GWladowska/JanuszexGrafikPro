@@ -1,7 +1,7 @@
 ---
 project: JanuszexGrafikPro
 created: 2026-09-12
-updated: 2026-09-12
+updated: 2026-09-14
 source: context/foundation/roadmap.md (v1) + context/foundation/tasks-github.md
 system: Linear
 team: JanuszexGrafikPro
@@ -13,27 +13,44 @@ access: Linear MCP
 
 Podsumowanie przeniesienia roadmapy (`context/foundation/roadmap.md`) do Linear oraz konwencji pracy na zgłoszeniach. Mirror dokumentu `tasks-github.md` — ten sam zakres roadmapy, inny system. Dokument żywy — edit-in-place (patrz `README.md` w tym katalogu).
 
+## Stan: komplet zrealizowany (2026-09-14)
+
+Wszystkie 8 zgłoszeń (JAN-5–JAN-12) jest w stanie `Done`. Uwaga: Linear ustawia `completedAt` w momencie przejścia do `Done` i nie pozwala cofnąć go w czasie — pole pokazuje więc 2026-09-14, choć prace zakończyły się 2026-09-13. Faktyczne czasy wykonania (momenty archiwizacji zmian) są w komentarzach oraz w tabeli poniżej.
+
+| Roadmap ID | Change ID                   | Linear                                                      | GitHub | Zarchiwizowano (commit) | Czas wykonania (CEST) |
+| ---------- | --------------------------- | ----------------------------------------------------------- | ------ | ----------------------- | --------------------- |
+| F-01       | domain-schema-rls           | [JAN-5](https://linear.app/januszexgrafikpro/issue/JAN-5)   | #4     | `7d7e622`               | 2026-09-13 04:23      |
+| S-01       | business-opening-hours      | [JAN-6](https://linear.app/januszexgrafikpro/issue/JAN-6)   | #5     | `c1a6da9`               | 2026-09-13 04:25      |
+| S-02       | employee-management         | [JAN-7](https://linear.app/januszexgrafikpro/issue/JAN-7)   | #6     | `b57212d`               | 2026-09-13 04:28      |
+| S-03       | availability-management     | [JAN-8](https://linear.app/januszexgrafikpro/issue/JAN-8)   | #7     | `3b35e7e`               | 2026-09-13 06:33      |
+| S-04       | schedule-draft-generation   | [JAN-9](https://linear.app/januszexgrafikpro/issue/JAN-9)   | #8     | `035903f`               | 2026-09-13 14:49      |
+| S-05       | schedule-editing-collisions | [JAN-10](https://linear.app/januszexgrafikpro/issue/JAN-10) | #9     | `452e8d6`               | 2026-09-13 17:52      |
+| S-06       | save-complete-schedule      | [JAN-11](https://linear.app/januszexgrafikpro/issue/JAN-11) | #10    | `f7d1240`               | 2026-09-13 20:55      |
+| S-07       | schedule-text-export        | [JAN-12](https://linear.app/januszexgrafikpro/issue/JAN-12) | #11    | `44ceaf4`               | 2026-09-13 22:21      |
+
+> S-08 (`schedule-archive`) nie dostał zgłoszenia ani w Linear, ani na GitHubie (roadmapa zaktualizowana 2026-09-13, „issue do utworzenia" nigdy nie powstało) — dodany wprost do roadmapy, zrealizowany i zarchiwizowany (commit `8ecc8d9`, 2026-09-14 00:03 CEST). Stan `done` wszystkich itemów potwierdza `roadmap.md`.
+
 ## System
 
 - **Narzędzie:** Linear, team `JanuszexGrafikPro`, workspace `januszexgrafikpro`. Bez projektów i milestone'ów — dla liniowego MVP (`main_goal=speed`) wystarczą etykiety + natywne relacje `blocked by`.
 - **Dostęp:** Linear MCP (`linear_*` tools), konto `Gabriela Władowska`.
 - **Etykiety:**
 
-  | Etykieta | Kolor | ID | Znaczenie |
-  |---|---|---|---|
-  | `roadmap` | `#5319e7` | `c834aed7-18f7-4895-b634-4dfaa7a5d132` | każdy element roadmapy (wszystkie 8 zgłoszeń) |
-  | `foundation` | `#1d76db` | `6f434abd-0ecb-4e83-b61f-cab923d182d7` | fundament (F-NN) |
-  | `slice` | `#0e8a16` | `051272b5-933b-4c5a-ab1e-29eecf48c31b` | pionowy przekrój (S-NN) |
+  | Etykieta     | Kolor     | ID                                     | Znaczenie                                     |
+  | ------------ | --------- | -------------------------------------- | --------------------------------------------- |
+  | `roadmap`    | `#5319e7` | `c834aed7-18f7-4895-b634-4dfaa7a5d132` | każdy element roadmapy (wszystkie 8 zgłoszeń) |
+  | `foundation` | `#1d76db` | `6f434abd-0ecb-4e83-b61f-cab923d182d7` | fundament (F-NN)                              |
+  | `slice`      | `#0e8a16` | `051272b5-933b-4c5a-ab1e-29eecf48c31b` | pionowy przekrój (S-NN)                       |
 
 - **Workflow (stany):**
 
-  | Stan | ID | Znaczenie |
-  |---|---|---|
-  | `Backlog` | `09f9461f-1fb5-4707-801e-0ee8fe2cc4ca` | element roadmapy `proposed` (zaplanowany, niegotowy) |
-  | `Todo` | `86504391-f955-4075-a165-95dd03ed60b2` | element roadmapy `ready` (gotowy do `/10x-plan`) |
-  | `In Progress` | `1bbfe4a2-7e35-4995-9f94-e02d1bf0c47e` | w realizacji |
-  | `Done` | `8bb41311-4fd3-48d8-8bb4-8294cf8e2beb` | ukończony (`roadmap.md` → `done`, dopisuje `/10x-archive`) |
-  | `Canceled` / `Duplicate` | — | porzucony / duplikat |
+  | Stan                     | ID                                     | Znaczenie                                                  |
+  | ------------------------ | -------------------------------------- | ---------------------------------------------------------- |
+  | `Backlog`                | `09f9461f-1fb5-4707-801e-0ee8fe2cc4ca` | element roadmapy `proposed` (zaplanowany, niegotowy)       |
+  | `Todo`                   | `86504391-f955-4075-a165-95dd03ed60b2` | element roadmapy `ready` (gotowy do `/10x-plan`)           |
+  | `In Progress`            | `1bbfe4a2-7e35-4995-9f94-e02d1bf0c47e` | w realizacji                                               |
+  | `Done`                   | `8bb41311-4fd3-48d8-8bb4-8294cf8e2beb` | ukończony (`roadmap.md` → `done`, dopisuje `/10x-archive`) |
+  | `Canceled` / `Duplicate` | —                                      | porzucony / duplikat                                       |
 
 - **ID teamu:** `0922baa8-5321-4510-b32e-3d7846a704e1`.
 - **Statusy:** Linear ma natywne stany workflow (tabela wyżej) — `Backlog`/`Todo`/`In Progress`/`Done` mapują się 1:1 na `Status` w `roadmap.md` (`proposed`/`ready`/`—`/`done`). Źródłem prawdy pozostaje `roadmap.md`; stan Linear to jego odzwierciedlenie.
@@ -42,18 +59,18 @@ Podsumowanie przeniesienia roadmapy (`context/foundation/roadmap.md`) do Linear 
 
 ## Mapa issue ↔ roadmap
 
-| Roadmap ID | Change ID | Linear | GitHub | Tytuł | Etykiety | Blocked by |
-|---|---|---|---|---|---|---|
-| F-01 | `domain-schema-rls` | [JAN-5](https://linear.app/januszexgrafikpro/issue/JAN-5) | #4 | Schemat domeny + RLS | `roadmap`, `foundation` | — |
-| S-01 | `business-opening-hours` | [JAN-6](https://linear.app/januszexgrafikpro/issue/JAN-6) | #5 | Ustawienie biznesu i godzin otwarcia | `roadmap`, `slice` | JAN-5 |
-| S-02 | `employee-management` | [JAN-7](https://linear.app/januszexgrafikpro/issue/JAN-7) | #6 | Zarządzanie pracownikami biznesu | `roadmap`, `slice` | JAN-6 |
-| S-03 | `availability-management` | [JAN-8](https://linear.app/januszexgrafikpro/issue/JAN-8) | #7 | Dostępności pracowników (CRUD ręczne) | `roadmap`, `slice` | JAN-7 |
-| S-04 | `schedule-draft-generation` | [JAN-9](https://linear.app/januszexgrafikpro/issue/JAN-9) | #8 | Generowanie draftu grafiku i widok dziur | `roadmap`, `slice` | JAN-8 |
-| S-05 | `schedule-editing-collisions` | [JAN-10](https://linear.app/januszexgrafikpro/issue/JAN-10) | #9 | Edycja draftu z ostrzeżeniami o kolizjach | `roadmap`, `slice` | JAN-9 |
-| S-06 | `save-complete-schedule` | [JAN-11](https://linear.app/januszexgrafikpro/issue/JAN-11) | #10 | Zapis kompletnego grafiku (walidacja dziur) | `roadmap`, `slice` | JAN-10 |
-| S-07 | `schedule-text-export` | [JAN-12](https://linear.app/januszexgrafikpro/issue/JAN-12) | #11 | Kopiowanie tekstowego widoku grafiku | `roadmap`, `slice` | JAN-11 |
+| Roadmap ID | Change ID                     | Linear                                                      | GitHub | Tytuł                                       | Etykiety                | Blocked by |
+| ---------- | ----------------------------- | ----------------------------------------------------------- | ------ | ------------------------------------------- | ----------------------- | ---------- |
+| F-01       | `domain-schema-rls`           | [JAN-5](https://linear.app/januszexgrafikpro/issue/JAN-5)   | #4     | Schemat domeny + RLS                        | `roadmap`, `foundation` | —          |
+| S-01       | `business-opening-hours`      | [JAN-6](https://linear.app/januszexgrafikpro/issue/JAN-6)   | #5     | Ustawienie biznesu i godzin otwarcia        | `roadmap`, `slice`      | JAN-5      |
+| S-02       | `employee-management`         | [JAN-7](https://linear.app/januszexgrafikpro/issue/JAN-7)   | #6     | Zarządzanie pracownikami biznesu            | `roadmap`, `slice`      | JAN-6      |
+| S-03       | `availability-management`     | [JAN-8](https://linear.app/januszexgrafikpro/issue/JAN-8)   | #7     | Dostępności pracowników (CRUD ręczne)       | `roadmap`, `slice`      | JAN-7      |
+| S-04       | `schedule-draft-generation`   | [JAN-9](https://linear.app/januszexgrafikpro/issue/JAN-9)   | #8     | Generowanie draftu grafiku i widok dziur    | `roadmap`, `slice`      | JAN-8      |
+| S-05       | `schedule-editing-collisions` | [JAN-10](https://linear.app/januszexgrafikpro/issue/JAN-10) | #9     | Edycja draftu z ostrzeżeniami o kolizjach   | `roadmap`, `slice`      | JAN-9      |
+| S-06       | `save-complete-schedule`      | [JAN-11](https://linear.app/januszexgrafikpro/issue/JAN-11) | #10    | Zapis kompletnego grafiku (walidacja dziur) | `roadmap`, `slice`      | JAN-10     |
+| S-07       | `schedule-text-export`        | [JAN-12](https://linear.app/januszexgrafikpro/issue/JAN-12) | #11    | Kopiowanie tekstowego widoku grafiku        | `roadmap`, `slice`      | JAN-11     |
 
-> Zgłoszenia powstały w kolejności zależności, więc numeracja JAN-5…JAN-12 pokrywa się z kolejnością dostarczania i z numeracją GitHub #4–#11. F-01 nie ma poprzednika i odblokowuje całą resztę (`Unlocks: S-01…S-07`).
+> Zgłoszenia powstały w kolejności zależności, więc numeracja JAN-5…JAN-12 pokrywa się z kolejnością dostarczania i z numeracją GitHub #4–#11. F-01 nie ma poprzednika i odblokowuje całą resztę (`Unlocks: S-01…S-07`). Wszystkie zostały zrealizowane i zamknięte — czasy wykonania w sekcji „Stan: komplet zrealizowany".
 
 ## Łańcuch zależności
 
@@ -72,12 +89,12 @@ Zasady:
 
 ## Konwencja statusów
 
-| Etap | Linear | `roadmap.md` — `Status` |
-|---|---|---|
-| Zaplanowany, niegotowy | `Backlog`, bez assignee | `proposed` |
-| Gotowy do `/10x-plan` | `Todo`, bez assignee | `ready` |
-| W realizacji | `In Progress`, assignee = autor zmiany | `proposed`/`ready` |
-| Ukończony | `Done` | `done` (dopisuje `/10x-archive`) |
+| Etap                   | Linear                                 | `roadmap.md` — `Status`          |
+| ---------------------- | -------------------------------------- | -------------------------------- |
+| Zaplanowany, niegotowy | `Backlog`, bez assignee                | `proposed`                       |
+| Gotowy do `/10x-plan`  | `Todo`, bez assignee                   | `ready`                          |
+| W realizacji           | `In Progress`, assignee = autor zmiany | `proposed`/`ready`               |
+| Ukończony              | `Done`                                 | `done` (dopisuje `/10x-archive`) |
 
 ## Synchronizacja z GitHub
 
