@@ -20,4 +20,5 @@ Risk response intent:
 - #5: żądanie z cudzym identyfikatorem zasobu jest odrzucane; brak logowania nie zmienia danych.
 - #6: po zmianie wspólnego pomocnika kluczowe odpowiedzi pozostają takie same na kilku ścieżkach.
 - #7: tekst grafiku ma dni w kolejności, zmiany posortowane, dni nieczynne obecne, brak znaczników w wariancie plain.
-  Gate set to enforce: lint, `npx astro check`, unit, integration, pgTAP (`supabase test db`), build — plus realne wymuszenie w ochronie gałęzi, żeby czerwona zmiana nie trafiła na produkcję.
+
+Gate set to enforce: lint, `npx astro check`, unit, integration, pgTAP (`supabase test db`), build — plus realne wymuszenie w ochronie gałęzi, żeby czerwona zmiana nie trafiła na produkcję.
