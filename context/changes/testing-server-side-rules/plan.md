@@ -604,8 +604,8 @@ lokalny i nigdy nie trafia na zdalny projekt (AGENTS.md). W CI baza powstaje od 
 
 #### Manual
 
-- [ ] 1.5 Raport `npm run test:integration` pokazuje oba testy-dymne (401 i 201)
-- [ ] 1.6 Przy zatrzymanym Supabase uruchomienie daje czytelny błąd połączenia (brak fałszywego zielonego)
+- [x] 1.5 Raport `npm run test:integration` pokazuje oba testy-dymne (401 i 201)
+- [x] 1.6 Przy zatrzymanym Supabase uruchomienie daje czytelny błąd połączenia (brak fałszywego zielonego)
 
 ### Phase 2: Ryzyko #1 — serwer odrzuca niekompletny/kolizyjny zapis
 
@@ -617,7 +617,7 @@ lokalny i nigdy nie trafia na zdalny projekt (AGENTS.md). W CI baza powstaje od 
 
 #### Manual
 
-- [ ] 2.4 Nazwy testów czytają się jak katalog ryzyka #1 (400 z blokadami, 409 konfliktów)
+- [x] 2.4 Nazwy testów czytają się jak katalog ryzyka #1 (400 z blokadami, 409 konfliktów)
 
 ### Phase 3: Ryzyko #3 — tydzień i zamrożenie w Europe/Warsaw
 
@@ -629,7 +629,7 @@ lokalny i nigdy nie trafia na zdalny projekt (AGENTS.md). W CI baza powstaje od 
 
 #### Manual
 
-- [ ] 3.4 Raport pokazuje przypadki DST (2026-03-29/30) i okno niedziela 22:30 UTC; żaden test
+- [x] 3.4 Raport pokazuje przypadki DST (2026-03-29/30) i okno niedziela 22:30 UTC; żaden test
       nie zależy od dzisiejszej daty ani od strefy maszyny
 
 ### Phase 4: Ryzyko #5 — cudzy zasób i niezalogowane żądanie
@@ -642,27 +642,27 @@ lokalny i nigdy nie trafia na zdalny projekt (AGENTS.md). W CI baza powstaje od 
 
 #### Manual
 
-- [ ] 4.4 Raport obejmuje: cudzy ID → 404, niezalogowany → 401 + brak mutacji, szczęśliwa ścieżka → 200
+- [x] 4.4 Raport obejmuje: cudzy ID → 404, niezalogowany → 401 + brak mutacji, szczęśliwa ścieżka → 200
 
 ### Phase 5: Ryzyko #6 — wspólny kształt odpowiedzi na trasach JSON
 
 #### Automated
 
-- [x] 5.1 Suita `response-shapes` przechodzi: `npm run test:integration`
-- [x] 5.2 `npm run lint` przechodzi
-- [x] 5.3 `npm run check` przechodzi
+- [x] 5.1 Suita `response-shapes` przechodzi: `npm run test:integration` — ce82252
+- [x] 5.2 `npm run lint` przechodzi — ce82252
+- [x] 5.3 `npm run check` przechodzi — ce82252
 
 #### Manual
 
-- [ ] 5.4 Tabela kontraktów obejmuje wszystkie trasy JSON (bez auth); raport wskazuje trasę × status
+- [x] 5.4 Tabela kontraktów obejmuje wszystkie trasy JSON (bez auth); raport wskazuje trasę × status
 
 ### Phase 6: CI z bazą + dokumentacja
 
 #### Automated
 
 - [ ] 6.1 Job `integration` w CI przechodzi (zweryfikowane na PR do `master`)
-- [ ] 6.2 `npm run lint` i `npm run check` przechodzą
-- [ ] 6.3 Pełny zestaw lokalny przechodzi: `npm test` + `npm run test:integration`
+- [x] 6.2 `npm run lint` i `npm run check` przechodzą
+- [x] 6.3 Pełny zestaw lokalny przechodzi: `npm test` + `npm run test:integration`
 
 #### Manual
 

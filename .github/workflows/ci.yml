@@ -24,3 +24,25 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: supabase start
+      - run: supabase db reset
+      - name: Get Supabase anon key
+        id: supabase-key
+        run: echo "key=$(supabase status -o json | jq -r '.PUBLISHABLE_ANON_KEY // .ANON_KEY')" >> "$GITHUB_OUTPUT"
+      - run: npm run test:integration
+        env:
+          SUPABASE_URL: http://127.0.0.1:54321
+          SUPABASE_KEY: ${{ steps.supabase-key.outputs.key }}

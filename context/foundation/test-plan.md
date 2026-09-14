@@ -66,7 +66,7 @@ Klasyczna baza testowa projektu. Narzędzia zależne od dostawcy noszą datę `c
 | Warstwa | Narzędzie | Wersja | Uwagi |
 |---------|-----------|--------|-------|
 | unit (czysta logika, tekst, czas) | Vitest | none yet — see §3 Phase 1 | Pasuje do Astro/Vite/TypeScript; brak jakiegokolwiek runnera w repo |
-| integration (adresy API na Workers) | `@cloudflare/vitest-pool-workers` | none yet — see §3 Phase 2 | Otwarta beta; w sierpniu 2026 przemianowane na wersję 1; izolacja magazynu per plik testowy |
+| integration (adresy API) | bezpośrednie wywołanie handlerów (Seam A) + realny lokalny Supabase | wdrożone — patrz §3 Phase 2 | Zamiast `@cloudflare/vitest-pool-workers` (alternatywa z §4, niewdrożona): handlery są czyste i wywoływalne wprost, a sygnał izolacji daje realna baza |
 | database / RLS | pgTAP przez `supabase test db` | none yet — see §3 Phase 3 | Plik testowy musi trafić do `supabase/tests/database/`; wymaga lokalnego stacku (Docker + CLI z WSL) |
 | e2e | brak — patrz §5 | n/a | Testy „od początku do końca" nie są teraz uzasadnione kosztem; najpierw warstwy tańsze |
 | AI-native | brak | n/a | Nie ma potrzeby: reguły są deterministyczne, taniej złapie je zwykły test |
@@ -124,7 +124,12 @@ Jak dodawać nowe testy w tym projekcie. Każda podsekcja wypełnia się po wdro
 
 ### 6.4 Adding an integration test for an API endpoint
 
-- TBD — patrz §3 Phase 2 (wzorzec dla bramki zapisu, uprawnień i wspólnego kształtu odpowiedzi).
+- **Gdzie:** `test/integration/**/*.test.ts` (np. `schedule-save.test.ts`, `ownership.test.ts`); osobny runner `vitest.integration.config.ts` (alias `@/*` → `src/`, alias `astro:env/server` → stub w `test/integration/stubs/`, `include: ["test/integration/**/*.test.ts"]`).
+- **Jak:** importuj handlery tras bezpośrednio (`import { POST } from "@/pages/api/…"`) i wołaj przez `callHandler` z `test/integration/helpers.ts` (atrapa APIContext: Request, `locals.user`, cookies). Sesję zdobywaj prawdziwym `signInWithPassword` przez `signUpOwner`/`signIn` — ciasteczko sesji w nagłówku jest obowiązkowe, inaczej RLS zwraca 0 wierszy. Świat buduj przez prawdziwe API (`setupOwnerWorld`, `createBusiness`, `createEmployee`, …), a oczekiwania pisz ręcznie jako literały — nigdy z produkcyjnych funkcji.
+- **Wymagane:** lokalny Supabase z WSL: `supabase start` + `supabase db reset` (migracje + seed). Uruchomienie: `npm run test:integration`. `npm test` (jednostki) pozostaje bez bazy.
+- **Zegar:** fake timery (`vi.useFakeTimers` + `setSystemTime`) tylko w przeszłości i tylko tam, gdzie nie ma triggera datowego (bramka zamrożenia grafików). Dostępności testuj na realnym czasie — trigger SQL `enforce_availability_week_writes` liczy prawdziwe `now()`.
+- **Wzorzec referencyjny:** `test/integration/schedule-save.test.ts` (bramka zapisu), `test/integration/ownership.test.ts` (dwóch właścicieli), `test/integration/response-shapes.test.ts` (kształt odpowiedzi).
+- **Czego tu nie robić:** nie testuj tras auth (publiczne, 302); nie przypinaj oczekiwanych wartości z kodu produkcyjnego; nie pisz testów zależnych od „dzisiaj" ani od strefy maszyny.
 
 ### 6.5 Adding a database / RLS isolation test
 
@@ -149,6 +154,7 @@ Wyłączenia ustalone podczas wywiadu (pytanie Q5). Przyszli autorzy powinni je 
 - Stack versions last verified: 2026-09-14
 - AI-native tool references last verified: 2026-09-14
 - §3 Etap 1 (uruchomienie testów + czysta logika grafiku i czasu) wdrożony: 2026-09-14, zmiana `testing-core-logic`. Vitest 4 w środowisku Node (`vitest.config.ts`), 99 testów w `src/**/*.test.ts`, bramki `npm test` i `npm run check` dopisane do CI. Ryzyka #2, #3, #7 i serwerowa część #1 mają pokrycie jednostkowe. Etap 2 z §3 (testy integracyjne na Workers) pozostaje otwarty — walidacja granicy z tej zmiany jest pokryta testami jednostkowymi, nie integracyjnymi.
+- §3 Etap 2 (reguły po stronie serwera: zapis, zamrożenie, uprawnienia) wdrożony: 2026-09-14, zmiana `testing-server-side-rules`. Testy integracyjne na realnym lokalnym Supabase przez bezpośrednie wywołanie handlerów (Seam A — bez `@cloudflare/vitest-pool-workers`): osobny `vitest.integration.config.ts` z aliasem `astro:env/server`, skrypt `npm run test:integration`, helpery w `test/integration/helpers.ts`. Pokrycie: #1 (serwer) — niekompletny/kolizyjny zapis → 400 z `blockers`, konflikt zapisu i zmiany na zapisanym grafiku → 409; #3 — fake timery na datach granicznych w Europe/Warsaw (przełom DST, okno niedziela 22:30 UTC) + realny czas dostępności, asymetria PATCH save (brak bramki na gałęzi zapisu); #5 — cudzy ID → 404, niezalogowany → 401 bez mutacji; #6 — wspólny kształt 401/400/404/409 na trasach JSON (bez auth). CI: nowy job `integration` (ubuntu + Docker + CLI Supabase + `npm run test:integration`). Etap 3 (pgTAP) i Etap 4 (bramki jakości) pozostają otwarte.
 
 Refresh (`/10x-test-plan --refresh`) gdy:
 
