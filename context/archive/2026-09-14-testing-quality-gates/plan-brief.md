@@ -21,18 +21,18 @@ Merge do `master` wymaga zielonych `ci` **i** `integration` dla każdego bez rol
 
 ## Key Decisions Made
 
-| Decision | Choice | Why (1 sentence) | Source |
-| --- | --- | --- | --- |
-| Wymagane statusy | `ci` + `integration` (dwa konteksty) | pgTAP i testy integracyjne siedzą w jobie `integration` — bez niego luka zostaje otwarta | Plan |
-| Obejście admina | Zostaje `always`, opisane jako ryzyko rezydualne | Świadoma decyzja użytkownika: bramka nie może zablokować właściciela w awarii | Plan |
-| Dowód działania | Konfiguracyjny: odczyt API + check runy na PR | Przy zachowanym obejściu test na czerwonym PR-ze właściciela i tak by przeszedł | Plan |
-| Twardnienie `ci.yml` | `permissions: contents: read` + przypięte CLI `2.117.0` (z guardem lockfile) | Determinizm pgTAP + minimalne uprawnienia; bez `concurrency`/timeoutów/artefaktów | Plan |
-| Martwe sekrety | Usunąć `env` z kroku `build` | Wartości nie istnieją, a build nic z nich nie potrzebuje (strony są SSR) | Research |
-| `strict_required_status_checks_policy` | Zostaje `false` | Mniej tarcia w jednoosobowym repo; świadomie zaakceptowana luka „zielony, ale nieaktualny" | Plan |
-| Hook lokalny | Husky wpięty + `astro check` przy commicie | Łapie rozjazd typów — dokładnie ten, który kiedyś przeszedł sync+lint+build | Plan |
-| Konfiguracja rulesetu | Plik referencyjny `context/deployment/ruleset-protect.json` | Odtwarzalność i odwracalność bez nowych sekretów i bez kontroli dryfu w CI | Plan |
-| Zasięg zmian | Wyłącznie repo-scoped | Twarde wymaganie: inne repozytoria mają działać dokładnie jak dotąd | Plan |
-| Kolejność archiwizacji | `/10x-test-plan` → `/10x-new` → `/10x-archive` | Orchestrator liczy stan wyłącznie z plików w `context/changes/` | Research |
+| Decision                               | Choice                                                                       | Why (1 sentence)                                                                           | Source   |
+| -------------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | -------- |
+| Wymagane statusy                       | `ci` + `integration` (dwa konteksty)                                         | pgTAP i testy integracyjne siedzą w jobie `integration` — bez niego luka zostaje otwarta   | Plan     |
+| Obejście admina                        | Zostaje `always`, opisane jako ryzyko rezydualne                             | Świadoma decyzja użytkownika: bramka nie może zablokować właściciela w awarii              | Plan     |
+| Dowód działania                        | Konfiguracyjny: odczyt API + check runy na PR                                | Przy zachowanym obejściu test na czerwonym PR-ze właściciela i tak by przeszedł            | Plan     |
+| Twardnienie `ci.yml`                   | `permissions: contents: read` + przypięte CLI `2.117.0` (z guardem lockfile) | Determinizm pgTAP + minimalne uprawnienia; bez `concurrency`/timeoutów/artefaktów          | Plan     |
+| Martwe sekrety                         | Usunąć `env` z kroku `build`                                                 | Wartości nie istnieją, a build nic z nich nie potrzebuje (strony są SSR)                   | Research |
+| `strict_required_status_checks_policy` | Zostaje `false`                                                              | Mniej tarcia w jednoosobowym repo; świadomie zaakceptowana luka „zielony, ale nieaktualny" | Plan     |
+| Hook lokalny                           | Husky wpięty + `astro check` przy commicie                                   | Łapie rozjazd typów — dokładnie ten, który kiedyś przeszedł sync+lint+build                | Plan     |
+| Konfiguracja rulesetu                  | Plik referencyjny `context/deployment/ruleset-protect.json`                  | Odtwarzalność i odwracalność bez nowych sekretów i bez kontroli dryfu w CI                 | Plan     |
+| Zasięg zmian                           | Wyłącznie repo-scoped                                                        | Twarde wymaganie: inne repozytoria mają działać dokładnie jak dotąd                        | Plan     |
+| Kolejność archiwizacji                 | `/10x-test-plan` → `/10x-new` → `/10x-archive`                               | Orchestrator liczy stan wyłącznie z plików w `context/changes/`                            | Research |
 
 ## Scope
 
@@ -46,12 +46,12 @@ Trzy warstwy, jedna kolejność: **(1) wymuszenie** — ruleset w GitHubie, bo t
 
 ## Phases at a Glance
 
-| Phase | What it delivers | Key risk |
-| --- | --- | --- |
+| Phase                                   | What it delivers                                                        | Key risk                                                                            |
+| --------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
 | 1. Ruleset wymusza `ci` + `integration` | Dwa wymagane konteksty + odtwarzalny payload + opis ryzyka rezydualnego | Literówka w nazwie kontekstu = fałszywa blokada „Waiting for status to be reported" |
-| 2. Twardnienie `ci.yml` | Minimalne uprawnienia, przypięte CLI, brak martwych sekretów | Przypięcie CLI może zmienić obrazy Dockera w CI i wysypać pgTAP |
-| 3. Lokalny hook commitów | Realnie działający hook z typecheckiem, spójny Windows ↔ WSL | CRLF w `.husky/*` psuje commity z WSL (`exit 127`) |
-| 4. Dokumentacja i domknięcie Etapu 4 | Prawda o bramkach + wpis w ledgerze + lekcje | Ręczne oznaczenie `complete` przez orchestrator zamiast przez plan |
+| 2. Twardnienie `ci.yml`                 | Minimalne uprawnienia, przypięte CLI, brak martwych sekretów            | Przypięcie CLI może zmienić obrazy Dockera w CI i wysypać pgTAP                     |
+| 3. Lokalny hook commitów                | Realnie działający hook z typecheckiem, spójny Windows ↔ WSL            | CRLF w `.husky/*` psuje commity z WSL (`exit 127`)                                  |
+| 4. Dokumentacja i domknięcie Etapu 4    | Prawda o bramkach + wpis w ledgerze + lekcje                            | Ręczne oznaczenie `complete` przez orchestrator zamiast przez plan                  |
 
 **Prerequisites:** uprawnienia admina do repo (są), `gh` zalogowany (jest), Docker + WSL do lokalnego `supabase` (jest).
 **Estimated effort:** 4 krótkie sesje (jedna na fazę), z czego Faza 1 to głównie jedna komenda API plus dowód, a Faza 3 wymaga commita z obu środowisk.

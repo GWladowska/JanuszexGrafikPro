@@ -1,10 +1,10 @@
 ---
 change_id: testing-quality-gates
 title: Bramki jakości w automacie (test-plan rollout Phase 4)
-status: implemented
+status: archived
 created: 2026-09-14
 updated: 2026-09-14
-archived_at: null
+archived_at: 2026-09-14T09:35:50Z
 ---
 
 ## Notes
