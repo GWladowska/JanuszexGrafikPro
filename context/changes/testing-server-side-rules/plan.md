@@ -660,11 +660,11 @@ lokalny i nigdy nie trafia na zdalny projekt (AGENTS.md). W CI baza powstaje od 
 
 #### Automated
 
-- [x] 6.1 Job `integration` w CI przechodzi (zweryfikowane na PR do `master`)
+- [x] 6.1 Job `integration` w CI przechodzi (zweryfikowane na PR do `master`) — 332d723
 - [x] 6.2 `npm run lint` i `npm run check` przechodzą — 2b1ed58
 - [x] 6.3 Pełny zestaw lokalny przechodzi: `npm test` + `npm run test:integration` — 2b1ed58
 
 #### Manual
 
-- [x] 6.4 PR pokazuje zielony job `integration` obok szybkiego joba jakościowego
-- [x] 6.5 Cookbook §6.4 i ledger §8 opisują proces zgodny z tym, co faktycznie działa
+- [x] 6.4 PR pokazuje zielony job `integration` obok szybkiego joba jakościowego — 332d723
+- [x] 6.5 Cookbook §6.4 i ledger §8 opisują proces zgodny z tym, co faktycznie działa — 332d723
