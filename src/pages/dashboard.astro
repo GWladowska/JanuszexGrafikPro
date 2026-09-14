@@ -33,7 +33,7 @@ const dayRows = days.map((day) => ({
 }));
 ---
 
-<Layout title={dbError !== null ? "Coś poszło nie tak" : "Dashboard"}>
+<Layout title={dbError !== null ? "Coś poszło nie tak" : "Panel"}>
   {
     dbError !== null ? (
       <DbErrorState />
@@ -94,7 +94,7 @@ const dayRows = days.map((day) => ({
                   type="submit"
                   class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
                 >
-                  Sign out
+                  Wyloguj
                 </button>
               </form>
             </div>

@@ -14,7 +14,15 @@ export const POST: APIRoute = async (context) => {
 
   if (error) {
     const isCredentialsError = typeof error.status === "number" && error.status >= 400 && error.status < 500;
-    const message = isCredentialsError ? error.message : "Serwer logowania chwilowo niedostępny. Spróbuj ponownie.";
+    const knownMessages: Record<string, string> = {
+      "Invalid login credentials": "Nieprawidłowy adres e-mail lub hasło.",
+      "Invalid email or password": "Nieprawidłowy adres e-mail lub hasło.",
+      "Email not confirmed": "Adres e-mail nie został potwierdzony. Sprawdź swoją skrzynkę.",
+      "User not found": "Nie znaleziono konta z tym adresem e-mail.",
+    };
+    const message = isCredentialsError
+      ? (knownMessages[error.message] ?? "Logowanie nie powiodło się. Sprawdź dane i spróbuj ponownie.")
+      : "Serwer logowania chwilowo niedostępny. Spróbuj ponownie.";
     return context.redirect(`/auth/signin?error=${encodeURIComponent(message)}`);
   }
 
