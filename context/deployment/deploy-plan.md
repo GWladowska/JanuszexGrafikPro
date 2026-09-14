@@ -21,16 +21,16 @@ Plan ma 8 faz (0–7). Każda kończy się widocznym efektem, który da się spr
 
 ## Słowniczek (minimum, żeby czytać plan bez zagadywania do AI)
 
-| Pojęcie | Co to znaczy w tym projekcie |
-|---|---|
-| **Worker** | „Aplikacja" uruchomiona na serwerach Cloudflare — dostaje zapytania HTTP i zwraca gotowe strony |
-| **wrangler** | Narzędzie (wiersz poleceń) do współpracy z Cloudflare: logowanie, publikacja, logi, cofanie zmian |
-| **workers.dev** | Darmowa domena, którą Cloudflare przydziela każdej aplikacji |
-| **build / „zbudowanie"** | Zamiana kodu źródłowego w gotowy do uruchomienia pakiet (`npm run build` → katalog `dist/`) |
+| Pojęcie                   | Co to znaczy w tym projekcie                                                                                                                                                         |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Worker**                | „Aplikacja" uruchomiona na serwerach Cloudflare — dostaje zapytania HTTP i zwraca gotowe strony                                                                                      |
+| **wrangler**              | Narzędzie (wiersz poleceń) do współpracy z Cloudflare: logowanie, publikacja, logi, cofanie zmian                                                                                    |
+| **workers.dev**           | Darmowa domena, którą Cloudflare przydziela każdej aplikacji                                                                                                                         |
+| **build / „zbudowanie"**  | Zamiana kodu źródłowego w gotowy do uruchomienia pakiet (`npm run build` → katalog `dist/`)                                                                                          |
 | **build-time vs runtime** | Wartość „wypieczona" w pakiecie podczas budowania vs wartość odczytywana w trakcie działania aplikacji. Nasze sekrety są wypiekane przy budowaniu — zmiana = trzeba zbudować od nowa |
-| **Workers Builds** | Usługa Cloudflare, która sama buduje i publikuje aplikację po każdym pushu do `master` (zamiennik GitHub Actions do deployu) |
-| **astro:env** | Mechanizm Astro do przekazywania sekretów do kodu serwerowego; u nas wypieka je przy budowaniu |
-| **Site URL (Supabase)** | Adres, na który Supabase wysyła użytkownika po kliknięciu linku z maila potwierdzającego |
+| **Workers Builds**        | Usługa Cloudflare, która sama buduje i publikuje aplikację po każdym pushu do `master` (zamiennik GitHub Actions do deployu)                                                         |
+| **astro:env**             | Mechanizm Astro do przekazywania sekretów do kodu serwerowego; u nas wypieka je przy budowaniu                                                                                       |
+| **Site URL (Supabase)**   | Adres, na który Supabase wysyła użytkownika po kliknięciu linku z maila potwierdzającego                                                                                             |
 
 ## Najważniejsza pułapka: lokalne vs produkcyjne wartości Supabase
 
@@ -102,15 +102,15 @@ Do wykonania:
 
 ## Faza 4 czyta wartości z chmury — sekrety w Cloudflare (build-time)
 
-*(Faza 3 w poprzedniej wersji)*
+_(Faza 3 w poprzedniej wersji)_
 
 Pamiętasz: sekrety są „wypiekane" w aplikację podczas budowania. Cloudflare buduje aplikację na swoim serwerze, więc to **jemu** musimy podać wartości:
 
-- [ ] Panel Cloudflare → Workers & Pages → `januszex-grafik-pro` → Settings → **Build** → *Build variables and secrets* → dodaj:
+- [ ] Panel Cloudflare → Workers & Pages → `januszex-grafik-pro` → Settings → **Build** → _Build variables and secrets_ → dodaj:
   - `SUPABASE_URL` — typ **Text** (to nie jest sekret),
   - `SUPABASE_KEY` — typ **Secret** (Cloudflare ukryje wartość).
-- [ ] Uwaga na mylące pole: w ustawieniach Workera jest też sekcja *Variables and Secrets* (runtime). **Nie ona** steruje naszą aplikacją — wartości z tamtąd kod nie czyta. Zawsze Settings → **Build**.
-- [ ] Rotacja klucza w przyszłości = zmiana wartości w *Build variables* + nowy push (Cloudflare odbuduje aplikację). Komenda `npx wrangler secret put` **nie zadziała** dla tej aplikacji — dopisz to do dokumentacji (Faza 7).
+- [ ] Uwaga na mylące pole: w ustawieniach Workera jest też sekcja _Variables and Secrets_ (runtime). **Nie ona** steruje naszą aplikacją — wartości z tamtąd kod nie czyta. Zawsze Settings → **Build**.
+- [ ] Rotacja klucza w przyszłości = zmiana wartości w _Build variables_ + nowy push (Cloudflare odbuduje aplikację). Komenda `npx wrangler secret put` **nie zadziała** dla tej aplikacji — dopisz to do dokumentacji (Faza 7).
 - [ ] Wyzwól przebudowanie (push lub przycisk „Retry build") i sprawdź na produkcji, że aplikacja już nie pokazuje „Supabase is not configured".
 
 ## Faza 5 — Automatyczne publikowanie po pushu (Workers Builds)
@@ -118,7 +118,7 @@ Pamiętasz: sekrety są „wypiekane" w aplikację podczas budowania. Cloudflare
 - [ ] Panel Cloudflare → Worker → Settings → **Builds** → **Connect** → wybierz repozytorium `GWladowska/JanuszexGrafikPro` (konto GitHub jest już połączone), gałąź produkcyjna: `master`.
 - [ ] Build command: `npm run build`; Deploy command: `npx wrangler deploy` (wartości domyślne — zostaw).
 - [ ] Push testowy na `master` → w panelu (zakładka Deployments) zobaczysz przebieg budowania i publikacji; strona dalej działa.
-- [ ] **Opcjonalne, zalecane**: włącz *non-production branch builds* — push na inny branch stworzy podglądową wersję (preview URL) z komentarzem/status na Pull Requestcie, nie dotykając produkcji. Od tej chwili budowanie lokalne nie jest już potrzebne do publikacji — robi to Cloudflare.
+- [ ] **Opcjonalne, zalecane**: włącz _non-production branch builds_ — push na inny branch stworzy podglądową wersję (preview URL) z komentarzem/status na Pull Requestcie, nie dotykając produkcji. Od tej chwili budowanie lokalne nie jest już potrzebne do publikacji — robi to Cloudflare.
 
 ## Faza 6 — Zamek na gałęzi `master` (ochrona przed wypuszczeniem błędu)
 
@@ -147,18 +147,18 @@ Dlaczego: publikacja następuje automatycznie po pushu. Jeśli ktoś wypchnie b�
 
 ## Ściągawka awaryjna (edge case'y)
 
-| # | Objaw / scenariusz | Co się stało | Co zrobić |
-|---|---|---|---|
-| E1 | Błąd **1027** / aplikacja odmawia przy dużym ruchu | Przekroczony darmowy limit: 100 tys. zapytań/dzień albo 10ms CPU na zapytanie | Sprawdź w Analytics, który limit; odchudź SSR (ciężkie widoki renderuj w przeglądarce); przy realnym ruchu: plan Workers Standard ($5/mo, **bez zmian w kodzie**) |
-| E2 | Błąd **1101** / „Worker threw exception" — zwłaszcza po dodaniu nowej biblioteki | Biblioteka wymaga Node.js, a Cloudflare używa lżejszego środowiska (workerd) | Odtwórz lokalnie przez `npx wrangler dev`; zamień bibliotekę na taką, która działa w edge (przykład bezpiecznej: `@supabase/ssr`) |
-| E3 | Build się wywala, w treści `sharp` / `fs` / `satori` | Znane tarcia workerd przy prerenderze (withastro/astro #15684, #16553, #17346); w Astro 6 prerender domyślnie działa w workerd | W `astro.config.mjs` dodaj do konfiguracji adaptera opcję `prerenderEnvironment: 'node'` (dotyczy tylko prerenderu; SSR dalej workerd) |
-| E4 | Mail potwierdzający prowadzi na localhost / redirect odrzucony | Supabase nie zna nowego adresu produkcji | Faza 4 — uzupełnij **Site URL** i **Redirect URLs** |
-| E5 | Strona działa, ale „Supabase is not configured" na produkcji | Sekrety wpisane w złej sekcji (runtime zamiast build) albo nie było przebudowania | Przenieś do Settings → **Build** → Build variables i wymuś rebuild pushem |
-| E6 | Zmiana klucza przez `wrangler secret put` „nie działa" | Kod czyta wartość wypieczoną przy budowaniu, nie z sekretów runtime | Zmień wartość w Build variables + push (Faza 4); `wrangler secret put` zacznie mieć sens dopiero przy ewentualnej migracji kodu na runtime-env |
-| E7 | Błędy hydratacji („Hydration mismatch") na własnej domenie | Opcja Cloudflare „Auto Minify" psuje JS na strefie | Wyłącz Auto Minify w ustawieniach strefy (na gołym `*.workers.dev` problem nie występuje) |
-| E8 | Złe daty/tygodnie w grafiku na produkcji, choć lokalnie dobrze | Środowisko workerd inaczej obsługuje strefy czasowe/`Intl` niż Node | Testy dat z jawnym locale; przed pierwszym live grafikiem sprawdź wyrenderowany tydzień w `npx wrangler dev` |
-| E9 | Klient kawiarni chce własną domenę (np. grafik.kawiarnia.pl) | Cloudflare wymaga, żeby DNS domeny był prowadzony w ich strefie | Dodaj domenę jako strefę Cloudflare → Worker → Settings → Domains & Routes; domena z zewnętrznego rejestratora bez migracji DNS nie zadziała |
-| E10 | W przyszłości użycie `Astro.session` powoduje błąd | Sesje na Cloudflare wymagają magazynu KV o nazwie `SESSION` | Utwórz KV namespace i dodaj binding `SESSION` w `wrangler.jsonc` (obecnie nieużywane — potwierdzone grepem) |
+| #   | Objaw / scenariusz                                                               | Co się stało                                                                                                                   | Co zrobić                                                                                                                                                         |
+| --- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| E1  | Błąd **1027** / aplikacja odmawia przy dużym ruchu                               | Przekroczony darmowy limit: 100 tys. zapytań/dzień albo 10ms CPU na zapytanie                                                  | Sprawdź w Analytics, który limit; odchudź SSR (ciężkie widoki renderuj w przeglądarce); przy realnym ruchu: plan Workers Standard ($5/mo, **bez zmian w kodzie**) |
+| E2  | Błąd **1101** / „Worker threw exception" — zwłaszcza po dodaniu nowej biblioteki | Biblioteka wymaga Node.js, a Cloudflare używa lżejszego środowiska (workerd)                                                   | Odtwórz lokalnie przez `npx wrangler dev`; zamień bibliotekę na taką, która działa w edge (przykład bezpiecznej: `@supabase/ssr`)                                 |
+| E3  | Build się wywala, w treści `sharp` / `fs` / `satori`                             | Znane tarcia workerd przy prerenderze (withastro/astro #15684, #16553, #17346); w Astro 6 prerender domyślnie działa w workerd | W `astro.config.mjs` dodaj do konfiguracji adaptera opcję `prerenderEnvironment: 'node'` (dotyczy tylko prerenderu; SSR dalej workerd)                            |
+| E4  | Mail potwierdzający prowadzi na localhost / redirect odrzucony                   | Supabase nie zna nowego adresu produkcji                                                                                       | Faza 4 — uzupełnij **Site URL** i **Redirect URLs**                                                                                                               |
+| E5  | Strona działa, ale „Supabase is not configured" na produkcji                     | Sekrety wpisane w złej sekcji (runtime zamiast build) albo nie było przebudowania                                              | Przenieś do Settings → **Build** → Build variables i wymuś rebuild pushem                                                                                         |
+| E6  | Zmiana klucza przez `wrangler secret put` „nie działa"                           | Kod czyta wartość wypieczoną przy budowaniu, nie z sekretów runtime                                                            | Zmień wartość w Build variables + push (Faza 4); `wrangler secret put` zacznie mieć sens dopiero przy ewentualnej migracji kodu na runtime-env                    |
+| E7  | Błędy hydratacji („Hydration mismatch") na własnej domenie                       | Opcja Cloudflare „Auto Minify" psuje JS na strefie                                                                             | Wyłącz Auto Minify w ustawieniach strefy (na gołym `*.workers.dev` problem nie występuje)                                                                         |
+| E8  | Złe daty/tygodnie w grafiku na produkcji, choć lokalnie dobrze                   | Środowisko workerd inaczej obsługuje strefy czasowe/`Intl` niż Node                                                            | Testy dat z jawnym locale; przed pierwszym live grafikiem sprawdź wyrenderowany tydzień w `npx wrangler dev`                                                      |
+| E9  | Klient kawiarni chce własną domenę (np. grafik.kawiarnia.pl)                     | Cloudflare wymaga, żeby DNS domeny był prowadzony w ich strefie                                                                | Dodaj domenę jako strefę Cloudflare → Worker → Settings → Domains & Routes; domena z zewnętrznego rejestratora bez migracji DNS nie zadziała                      |
+| E10 | W przyszłości użycie `Astro.session` powoduje błąd                               | Sesje na Cloudflare wymagają magazynu KV o nazwie `SESSION`                                                                    | Utwórz KV namespace i dodaj binding `SESSION` w `wrangler.jsonc` (obecnie nieużywane — potwierdzone grepem)                                                       |
 
 ## Kryteria akceptacji
 
@@ -191,7 +191,7 @@ Dlaczego: publikacja następuje automatycznie po pushu. Jeśli ktoś wypchnie b�
 - **Auto-deploy:** Workers Builds podpięty do `GWladowska/JanuszexGrafikPro` (gałąź produkcyjna `master`, build `npm run build`, deploy `npx wrangler deploy`). Zweryfikowano: merg PR #1 sam opublikował nową wersję (`sitemap-index.xml` → 200 bez ręcznego deployu).
 - **Ochrona gałęzi:** ruleset „Protect" na `master` (wymagany PR + statusy `ci` i `integration`). Konfiguracja jest wersjonowana jako `context/deployment/ruleset-protect.json` — patrz „Sterowanie rulesetem" niżej. **Ryzyko rezydualne:** rola admin ma obejście `always`, więc właściciel repo może scalić zmiany bez zielonych checków; dla pozostałych aktorów bramka jest twarda.
 - **Rollback:** przećwiczony (`npx wrangler rollback` cofnął kod; przywrócono deployem). Rollback nie cofa sekretów/bindinguów.
-- **Pozostało:** (1) e2e rejestracja → mail → logowanie → `/dashboard` na produkcji (krok ręczny), (2) opcjonalnie preview builds dla PR-ów, (3) opcjonalnie repo secrets `SUPABASE_URL`/`SUPABASE_KEY` dla wierniejszego builda CI.
+- **Pozostało:** (1) e2e rejestracja → mail → logowanie → `/dashboard` na produkcji (krok ręczny), (2) opcjonalnie preview builds dla PR-ów. Punkt (3) z wcześniejszej wersji (repo secrets `SUPABASE_URL`/`SUPABASE_KEY`) jest nieaktualny: krok `build` w CI nie ma już `env` z sekretami (zmiana `testing-quality-gates`), bo `astro:env` czyta wartości w runtime z bindingów Workera, a strony są renderowane na żądanie.
 
 ### Sterowanie rulesetem (plik referencyjny)
 

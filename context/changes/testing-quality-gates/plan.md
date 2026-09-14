@@ -218,6 +218,8 @@ Sprawić, by hook rzeczywiście się uruchamiał, sprawdzał typy i działał ta
 
 **Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation from the human that the manual testing was successful before proceeding to the next phase.
 
+**Nota wykonawcza (WSL)**: punkt 3.7 zamknięto jako „koniec `exit 127`" — hook wykonuje się pod `dash` bez błędu CRLF (widać start `lint-staged`). Commit z WSL może jednak nadal zakończyć się `EXIT=1`, gdy pierwszy na PATH jest linuxowy node: współdzielony `node_modules` (instalowany na Windows) nie zawiera wtedy linuxowych binariów natywnych (`@rollup/rollup-linux-x64-gnu`, npm/cli#4828). Świadomie **nie** zmieniamy hooka — to ograniczenie środowiska, nie kodu. Obejścia: commituj z PowerShella (główna pętla wg `AGENTS.md`) albo `HUSKY=0 git commit`. Ograniczenie trafia do `AGENTS.md` w Fazie 4.
+
 ---
 
 ## Phase 4: Dokumentacja i domknięcie Etapu 4
@@ -359,24 +361,24 @@ Nieistotne dla aplikacji: zmiany nie dotykają kodu serwowanego. Jedyne koszty o
 
 #### Automated
 
-- [x] 3.1 Dodaj `.gitattributes` z `.husky/* text eol=lf` i zrenormalizuj (`git ls-files --eol` → `w/lf`)
-- [x] 3.2 Dodaj `"prepare": "husky"` do `package.json`
-- [x] 3.3 Dodaj `npm run check` jako drugą linię `.husky/pre-commit`
-- [x] 3.4 Zainstaluj hooki w tym klonie (`npm run prepare`) i potwierdź lokalny `core.hooksPath=.husky/_`
-- [x] 3.5 Potwierdź brak zmian globalnej konfiguracji gita (`core.hooksPath` globalnie pusty, `core.autocrlf=true` nadal)
+- [x] 3.1 Dodaj `.gitattributes` z `.husky/* text eol=lf` i zrenormalizuj (`git ls-files --eol` → `w/lf`) — e41dd71
+- [x] 3.2 Dodaj `"prepare": "husky"` do `package.json` — e41dd71
+- [x] 3.3 Dodaj `npm run check` jako drugą linię `.husky/pre-commit` — e41dd71
+- [x] 3.4 Zainstaluj hooki w tym klonie (`npm run prepare`) i potwierdź lokalny `core.hooksPath=.husky/_` — e41dd71
+- [x] 3.5 Potwierdź brak zmian globalnej konfiguracji gita (`core.hooksPath` globalnie pusty, `core.autocrlf=true` nadal) — e41dd71
 
 #### Manual
 
-- [ ] 3.6 Commit z PowerShella blokuje się na celowym błędzie typów i przechodzi po naprawie
-- [ ] 3.7 Commit z WSL przechodzi bez `exit 127`
+- [x] 3.6 Commit z PowerShella blokuje się na celowym błędzie typów i przechodzi po naprawie — e41dd71
+- [x] 3.7 Commit z WSL przechodzi bez `exit 127` — e41dd71
 
 ### Phase 4: Dokumentacja i domknięcie Etapu 4
 
 #### Automated
 
-- [ ] 4.1 Dopisz kontrakt bramek do `AGENTS.md` (wymagane `ci` + `integration`, nazwy jobów jako kontrakt, obejście admina, hook i LF)
-- [ ] 4.2 Zaktualizuj `test-plan.md` §5 i dopisz wpis Etapu 4 do §8 (bez ruszania statusu w §3)
-- [ ] 4.3 Dopisz dwie lekcje do `context/foundation/lessons.md` (nazwa joba = kontrakt; LF w hookach)
+- [x] 4.1 Dopisz kontrakt bramek do `AGENTS.md` (wymagane `ci` + `integration`, nazwy jobów jako kontrakt, obejście admina, hook i LF)
+- [x] 4.2 Zaktualizuj `test-plan.md` §5 i dopisz wpis Etapu 4 do §8 (bez ruszania statusu w §3)
+- [x] 4.3 Dopisz dwie lekcje do `context/foundation/lessons.md` (nazwa joba = kontrakt; LF w hookach)
 
 #### Manual
 

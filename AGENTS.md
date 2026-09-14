@@ -21,7 +21,7 @@ JanuszexGrafikPro is an Astro 6 full-SSR web app (React 19 islands, Tailwind 4, 
 - Deploy target = Cloudflare **Workers** przez `@astrojs/cloudflare` v13+ (Cloudflare Pages jest wycofywane — nie używać komend `wrangler pages`).
 - Produkcję publikuje **Workers Builds** po mergu na `master` (`npm run build` + `npx wrangler deploy`). GitHub Actions to tylko quality gate — nigdy nie publikuje.
 - Ręczny deploy: `npx wrangler deploy` (wymaga `wrangler` auth); cofnięcie: `npx wrangler rollback`.
-- Pre-commit auto-runs `eslint --fix` + `prettier --write` via husky + lint-staged (see `lint-staged` in @package.json).
+- Pre-commit runs `lint-staged` (`eslint --fix` + `prettier --write`, see @package.json), then `npm run check` — a full project typecheck. `astro check` takes **no** file arguments, so it cannot live inside `lint-staged` (lint-staged appends staged filenames). Hooks install via `npm run prepare` (`"prepare": "husky"`). `.husky/*` is pinned to LF by @.gitattributes — without it a commit from WSL dies on `\r` (`exit 127`). Commit from PowerShell (the primary loop here); from WSL the shared Windows `node_modules` can lack Linux native binaries (`@rollup/rollup-linux-x64-gnu`), and then the fallback is `HUSKY=0 git commit`.
 
 ## Architecture & Auth Flow
 
@@ -57,7 +57,7 @@ Integration tests (server-side rules: save gate, freeze, permissions, response s
 
 Database/RLS tests run on **pgTAP** via the Supabase CLI: `supabase test db` (from WSL, never `npx supabase`). They need the local stack up (`supabase start`; run `supabase db reset` first for a clean base) and locally no npm script wraps them. Tests live in `supabase/tests/database/**/*.test.sql`; `supabase test db` hands **every** `.sql`/`.pg` file under `supabase/tests/` (recursively) to `pg_prove`, so a non-pgTAP `.sql` anywhere there breaks the whole run. They insert fixture rows into `auth.users`, so they are **local/CI only** — never run with `--linked` or against a remote project. Reference: @supabase/tests/database/rls_isolation.test.sql.
 
-CI (`.github/workflows/ci.yml`) runs `astro sync` → `lint` → `check` → `test` → `build` in the `ci` job, plus an `integration` job (ubuntu + Docker + Supabase CLI + `supabase test db` + `npm run test:integration`). It is a quality gate only — Workers Builds publishes after merge to `master`, so these checks must also be required in GitHub branch protection or a red change still ships.
+CI (`.github/workflows/ci.yml`) runs `astro sync` → `lint` → `check` → `test` → `build` in the `ci` job, plus an `integration` job (ubuntu + Docker + pinned Supabase CLI `2.117.0` verified against `package-lock.json` + `supabase test db` + `npm run test:integration`). It is a quality gate only — Workers Builds publishes after merge to `master` and **never reads CI results**, so the merge gate lives in the GitHub ruleset `Protect` (versioned copy: `context/deployment/ruleset-protect.json`), which requires the check contexts **`ci` and `integration`**. Those are the job names in @.github/workflows/ci.yml and they are a public contract: renaming a job silently disarms the gate. The ruleset keeps a `RepositoryRole: admin` bypass (`always`) — for the repo owner the gate is voluntary, for every other actor it is hard. `strict_required_status_checks_policy` stays off.
 
 ## Commits & PRs
 
@@ -65,4 +65,4 @@ History uses single-line Polish messages naming the executed command and artifac
 
 ## Security, Config & CI
 
-Copy @.env.example to `.env` (Node) or `.dev.vars` (Cloudflare local dev); both are gitignored. Never commit real secrets. The CI build step needs repo secrets `SUPABASE_URL` and `SUPABASE_KEY` (@.github/workflows/ci.yml).
+Copy @.env.example to `.env` (Node) or `.dev.vars` (Cloudflare local dev); both are gitignored. Never commit real secrets. CI needs **no** Supabase secrets: the build step has no `env`, `astro:env` marks `SUPABASE_URL`/`SUPABASE_KEY` as optional, and the Worker reads them at runtime from its bindings.
