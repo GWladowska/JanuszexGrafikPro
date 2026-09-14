@@ -585,13 +585,13 @@ snake_case → camelCase. Diagnostykę zaczyna się od `getAvailabilitiesForWeek
 
 #### Automated
 
-- [x] 4.1 Testy `schedule-generation.test.ts` przechodzą (`npm test`)
-- [x] 4.2 Pełny zestaw testów przechodzi (`npm test`)
-- [x] 4.3 Typecheck przechodzi (`npm run check`)
-- [x] 4.4 Lint przechodzi (`npm run lint`)
-- [x] 4.5 Build przechodzi (`npm run build`)
+- [x] 4.1 Testy `schedule-generation.test.ts` przechodzą (`npm test`) — ea62c9a
+- [x] 4.2 Pełny zestaw testów przechodzi (`npm test`) — ea62c9a
+- [x] 4.3 Typecheck przechodzi (`npm run check`) — ea62c9a
+- [x] 4.4 Lint przechodzi (`npm run lint`) — ea62c9a
+- [x] 4.5 Build przechodzi (`npm run build`) — ea62c9a
 
 #### Manual
 
-- [x] 4.6 Raport `npm test` pozwala wskazać test dla każdego z ryzyk #1 (serwer), #2, #3, #7
-- [x] 4.7 Pełny zestaw na świeżym klonie nie wymaga konfiguracji środowiska ani bazy
+- [x] 4.6 Raport `npm test` pozwala wskazać test dla każdego z ryzyk #1 (serwer), #2, #3, #7 — ea62c9a
+- [x] 4.7 Pełny zestaw na świeżym klonie nie wymaga konfiguracji środowiska ani bazy — ea62c9a
