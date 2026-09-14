@@ -333,14 +333,14 @@ Uwiecznić kontrakt nowej warstwy w plikach, które czyta agent i człowiek — 
 
 #### Automated
 
-- [x] 3.1 `AGENTS.md` zawiera `KILO_QUALITY_TYPECHECK` i ścieżki obu pluginów
-- [x] 3.2 `test-plan.md` §5 rozróżnia wiersz per-edit i commit-time
-- [x] 3.3 `test-plan.md` zawiera nagłówek `### 6.7`
-- [x] 3.4 `test-plan.md` §8 ma wpis datowany 2026-09-14 dla tej zmiany
-- [x] 3.5 Sekcja §3 `test-plan.md` nietknięta (`git diff`)
-- [x] 3.6 `lessons.md` zawiera nowy wpis o `*.kilo` / odsłanianiu `.kilo/plugin/`
+- [x] 3.1 `AGENTS.md` zawiera `KILO_QUALITY_TYPECHECK` i ścieżki obu pluginów — dc9c1a2
+- [x] 3.2 `test-plan.md` §5 rozróżnia wiersz per-edit i commit-time — dc9c1a2
+- [x] 3.3 `test-plan.md` zawiera nagłówek `### 6.7` — dc9c1a2
+- [x] 3.4 `test-plan.md` §8 ma wpis datowany 2026-09-14 dla tej zmiany — dc9c1a2
+- [x] 3.5 Sekcja §3 `test-plan.md` nietknięta (`git diff`) — dc9c1a2
+- [x] 3.6 `lessons.md` zawiera nowy wpis o `*.kilo` / odsłanianiu `.kilo/plugin/` — dc9c1a2
 
 #### Manual
 
-- [x] 3.7 Świeży odczyt `AGENTS.md`: agent wie o hookach, fladze, braku blokady i o tym, że bramką jest pre-commit
-- [x] 3.8 Świeży odczyt `test-plan.md` §5: jednoznaczne rozgraniczenie per-edit vs commit-time
+- [x] 3.7 Świeży odczyt `AGENTS.md`: agent wie o hookach, fladze, braku blokady i o tym, że bramką jest pre-commit — dc9c1a2
+- [x] 3.8 Świeży odczyt `test-plan.md` §5: jednoznaczne rozgraniczenie per-edit vs commit-time — dc9c1a2
