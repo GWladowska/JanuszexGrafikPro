@@ -27,7 +27,7 @@ JanuszexGrafikPro is an Astro 6 full-SSR web app (React 19 islands, Tailwind 4, 
 ## Architecture & Auth Flow
 
 - All routes are server-rendered by default (`output: "server"` in @astro.config.mjs).
-- @src/middleware.ts runs on every request: resolves the user through the Supabase SSR client, attaches it to `context.locals.user`, and redirects unauthenticated visitors away from routes listed in `PROTECTED_ROUTES`.
+- @src/middleware.ts runs on every request: resolves the user through the Supabase SSR client, attaches it to `context.locals.user`, and redirects unauthenticated visitors away from routes listed in `PROTECTED_ROUTES`. The reverse rule also lives there: an authenticated visitor hitting any route in `AUTH_ROUTES` (`/auth/signin`, `/auth/signup`, `/auth/confirm-email` and their API handlers) is redirected to `/dashboard` — `/api/auth/signout` stays reachable. The UI is fully Polish, so E2E selectors in `e2e/` (`getByLabel`/`getByRole`/`getByText`) must match Polish labels (e.g. `Hasło`, `Zaloguj się`).
 - @src/lib/supabase.ts creates the cookie-based `@supabase/ssr` client from `astro:env/server`.
 - Auth API: `src/pages/api/auth/{signin,signup,signout}.ts`; auth pages: `src/pages/auth/*.astro`; protected-page example: @src/pages/dashboard.astro.
 

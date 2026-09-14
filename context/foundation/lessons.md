@@ -98,3 +98,10 @@
 - **Problem**: Odsłonięcie pluginu przez `!.kilo/` + `.kilo/*` + `!.kilo/plugin/` wciągnęło `.kilo/plugin/*.ts` do zakresu `eslint .`, bo `eslint.config.js` czyta `.gitignore` przez `includeIgnoreFile` — lint padł na „was not found by the project service" (plik nie jest w programie TS, bo include `**/*` nie schodzi do katalogów z kropką) i zepsułby krok `ci`. Git nie pozwala odzyskać pliku, gdy wykluczony jest katalog nadrzędny — `!.kilo/` musi poprzedzać `!.kilo/plugin/`.
 - **Rule**: Traktuj `.kilo/` jak `.idea/` — konfiguracja maszynowa, nie repo; kod hooków agenta trzymaj tam tylko, jeśli ma być lokalny (inaczej umieść go w śledzonym katalogu). Po każdej zmianie wzorców ignorowania sprawdź zakres `eslint .` i `astro check` — `includeIgnoreFile` czyta `.gitignore`, więc odsłonięcie ścieżki zmienia też lint.
 - **Applies to**: implement, impl-review
+
+## Zmiana tekstów UI wymaga przeglądu selektorów E2E (getByLabel/getByRole)
+
+- **Context**: `e2e/` (Playwright — `auth.setup.ts`, `seed.spec.ts`) przy zmianach tekstów w UI (`src/components/auth`, `src/pages/auth`, `src/components/schedules`).
+- **Problem**: Po polonizacji UI test `auth.setup.ts` padł na `getByLabel("Password")` i `getByRole("Sign in")` — teksty w UI zmienione na polskie, selektory zostały angielskie i czerwony E2E wyszedł dopiero na przycisku. Ten sam kształt błędu powtórzy się przy każdej zmianie etykiet/tekstów przycisków.
+- **Rule**: Zmieniając teksty UI (etykiety, placeholdery, treści przycisków), przeszukaj `e2e/` pod kątem `getByLabel`/`getByRole`/`getByText` odwołujących się do zmienianych stringów i zaktualizuj je w tym samym commicie, a przed mergem uruchom `npm run test:e2e`.
+- **Applies to**: implement, impl-review
