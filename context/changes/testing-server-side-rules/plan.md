@@ -623,9 +623,9 @@ lokalny i nigdy nie trafia na zdalny projekt (AGENTS.md). W CI baza powstaje od 
 
 #### Automated
 
-- [x] 3.1 Suity `schedule-freeze` i `availability-freeze` przechodzą: `npm run test:integration`
-- [x] 3.2 `npm run lint` przechodzi
-- [x] 3.3 `npm run check` przechodzi
+- [x] 3.1 Suity `schedule-freeze` i `availability-freeze` przechodzą: `npm run test:integration` — 17a9cd5
+- [x] 3.2 `npm run lint` przechodzi — 17a9cd5
+- [x] 3.3 `npm run check` przechodzi — 17a9cd5
 
 #### Manual
 
@@ -636,9 +636,9 @@ lokalny i nigdy nie trafia na zdalny projekt (AGENTS.md). W CI baza powstaje od 
 
 #### Automated
 
-- [ ] 4.1 Suita `ownership` przechodzi: `npm run test:integration`
-- [ ] 4.2 `npm run lint` przechodzi
-- [ ] 4.3 `npm run check` przechodzi
+- [x] 4.1 Suita `ownership` przechodzi: `npm run test:integration`
+- [x] 4.2 `npm run lint` przechodzi
+- [x] 4.3 `npm run check` przechodzi
 
 #### Manual
 
