@@ -1,7 +1,7 @@
 ---
 change_id: testing-database-isolation
 title: Izolacja danych jako powtarzalny test (Etap 3)
-status: implementing
+status: implemented
 created: 2026-09-14
 updated: 2026-09-14
 archived_at: null

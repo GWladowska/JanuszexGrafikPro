@@ -237,12 +237,12 @@ Brak migracji — schemat i polityki pozostają nietknięte. Jedyna zmiana po st
 
 #### Automated
 
-- [x] 2.1 `git diff --stat` obejmuje wyłącznie `.github/workflows/ci.yml`, `AGENTS.md`, `context/foundation/test-plan.md`
-- [x] 2.2 Workflow zawiera krok `supabase test db` w jobie `integration` bezpośrednio po `supabase db reset`
-- [x] 2.3 Z WSL: `supabase db reset` + `supabase test db` (symulacja kroku CI) → `Result: PASS`
+- [x] 2.1 `git diff --stat` obejmuje wyłącznie `.github/workflows/ci.yml`, `AGENTS.md`, `context/foundation/test-plan.md` — 5775652
+- [x] 2.2 Workflow zawiera krok `supabase test db` w jobie `integration` bezpośrednio po `supabase db reset` — 5775652
+- [x] 2.3 Z WSL: `supabase db reset` + `supabase test db` (symulacja kroku CI) → `Result: PASS` — 5775652
 
 #### Manual
 
-- [ ] 2.4 PR do `master`: job `integration` wykonuje nowy krok i jest zielony; job `ci` bez zmian
-- [x] 2.5 Świeży czytelnik uruchamia test wyłącznie na podstawie `AGENTS.md` i §6.5 test-planu
-- [x] 2.6 Wpis w §5/§8 test-planu zgadza się ze stanem faktycznym (komenda istnieje, test przechodzi)
+- [x] 2.4 PR do `master`: job `integration` wykonuje nowy krok i jest zielony; job `ci` bez zmian — 5775652
+- [x] 2.5 Świeży czytelnik uruchamia test wyłącznie na podstawie `AGENTS.md` i §6.5 test-planu — 5775652
+- [x] 2.6 Wpis w §5/§8 test-planu zgadza się ze stanem faktycznym (komenda istnieje, test przechodzi) — 5775652
