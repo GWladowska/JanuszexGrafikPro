@@ -1,10 +1,10 @@
 ---
 change_id: testing-core-logic
 title: Testing core logic
-status: implemented
+status: archived
 created: 2026-09-14
 updated: 2026-09-14
-archived_at: null
+archived_at: 2026-09-14T00:49:07Z
 ---
 
 ## Notes
