@@ -68,6 +68,18 @@ export async function signUpOwner(prefix: string): Promise<SessionContext> {
   return { userId: data.user.id, jar };
 }
 
+export async function signIn(email: string, password: string): Promise<SessionContext> {
+  const jar = new CookieJar();
+  const client = sessionClient(jar);
+
+  const { data, error } = await client.auth.signInWithPassword({ email, password });
+  if (error) {
+    throw new Error(`Logowanie nie powiodło się: ${error.message}`);
+  }
+
+  return { userId: data.user.id, jar };
+}
+
 export function ownerClient(jar: CookieJar): Supabase {
   const request = new Request("http://test.local", { headers: { cookie: jar.toHeader() } });
   const client = createClient(request.headers, jar as unknown as AstroCookies);
