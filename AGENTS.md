@@ -55,7 +55,9 @@ Only pure, framework-free modules are unit-testable: `src/lib/week.ts`, `src/lib
 
 Integration tests (server-side rules: save gate, freeze, permissions, response shapes) run on Vitest against the **real local Supabase**: `npm run test:integration` (separate `vitest.integration.config.ts` with an alias of `astro:env/server` to a stub in `test/integration/stubs/`). They need the local DB up: from WSL `supabase start` + `supabase db reset` (migrations + seed). Tests live in `test/integration/**/*.test.ts` and call route handlers directly via helpers in `test/integration/helpers.ts` — session cookies from `signUpOwner`/`signIn` in the request header are mandatory, otherwise RLS returns zero rows. `npm test` (unit) stays DB-free.
 
-CI (`.github/workflows/ci.yml`) runs `astro sync` → `lint` → `check` → `test` → `build` in the `ci` job, plus an `integration` job (ubuntu + Docker + Supabase CLI + `npm run test:integration`). It is a quality gate only — Workers Builds publishes after merge to `master`, so these checks must also be required in GitHub branch protection or a red change still ships.
+Database/RLS tests run on **pgTAP** via the Supabase CLI: `supabase test db` (from WSL, never `npx supabase`). They need the local stack up (`supabase start`; run `supabase db reset` first for a clean base) and locally no npm script wraps them. Tests live in `supabase/tests/database/**/*.test.sql`; `supabase test db` hands **every** `.sql`/`.pg` file under `supabase/tests/` (recursively) to `pg_prove`, so a non-pgTAP `.sql` anywhere there breaks the whole run. They insert fixture rows into `auth.users`, so they are **local/CI only** — never run with `--linked` or against a remote project. Reference: @supabase/tests/database/rls_isolation.test.sql.
+
+CI (`.github/workflows/ci.yml`) runs `astro sync` → `lint` → `check` → `test` → `build` in the `ci` job, plus an `integration` job (ubuntu + Docker + Supabase CLI + `supabase test db` + `npm run test:integration`). It is a quality gate only — Workers Builds publishes after merge to `master`, so these checks must also be required in GitHub branch protection or a red change still ships.
 
 ## Commits & PRs
 

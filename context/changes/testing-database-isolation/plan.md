@@ -222,27 +222,27 @@ Brak migracji — schemat i polityki pozostają nietknięte. Jedyna zmiana po st
 
 #### Automated
 
-- [x] 1.1 Nowy `supabase/tests/database/rls_isolation.test.sql` istnieje, stary `supabase/tests/rls_isolation.sql` usunięty; `supabase/tests/` zawiera dokładnie jeden plik `.sql`
-- [x] 1.2 Z WSL na czystej bazie (`supabase db reset`): `supabase test db` → `All tests successful` / `Result: PASS`
-- [x] 1.3 Drugie `supabase test db` bez resetu → `Result: PASS` (dowód rollbacku/braku śladów)
-- [x] 1.4 Liczba asercji zgadza się z `plan(N)` (brak rozjazdu plan vs wykonane)
+- [x] 1.1 Nowy `supabase/tests/database/rls_isolation.test.sql` istnieje, stary `supabase/tests/rls_isolation.sql` usunięty; `supabase/tests/` zawiera dokładnie jeden plik `.sql` — 1a02c4e
+- [x] 1.2 Z WSL na czystej bazie (`supabase db reset`): `supabase test db` → `All tests successful` / `Result: PASS` — 1a02c4e
+- [x] 1.3 Drugie `supabase test db` bez resetu → `Result: PASS` (dowód rollbacku/braku śladów) — 1a02c4e
+- [x] 1.4 Liczba asercji zgadza się z `plan(N)` (brak rozjazdu plan vs wykonane) — 1a02c4e
 
 #### Manual
 
-- [x] 1.5 Kontrola negatywna: usunięcie jednej polityki lokalnie → test CZERWONY; po `supabase db reset` → ZIELONY
-- [x] 1.6 Przegląd: scenariusze A–E starego skryptu mają odpowiedniki w nowym teście
-- [x] 1.7 Nagłówek pliku zawiera jawne ostrzeżenie „LOCAL/CI ONLY — nigdy na zdalnym projekcie"
+- [x] 1.5 Kontrola negatywna: usunięcie jednej polityki lokalnie → test CZERWONY; po `supabase db reset` → ZIELONY — 1a02c4e
+- [x] 1.6 Przegląd: scenariusze A–E starego skryptu mają odpowiedniki w nowym teście — 1a02c4e
+- [x] 1.7 Nagłówek pliku zawiera jawne ostrzeżenie „LOCAL/CI ONLY — nigdy na zdalnym projekcie" — 1a02c4e
 
 ### Phase 2: Automat (CI) + dokumentacja
 
 #### Automated
 
-- [ ] 2.1 `git diff --stat` obejmuje wyłącznie `.github/workflows/ci.yml`, `AGENTS.md`, `context/foundation/test-plan.md`
-- [ ] 2.2 Workflow zawiera krok `supabase test db` w jobie `integration` bezpośrednio po `supabase db reset`
-- [ ] 2.3 Z WSL: `supabase db reset` + `supabase test db` (symulacja kroku CI) → `Result: PASS`
+- [x] 2.1 `git diff --stat` obejmuje wyłącznie `.github/workflows/ci.yml`, `AGENTS.md`, `context/foundation/test-plan.md`
+- [x] 2.2 Workflow zawiera krok `supabase test db` w jobie `integration` bezpośrednio po `supabase db reset`
+- [x] 2.3 Z WSL: `supabase db reset` + `supabase test db` (symulacja kroku CI) → `Result: PASS`
 
 #### Manual
 
 - [ ] 2.4 PR do `master`: job `integration` wykonuje nowy krok i jest zielony; job `ci` bez zmian
-- [ ] 2.5 Świeży czytelnik uruchamia test wyłącznie na podstawie `AGENTS.md` i §6.5 test-planu
-- [ ] 2.6 Wpis w §5/§8 test-planu zgadza się ze stanem faktycznym (komenda istnieje, test przechodzi)
+- [x] 2.5 Świeży czytelnik uruchamia test wyłącznie na podstawie `AGENTS.md` i §6.5 test-planu
+- [x] 2.6 Wpis w §5/§8 test-planu zgadza się ze stanem faktycznym (komenda istnieje, test przechodzi)

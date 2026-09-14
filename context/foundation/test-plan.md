@@ -67,7 +67,7 @@ Klasyczna baza testowa projektu. Narzędzia zależne od dostawcy noszą datę `c
 |---------|-----------|--------|-------|
 | unit (czysta logika, tekst, czas) | Vitest | none yet — see §3 Phase 1 | Pasuje do Astro/Vite/TypeScript; brak jakiegokolwiek runnera w repo |
 | integration (adresy API) | bezpośrednie wywołanie handlerów (Seam A) + realny lokalny Supabase | wdrożone — patrz §3 Phase 2 | Zamiast `@cloudflare/vitest-pool-workers` (alternatywa z §4, niewdrożona): handlery są czyste i wywoływalne wprost, a sygnał izolacji daje realna baza |
-| database / RLS | pgTAP przez `supabase test db` | none yet — see §3 Phase 3 | Plik testowy musi trafić do `supabase/tests/database/`; wymaga lokalnego stacku (Docker + CLI z WSL) |
+| database / RLS | pgTAP przez `supabase test db` | wdrożone — patrz §3 Phase 3 | Plik testowy w `supabase/tests/database/`; wymaga lokalnego stacku (Docker + CLI z WSL) |
 | e2e | brak — patrz §5 | n/a | Testy „od początku do końca" nie są teraz uzasadnione kosztem; najpierw warstwy tańsze |
 | AI-native | brak | n/a | Nie ma potrzeby: reguły są deterministyczne, taniej złapie je zwykły test |
 
@@ -89,7 +89,7 @@ Pełny zestaw bramek, które muszą przejść, zanim zmiana trafi na produkcję.
 | typecheck (`npx astro check`) | lokalnie + CI | wymagana po §3 Phase 1 | rozjazd typów i kształtu danych między modułami (przeszedł sync+lint+build) |
 | testy jednostkowe | lokalnie + CI | wymagana po §3 Phase 1 | błędy logiki obsady, dziur, czasu i tekstu |
 | testy integracyjne | lokalnie + CI | wymagana po §3 Phase 2 | obejście bramki zapisu, uprawnienia, rozjazd odpowiedzi |
-| izolacja danych (pgTAP) | lokalnie + CI | wymagana po §3 Phase 3 | przeciek danych między właścicielami |
+| izolacja danych (pgTAP) | lokalnie + CI | wymagana (działa) | przeciek danych między właścicielami |
 | build | lokalnie + CI | wymagana (działa) | błędy budowania |
 | hook po zapisie pliku | lokalnie (pętla agenta) | zalecana po §3 Phase 3 | regresje w momencie edycji |
 | smoke przed produkcją | między merge a produkcją | opcjonalna | awarie specyficzne dla środowiska |
@@ -133,11 +133,21 @@ Jak dodawać nowe testy w tym projekcie. Każda podsekcja wypełnia się po wdro
 
 ### 6.5 Adding a database / RLS isolation test
 
-- TBD — patrz §3 Phase 3 (wzorzec dla `supabase/tests/database/`, uruchamiany przez `supabase test db`).
+- **Gdzie:** `supabase/tests/database/<nazwa>.test.sql` (wzorzec: `rls_isolation.test.sql`). Katalog `supabase/tests/` jest skanowany **rekurencyjnie** przez `pg_prove` — każdy plik `.sql`/`.pg` w tym drzewie musi być poprawnym testem pgTAP, bo plik bez `plan()`/`finish()` przewraca cały przebieg.
+- **Jak:** `begin;` → `create extension if not exists pgtap with schema extensions;` → `set local timezone = 'Europe/Warsaw';` → `select plan(N);` … `select * from finish();` + `rollback;`. Fixtures (konta w `auth.users`, biznesy i dane potomne) wstawiaj **przed** `set local role authenticated`, bo `pg_prove` łączy się jako `postgres` i omija RLS; kontekst właściciela ustawiaj przez `set local role authenticated` + `set local request.jwt.claim.sub` i `set local request.jwt.claims`. Triggery domenowe nadal obowiązują: grafik musi być `draft` (przypisania), dostępności w bieżącym/przyszłym tygodniu, `schedules.week_start` = poniedziałek ISO.
+- **Asercje:** odczyt — `results_eq` na dokładnie widocznym zbiorze (nie na samej liczbie wierszy); dodanie cudzego — `throws_ok($$…$$, '42501', NULL, '…')` (porównuj **tylko kod** — komunikat zależy od wersji i nazwy polityki); zmiana/usunięcie cudzego — `is(pg_temp.rls_affected($$…$$), 0, '…')`; stan zamków — `policies_are` (dokładny zestaw polityk per tabela) + `relrowsecurity` z `pg_class`. Zawsze dodaj **kontrolę pozytywną** („właściciel może czytać i pisać swoje"), inaczej test przechodzi także przy całkowicie zablokowanym dostępie.
+- **Uruchomienie:** `supabase test db` z WSL (wymaga `supabase start`; najbezpieczniej po `supabase db reset`). W CI to krok w jobie `integration`, bezpośrednio po `supabase db reset`.
+- **Wzorzec referencyjny:** `supabase/tests/database/rls_isolation.test.sql` — 6 tabel × odczyt/dodaj/zmień/usuń, kontrola pozytywna, symetria właściciela B, anon, stan polityk.
+- **Nota o wersji:** wbudowany w obraz Supabase pgTAP to **1.2.0** i nie potrafi uruchomić `update/delete … returning` przez `results_eq`/`results_ne` („cannot open EXECUTE query as cursor"). Dlatego „zapis bez efektu" liczymy pomocnikiem `pg_temp.rls_affected(sql)` (`get diagnostics … = row_count`) i asertujemy `0`; sekcja pozytywna oczekuje `1`, co waliduje sam pomocnik.
+- **Czego tu nie robić:** `lives_ok` jako dowód zablokowania zapisu (zmiana/usunięcie cudzego **nie** rzuca błędu — po cichu zmienia 0 wierszy); asertowania treści komunikatu RLS; trzymania w `supabase/tests/` plików nie-pgTAP; uruchamiania na zdalnym projekcie (`supabase test db --linked`) — test wstawia wiersze do `auth.users`.
 
 ### 6.6 Per-rollout-phase notes
 
 (Opcjonalne. Po każdym wdrożonym etapie `/10x-implement` dopisuje tu 2–3 linie: co zaskoczyło, czego potrzebowały testy.)
+
+- §3 Etap 3 (izolacja, pgTAP): wbudowany pgTAP w obrazie Supabase to **1.2.0** (nie 1.3.4) — `results_eq`/`results_ne` nie przyjmują zapytań modyfikujących dane („cannot open EXECUTE query as cursor"), więc blokadę `UPDATE`/`DELETE` dowodzi pomocnik `pg_temp.rls_affected()` liczący zmienione wiersze.
+- `supabase test db` skanuje **cały** `supabase/tests/` rekurencyjnie — istniejący ręczny, nie-pgTAP skrypt wysadzał przebieg i musiał zostać usunięty (jego scenariusze przeniesione do testu).
+- Fixtures trzeba liczyć w `Europe/Warsaw` i respektować triggery (draft dla przypisań, bieżący/przyszły tydzień dla dostępności), a dane ataków dobierać tak, by nie kolidowały z `unique`/wykluczaniem — inaczej test czerwienieje z powodu innego ograniczenia niż izolacja.
 
 ## 7. What We Deliberately Don't Test
 
@@ -154,7 +164,8 @@ Wyłączenia ustalone podczas wywiadu (pytanie Q5). Przyszli autorzy powinni je 
 - Stack versions last verified: 2026-09-14
 - AI-native tool references last verified: 2026-09-14
 - §3 Etap 1 (uruchomienie testów + czysta logika grafiku i czasu) wdrożony: 2026-09-14, zmiana `testing-core-logic`. Vitest 4 w środowisku Node (`vitest.config.ts`), 99 testów w `src/**/*.test.ts`, bramki `npm test` i `npm run check` dopisane do CI. Ryzyka #2, #3, #7 i serwerowa część #1 mają pokrycie jednostkowe. Etap 2 z §3 (testy integracyjne na Workers) pozostaje otwarty — walidacja granicy z tej zmiany jest pokryta testami jednostkowymi, nie integracyjnymi.
-- §3 Etap 2 (reguły po stronie serwera: zapis, zamrożenie, uprawnienia) wdrożony: 2026-09-14, zmiana `testing-server-side-rules`. Testy integracyjne na realnym lokalnym Supabase przez bezpośrednie wywołanie handlerów (Seam A — bez `@cloudflare/vitest-pool-workers`): osobny `vitest.integration.config.ts` z aliasem `astro:env/server`, skrypt `npm run test:integration`, helpery w `test/integration/helpers.ts`. Pokrycie: #1 (serwer) — niekompletny/kolizyjny zapis → 400 z `blockers`, konflikt zapisu i zmiany na zapisanym grafiku → 409; #3 — fake timery na datach granicznych w Europe/Warsaw (przełom DST, okno niedziela 22:30 UTC) + realny czas dostępności, asymetria PATCH save (brak bramki na gałęzi zapisu); #5 — cudzy ID → 404, niezalogowany → 401 bez mutacji; #6 — wspólny kształt 401/400/404/409 na trasach JSON (bez auth). CI: nowy job `integration` (ubuntu + Docker + CLI Supabase + `npm run test:integration`). Etap 3 (pgTAP) i Etap 4 (bramki jakości) pozostają otwarte.
+- §3 Etap 2 (reguły po stronie serwera: zapis, zamrożenie, uprawnienia) wdrożony: 2026-09-14, zmiana `testing-server-side-rules`. Testy integracyjne na realnym lokalnym Supabase przez bezpośrednie wywołanie handlerów (Seam A — bez `@cloudflare/vitest-pool-workers`): osobny `vitest.integration.config.ts` z aliasem `astro:env/server`, skrypt `npm run test:integration`, helpery w `test/integration/helpers.ts`. Pokrycie: #1 (serwer) — niekompletny/kolizyjny zapis → 400 z `blockers`, konflikt zapisu i zmiany na zapisanym grafiku → 409; #3 — fake timery na datach granicznych w Europe/Warsaw (przełom DST, okno niedziela 22:30 UTC) + realny czas dostępności, asymetria PATCH save (brak bramki na gałęzi zapisu); #5 — cudzy ID → 404, niezalogowany → 401 bez mutacji; #6 — wspólny kształt 401/400/404/409 na trasach JSON (bez auth). CI: nowy job `integration` (ubuntu + Docker + CLI Supabase + `npm run test:integration`). Etap 4 (bramki jakości) pozostaje otwarty.
+- §3 Etap 3 (izolacja danych jako powtarzalny test) wdrożony: 2026-09-14, zmiana `testing-database-isolation`. Test pgTAP `supabase/tests/database/rls_isolation.test.sql` (51 asercji) na lokalnej bazie przez `supabase test db`: 6 tabel × odczyt (dokładnie własny zbiór) + dodanie cudzego → `42501` + zmiana/usunięcie cudzego → 0 zmienionych wierszy + kontrola pozytywna („A pisze swoje") + symetria właściciela B + anon (0 wierszy) + stan zamków (`policies_are` ×6, `relrowsecurity` ×6). Kontrola negatywna: usunięcie jednej polityki lokalnie czerwieni test (4 porażki), po `supabase db reset` wraca zielony. Ręczny skrypt `supabase/tests/rls_isolation.sql` usunięty (nie-pgTAP blokował komendę). CI: krok `supabase test db` w jobie `integration`, po `supabase db reset`. Etap 4 (bramki jakości) pozostaje otwarty.
 
 Refresh (`/10x-test-plan --refresh`) gdy:
 
